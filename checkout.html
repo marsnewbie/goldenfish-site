@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout – Golden Fish</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Additional styles specific to checkout */
+      .checkout-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+      }
+      .checkout-container h2 {
+        margin-bottom: 1rem;
+        text-align: center;
+        color: var(--primary);
+      }
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+      .total-row {
+        font-weight: bold;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 0.5rem;
+      }
+      .payment-btn {
+        display: block;
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .payment-btn:hover {
+        background: var(--primary-hover);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <div class="logo">
+          <img src="assets/fish_and_chips.jpg" alt="Golden Fish logo" />
+          <span>Golden Fish</span>
+        </div>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Order Online</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="checkout-container" id="checkoutContainer">
+      <h2>Order Summary</h2>
+      <div id="orderSummary"></div>
+      <button id="stripeButton" class="payment-btn">Pay Now</button>
+    </main>
+    <script>
+      // Retrieve cart from storage
+      const cart = JSON.parse(localStorage.getItem('goldenfish_cart') || '[]');
+      const orderSummary = document.getElementById('orderSummary');
+      const stripeButton = document.getElementById('stripeButton');
+      function formatCurrency(value) {
+        return '$' + value.toFixed(2);
+      }
+      function renderSummary() {
+        if (cart.length === 0) {
+          orderSummary.innerHTML = '<p>Your cart is empty!</p>';
+          stripeButton.style.display = 'none';
+          return;
+        }
+        let total = 0;
+        cart.forEach(item => {
+          total += item.price * item.qty;
+        });
+        let html = '';
+        cart.forEach(item => {
+          html += `<div class="summary-item"><span>${item.name} x${item.qty}</span><span>${formatCurrency(item.price * item.qty)}</span></div>`;
+        });
+        html += `<div class="summary-item total-row"><span>Total</span><span>${formatCurrency(total)}</span></div>`;
+        orderSummary.innerHTML = html;
+      }
+      renderSummary();
+      // Placeholder Stripe Payment – replace with actual payment link
+      stripeButton.addEventListener('click', () => {
+        alert('Thank you! Payment processing would go here.');
+      });
+    </script>
+  </body>
+</html>

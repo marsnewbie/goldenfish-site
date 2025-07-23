@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golden Fish Menu</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <div class="logo">
+          <img src="assets/fish_and_chips.jpg" alt="Golden Fish logo" />
+          <span>Golden Fish</span>
+        </div>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html" class="active">Order Online</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+        <div class="auth-links">
+          <a href="#" class="login">Login</a>
+          <span class="separator">/</span>
+          <a href="#" class="register">Register</a>
+        </div>
+      </div>
+    </header>
+    <main class="container menu-container">
+      <!-- Category sidebar -->
+      <aside class="category-sidebar">
+        <ul id="categoryList"></ul>
+      </aside>
+      <!-- Menu content -->
+      <section class="menu-content" id="menuContent"></section>
+      <!-- Cart summary -->
+      <aside class="cart-summary">
+        <h4>Your Order</h4>
+        <div class="cart-content" id="cartContent"></div>
+        <div class="cart-total" id="cartTotal"></div>
+        <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+      </aside>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
