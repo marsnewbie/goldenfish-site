@@ -32,66 +32,58 @@
     <div class="menu-wrapper">
       <!-- Fixed cart sidebar - right side -->
       <aside class="cart-sidebar" id="cartSidebar">
-        <!-- Order Options Header -->
+        <!-- Compact Header with Delivery Toggle -->
         <div class="cart-header">
           <h3>Your Order</h3>
-          <div class="delivery-toggle-container">
-            <div class="delivery-toggle">
-              <button class="delivery-option" id="collectionBtn" data-type="collection">
-                <span class="option-icon">🏃</span>
-                <span class="option-text">Collection</span>
-              </button>
-              <button class="delivery-option active" id="deliveryBtn" data-type="delivery">
-                <span class="option-icon">🚚</span>
-                <span class="option-text">Delivery</span>
-              </button>
-            </div>
+          <div class="delivery-toggle">
+            <button class="delivery-option" id="collectionBtn" data-type="collection">Collection</button>
+            <button class="delivery-option active" id="deliveryBtn" data-type="delivery">Delivery</button>
           </div>
         </div>
         
-        <!-- Order Configuration -->
+        <!-- Compact Configuration -->
         <div class="order-config">
           <div id="storeStatus" class="store-status"></div>
           
-          <!-- Time Selection -->
-          <div id="timeSelectSection" class="config-section">
-            <label for="orderTime">Order Time:</label>
-            <select id="orderTime" class="time-select">
-              <option>Loading times...</option>
-            </select>
-          </div>
-          
-          <!-- Delivery Address -->
-          <div id="deliverySection" class="config-section">
-            <label for="postcodeInput">Delivery Postcode:</label>
-            <div class="postcode-input-container">
-              <input type="text" id="postcodeInput" placeholder="Enter postcode" maxlength="8" />
-              <button id="postcodeCheckBtn" class="postcode-check-btn">Check</button>
+          <div class="config-row">
+            <div id="timeSelectSection" class="config-item">
+              <label for="orderTime">Time:</label>
+              <select id="orderTime" class="time-select">
+                <option>ASAP</option>
+              </select>
             </div>
-            <div id="deliveryFee" class="delivery-fee-display"></div>
+            
+            <div id="deliverySection" class="config-item" style="display: none;">
+              <label for="postcodeInput">Postcode:</label>
+              <div class="postcode-input">
+                <input type="text" id="postcodeInput" placeholder="YO10 3BP" maxlength="8" />
+                <button id="postcodeCheckBtn" class="postcode-btn">✓</button>
+              </div>
+              <div id="deliveryFee" class="delivery-fee"></div>
+            </div>
           </div>
         </div>
         
-        <!-- Cart Items -->
-        <div class="cart-items-container">
-          <div id="cartContent" class="cart-content">
+        <!-- Main Cart Content Area -->
+        <div class="cart-items-section">
+          <div id="cartContent" class="cart-items-list">
             <div class="empty-cart-message">
-              <span class="cart-icon">🛒</span>
-              <p>Your basket is empty</p>
-              <small>Add items from the menu to get started</small>
+              <div class="empty-icon">🍽️</div>
+              <h4>Start your order</h4>
+              <p>Add items from the menu</p>
             </div>
           </div>
-          
-          <!-- Cart Summary -->
+        </div>
+        
+        <!-- Fixed Bottom Section -->
+        <div class="cart-footer">
           <div id="cartSummary" class="cart-summary" style="display: none;">
             <div id="cartTotal" class="cart-total"></div>
           </div>
           
-          <!-- Checkout Button (Always visible when cart has items) -->
-          <div id="checkoutSection" class="checkout-section" style="display: none;">
-            <button class="checkout-btn" id="checkoutBtn">
-              <span>Proceed to Checkout</span>
-              <span class="checkout-arrow">→</span>
+          <div id="checkoutSection" class="checkout-section">
+            <button class="checkout-btn" id="checkoutBtn" disabled>
+              <span>Add items to checkout</span>
             </button>
           </div>
         </div>

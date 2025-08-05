@@ -1402,29 +1402,28 @@ function removeFromCart(itemId) {
 // Update cart UI and persist to localStorage
 function updateCart() {
   localStorage.setItem('goldenfish_cart', JSON.stringify(cart));
-  const cartContent = document.getElementById('cartContent');
+  const cartItemsList = document.getElementById('cartContent'); // This now maps to cart-items-list
   const cartSummary = document.getElementById('cartSummary');
   const checkoutSection = document.getElementById('checkoutSection');
-  if (!cartContent) return;
+  if (!cartItemsList) return;
   
   // Clear existing content
-  cartContent.innerHTML = '';
+  cartItemsList.innerHTML = '';
   let total = 0;
   
   if (cart.length === 0) {
-    // Show empty cart message
-    cartContent.innerHTML = `
+    // Show empty cart message with new structure
+    cartItemsList.innerHTML = `
       <div class="empty-cart-message">
-        <span class="cart-icon">🛒</span>
-        <p>Your basket is empty</p>
-        <small>Add items from the menu to get started</small>
+        <div class="empty-icon">🍽️</div>
+        <h4>Start your order</h4>
+        <p>Add items from the menu</p>
       </div>
     `;
     
     // Hide cart summary but show checkout section with disabled button
     if (cartSummary) cartSummary.style.display = 'none';
     if (checkoutSection) {
-      checkoutSection.style.display = 'block';
       const checkoutBtn = document.getElementById('checkoutBtn');
       if (checkoutBtn) {
         checkoutBtn.disabled = true;
@@ -1499,7 +1498,7 @@ function updateCart() {
       row.appendChild(detailsContainer);
       row.appendChild(priceEl);
       row.appendChild(removeBtn);
-      cartContent.appendChild(row);
+      cartItemsList.appendChild(row);
     });
     
     // Show cart summary and checkout button
@@ -1576,8 +1575,6 @@ function updateCart() {
           promotions.freeItems.forEach(freeItem => {
             const freeItemDiv = document.createElement('div');
             freeItemDiv.className = 'cart-item cart-free-item';
-            freeItemDiv.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
-            freeItemDiv.style.border = '1px solid var(--success)';
             freeItemDiv.innerHTML = `
               <div class="cart-item-details">
                 <div class="cart-item-name">${freeItem.name} (FREE)</div>
@@ -1585,7 +1582,7 @@ function updateCart() {
               </div>
               <div class="cart-item-price" style="color: var(--success);">FREE</div>
             `;
-            cartContent.appendChild(freeItemDiv);
+            cartItemsList.appendChild(freeItemDiv);
           });
         }
         
@@ -1598,11 +1595,6 @@ function updateCart() {
         totalRow.appendChild(value);
         cartTotal.appendChild(totalRow);
       }
-    }
-    
-    // Show checkout button
-    if (checkoutSection) {
-      checkoutSection.style.display = 'block';
     }
     
     // Ensure checkout button is properly enabled

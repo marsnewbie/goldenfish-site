@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:test-ordering-page.vercel.app)"
+      "WebFetch(domain:test-ordering-page.vercel.app)",
+      "Bash(git push:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }
