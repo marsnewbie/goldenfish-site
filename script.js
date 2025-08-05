@@ -377,9 +377,9 @@ function calculatePromotions(subtotal, cart = []) {
         });
         appliedDiscounts.push({
           ...bestPromo,
-          discountAmount: bestPromo.freeItem.price
+          discountAmount: 0 // Free items don't reduce subtotal
         });
-        totalDiscount = bestPromo.freeItem.price;
+        // Don't add to totalDiscount - free items are added as separate items
         break;
     }
   }
@@ -401,32 +401,8 @@ function displayPromotionsBanner() {
   const banner = document.getElementById('promotionsBanner');
   if (!banner) return;
   
-  const activePromotions = getActivePromotions();
-  
-  if (activePromotions.length === 0) {
-    banner.style.display = 'none';
-    return;
-  }
-  
-  banner.innerHTML = '';
-  banner.style.display = 'block';
-  
-  activePromotions.forEach(promo => {
-    const card = document.createElement('div');
-    card.className = `promotion-card ${promo.type}`;
-    
-    const title = document.createElement('div');
-    title.className = 'promotion-title';
-    title.textContent = promo.name;
-    
-    const description = document.createElement('p');
-    description.className = 'promotion-description';
-    description.textContent = promo.description;
-    
-    card.appendChild(title);
-    card.appendChild(description);
-    banner.appendChild(card);
-  });
+  // Promotions are only shown on homepage, not on menu page
+  banner.style.display = 'none';
 }
 
 // Enhanced opening hours management functions
@@ -1613,6 +1589,46 @@ function handleCheckout() {
   if (cart.length === 0) {
     alert('Your cart is empty!');
     return;
+  }
+  
+  // Check if delivery or collection is selected
+  const deliveryBtn = document.getElementById('deliveryBtn');
+  const collectionBtn = document.getElementById('collectionBtn');
+  
+  if (!deliveryBtn || !collectionBtn) {
+    alert('Unable to determine delivery/collection option. Please refresh the page.');
+    return;
+  }
+  
+  const deliverySelected = deliveryBtn.classList.contains('active');
+  const collectionSelected = collectionBtn.classList.contains('active');
+  
+  if (!deliverySelected && !collectionSelected) {
+    alert('Please select either Delivery or Collection before proceeding to checkout.');
+    return;
+  }
+  
+  // For delivery orders, check if we have valid delivery details
+  if (deliverySelected) {
+    const deliveryFee = window.currentDeliveryFee;
+    const postcodeInput = document.getElementById('postcodeInput');
+    
+    if (!postcodeInput || !postcodeInput.value.trim()) {
+      alert('Please enter your postcode for delivery orders.');
+      postcodeInput?.focus();
+      return;
+    }
+    
+    if (deliveryFee && !deliveryFee.valid) {
+      alert('Sorry, we do not deliver to this postcode. Please choose Collection or try a different postcode.');
+      return;
+    }
+  }
+  
+  // Store order type in localStorage for checkout page
+  localStorage.setItem('orderType', deliverySelected ? 'delivery' : 'collection');
+  if (deliverySelected && window.currentDeliveryFee) {
+    localStorage.setItem('deliveryFee', JSON.stringify(window.currentDeliveryFee));
   }
   
   // Check if this is an advance order

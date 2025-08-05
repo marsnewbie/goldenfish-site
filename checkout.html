@@ -260,6 +260,126 @@
           grid-template-columns: 1fr;
         }
       }
+      
+      /* Account Options Styles */
+      .account-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .account-option {
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      
+      .account-option:hover {
+        border-color: var(--primary);
+        background: rgba(211, 47, 47, 0.02);
+      }
+      
+      .account-option.active {
+        border-color: var(--primary);
+        background: rgba(211, 47, 47, 0.05);
+      }
+      
+      .option-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .option-header input[type="radio"] {
+        margin-top: 0.25rem;
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+      }
+      
+      .option-header label {
+        flex: 1;
+        cursor: pointer;
+        margin: 0;
+      }
+      
+      .option-title {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+      
+      .option-description {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+      
+      .login-form,
+      .register-form {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+      }
+      
+      .login-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
+      
+      .login-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+      
+      .forgot-password {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+      
+      .forgot-password a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      
+      .forgot-password a:hover {
+        text-decoration: underline;
+      }
+      
+      .form-help {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+      }
+      
+      .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+      
+      .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--primary);
+      }
     </style>
   </head>
   <body>
@@ -326,10 +446,81 @@
             </div>
           </div>
           
-          <!-- Customer Information Section -->
+          <!-- Account Options Section -->
           <div class="checkout-section">
             <h3 class="section-title">
               <span class="section-number">2</span>
+              Account Options
+            </h3>
+            <div class="account-options">
+              <div class="account-option guest-option active" data-option="guest">
+                <div class="option-header">
+                  <input type="radio" id="guestCheckout" name="accountType" value="guest" checked>
+                  <label for="guestCheckout">
+                    <span class="option-title">Guest Checkout</span>
+                    <span class="option-description">Quick checkout without creating an account</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="account-option login-option" data-option="login">
+                <div class="option-header">
+                  <input type="radio" id="loginCheckout" name="accountType" value="login">
+                  <label for="loginCheckout">
+                    <span class="option-title">Sign In</span>
+                    <span class="option-description">Already have an account? Sign in for faster checkout</span>
+                  </label>
+                </div>
+                <div class="login-form" style="display: none;">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="loginEmail">Email <span class="required">*</span></label>
+                      <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                      <label for="loginPassword">Password <span class="required">*</span></label>
+                      <input type="password" id="loginPassword" name="loginPassword" placeholder="Your password">
+                    </div>
+                  </div>
+                  <button type="button" class="login-btn" id="signInBtn">Sign In</button>
+                  <p class="forgot-password"><a href="#" onclick="alert('Password reset functionality coming soon!')">Forgot your password?</a></p>
+                </div>
+              </div>
+              
+              <div class="account-option register-option" data-option="register">
+                <div class="option-header">
+                  <input type="radio" id="registerCheckout" name="accountType" value="register">
+                  <label for="registerCheckout">
+                    <span class="option-title">Create Account</span>
+                    <span class="option-description">Create an account to save your details and track orders</span>
+                  </label>
+                </div>
+                <div class="register-form" style="display: none;">
+                  <div class="form-group">
+                    <label for="registerPassword">Create Password <span class="required">*</span></label>
+                    <input type="password" id="registerPassword" name="registerPassword" placeholder="Create a secure password" minlength="8">
+                    <small class="form-help">Password must be at least 8 characters long</small>
+                  </div>
+                  <div class="form-group">
+                    <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="marketingOptIn" name="marketingOptIn">
+                      <span class="checkmark"></span>
+                      Send me promotional offers and updates (optional)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Customer Information Section -->
+          <div class="checkout-section">
+            <h3 class="section-title">
+              <span class="section-number">3</span>
               Contact Information
             </h3>
             <div class="form-row">
@@ -357,7 +548,7 @@
           <!-- Order Timing Section -->
           <div class="checkout-section">
             <h3 class="section-title">
-              <span class="section-number">3</span>
+              <span class="section-number">4</span>
               Order Timing
             </h3>
             <div class="form-group">
@@ -375,7 +566,7 @@
           <!-- Payment Method Section -->
           <div class="checkout-section">
             <h3 class="section-title">
-              <span class="section-number">4</span>
+              <span class="section-number">5</span>
               Payment Method
             </h3>
             <div class="form-group">
@@ -463,6 +654,32 @@
           document.getElementById('placeOrderBtn').addEventListener('click', () => {
             this.placeOrder();
           });
+          
+          // Account type selection
+          document.querySelectorAll('input[name="accountType"]').forEach(radio => {
+            radio.addEventListener('change', () => this.handleAccountTypeChange());
+          });
+          
+          // Account option clicking
+          document.querySelectorAll('.account-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+              if (e.target.type !== 'radio' && e.target.type !== 'checkbox' && 
+                  e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && 
+                  e.target.tagName !== 'A') {
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) {
+                  radio.checked = true;
+                  this.handleAccountTypeChange();
+                }
+              }
+            });
+          });
+          
+          // Sign in button
+          const signInBtn = document.getElementById('signInBtn');
+          if (signInBtn) {
+            signInBtn.addEventListener('click', () => this.handleSignIn());
+          }
         }
         
         updateDeliveryOptionStyles() {
@@ -682,18 +899,33 @@
         
         // UK phone validation helper
         validateUKPhone(phone) {
-          // Remove all spaces, hyphens, and parentheses
-          const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+          if (!phone) return false;
+          
+          // Remove all spaces, hyphens, parentheses, and dots
+          const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
           
           // UK phone number patterns
-          const ukPhonePatterns = [
-            /^(\+44|0044|44)?[1-9]\d{8,9}$/, // General UK landline/mobile (10-11 digits)
-            /^(\+44|0044|44)?7\d{9}$/, // UK mobile (starts with 7)
-            /^(\+44|0044|44)?[1-2]\d{9}$/, // UK landline (starts with 1 or 2)
-            /^(\+44|0044|44)?[3-9]\d{8}$/, // UK landline (starts with 3-9, 9 digits total)
+          const patterns = [
+            // UK mobile numbers (07xxx xxxxxx) - with or without +44
+            /^(\+44|0044|44)?7\d{9}$/,
+            
+            // UK landline numbers (01xxx xxxxxx, 02xxx xxxxxx) - with or without +44
+            /^(\+44|0044|44)?[12]\d{9,10}$/,
+            
+            // UK landline numbers (03xxx xxxxxx) - with or without +44
+            /^(\+44|0044|44)?3\d{9}$/,
+            
+            // UK special numbers (08xxx xxxxxx, 09xxx xxxxxx) - with or without +44
+            /^(\+44|0044|44)?[89]\d{9}$/,
+            
+            // Standard UK landline without country code (starting with 0)
+            /^0[1-9]\d{8,9}$/,
+            
+            // Standard UK mobile without country code (07xxx xxxxxx)
+            /^07\d{9}$/
           ];
           
-          return ukPhonePatterns.some(pattern => pattern.test(cleanPhone));
+          return patterns.some(pattern => pattern.test(cleanPhone));
         }
         
         // Real-time phone validation
@@ -888,6 +1120,75 @@
               }
             });
           });
+        }
+        
+        // Handle account type change
+        handleAccountTypeChange() {
+          const selectedType = document.querySelector('input[name="accountType"]:checked')?.value;
+          
+          // Update active states
+          document.querySelectorAll('.account-option').forEach(option => {
+            option.classList.remove('active');
+          });
+          
+          const activeOption = document.querySelector(`[data-option="${selectedType}"]`);
+          if (activeOption) {
+            activeOption.classList.add('active');
+          }
+          
+          // Show/hide forms
+          document.querySelectorAll('.login-form, .register-form').forEach(form => {
+            form.style.display = 'none';
+          });
+          
+          if (selectedType === 'login') {
+            const loginForm = document.querySelector('.login-form');
+            if (loginForm) loginForm.style.display = 'block';
+          } else if (selectedType === 'register') {
+            const registerForm = document.querySelector('.register-form');
+            if (registerForm) registerForm.style.display = 'block';
+          }
+        }
+        
+        // Handle sign in
+        async handleSignIn() {
+          const email = document.getElementById('loginEmail')?.value.trim();
+          const password = document.getElementById('loginPassword')?.value;
+          
+          if (!email || !password) {
+            alert('Please enter both email and password.');
+            return;
+          }
+          
+          if (!this.validateEmail(email)) {
+            alert('Please enter a valid email address.');
+            return;
+          }
+          
+          const signInBtn = document.getElementById('signInBtn');
+          const originalText = signInBtn.textContent;
+          
+          try {
+            signInBtn.textContent = 'Signing in...';
+            signInBtn.disabled = true;
+            
+            // Simulate API call - replace with real authentication
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // For demo purposes, show success message
+            alert('Sign in functionality will be implemented in the backend phase. For now, continue as guest.');
+            
+            // Reset to guest checkout
+            document.getElementById('guestCheckout').checked = true;
+            this.handleAccountTypeChange();
+            
+          } catch (error) {
+            console.error('Sign in error:', error);
+            alert('Sign in failed. Please try again or continue as guest.');
+          } finally {
+            signInBtn.textContent = originalText;
+            signInBtn.disabled = false;
+          }
         }
       }
       
