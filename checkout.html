@@ -120,6 +120,14 @@
         cursor: pointer;
         transition: all 0.3s ease;
         text-align: center;
+        user-select: none;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .delivery-option:hover {
+        border-color: var(--primary);
+        background: rgba(211, 47, 47, 0.02);
       }
       
       .delivery-option.selected {
@@ -814,6 +822,14 @@
         },
         
         init() {
+          console.log('CheckoutManager init() called');
+          
+          // Debug DOM elements
+          const deliveryOptions = document.querySelectorAll('.delivery-option');
+          const radios = document.querySelectorAll('input[name="deliveryType"]');
+          console.log('Found delivery options:', deliveryOptions.length);
+          console.log('Found radio buttons:', radios.length);
+          
           this.setupEventListeners();
           this.updateDeliveryOptions();
           this.populateOrderTimes();
@@ -837,13 +853,34 @@
             radio.addEventListener('change', () => this.handleDeliveryTypeChange());
           });
           
-          // Delivery option styling
+          // Delivery option styling and click handling
           document.querySelectorAll('.delivery-option').forEach(option => {
-            option.addEventListener('click', () => {
+            option.addEventListener('click', (e) => {
+              console.log('Delivery option clicked:', option.dataset.type);
+              
+              // Prevent event propagation issues
+              e.preventDefault();
+              e.stopPropagation();
+              
               const radio = option.querySelector('input[type="radio"]');
-              radio.checked = true;
-              this.updateDeliveryOptionStyles();
-              this.handleDeliveryTypeChange();
+              if (radio) {
+                radio.checked = true;
+                console.log('Radio checked:', radio.value, radio.checked);
+                
+                // Trigger change event manually
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                this.updateDeliveryOptionStyles();
+                this.handleDeliveryTypeChange();
+              }
+            });
+          });
+          
+          // Also add click listeners to labels specifically
+          document.querySelectorAll('.delivery-option label').forEach(label => {
+            label.addEventListener('click', (e) => {
+              console.log('Label clicked for:', label.getAttribute('for'));
+              // Let the default label behavior handle the radio selection
             });
           });
           
@@ -915,12 +952,16 @@
         }
         
         updateDeliveryOptionStyles() {
+          console.log('Updating delivery option styles');
           document.querySelectorAll('.delivery-option').forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
-            if (radio.checked) {
-              option.classList.add('selected');
-            } else {
-              option.classList.remove('selected');
+            if (radio) {
+              if (radio.checked) {
+                option.classList.add('selected');
+                console.log('Added selected class to:', radio.value);
+              } else {
+                option.classList.remove('selected');
+              }
             }
           });
         }
@@ -1036,6 +1077,9 @@
         
         renderOrderSummary() {
           const orderSummary = document.getElementById('orderSummary');
+          
+          console.log('renderOrderSummary called, cart length:', this.cart.length);
+          console.log('Cart contents:', this.cart);
           
           if (this.cart.length === 0) {
             orderSummary.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Your cart is empty!</p>';
