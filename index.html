@@ -3,129 +3,370 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Golden Fish Takeaways</title>
+    <title>Golden Fish - Fresh Chinese Takeaway | Order Online</title>
+    <meta name="description" content="Order fresh Chinese food online from Golden Fish. Fast delivery, authentic flavors, made to order. Open for delivery and collection." />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Header/navigation bar -->
-    <header class="navbar">
-      <div class="container nav-inner">
-        <div class="logo">
-          <img src="assets/fish_and_chips.jpg" alt="Golden Fish logo" />
-          <span>Golden Fish</span>
+    <!-- Modern Navigation Bar -->
+    <header class="modern-navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <img src="assets/fish_and_chips.jpg" alt="Golden Fish" class="brand-logo" />
+          <div class="brand-info">
+            <h1 class="brand-name">Golden Fish</h1>
+            <div class="brand-tagline">Fresh Chinese Takeaway</div>
+          </div>
         </div>
-        <nav>
-          <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Order Online</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-          </ul>
+        
+        <nav class="nav-menu">
+          <a href="menu.html" class="nav-link primary-cta">Order Online</a>
+          <div class="nav-links">
+            <a href="#about" class="nav-link">About</a>
+            <a href="#contact" class="nav-link">Contact</a>
+          </div>
         </nav>
-        <div class="auth-links">
-          <a href="#" class="login">Login</a>
-          <span class="separator">/</span>
-          <a href="#" class="register">Register</a>
+        
+        <div class="nav-auth">
+          <button class="auth-btn login-btn">Sign In</button>
         </div>
       </div>
     </header>
 
-    <!-- Hero section with call to action -->
-    <section class="hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1>Fresh &amp; Delicious</h1>
-        <p>Enjoy mouth‑watering seafood and takeaway favourites, cooked to perfection and ready when you are.</p>
-        <a href="menu.html" class="btn btn-primary">Order Online</a>
-      </div>
-    </section>
-
-    <!-- About section -->
-    <section id="about" class="about">
-      <div class="container">
-        <h2>About Us</h2>
-        <p>
-          Golden Fish Takeaways is your go‑to destination for delicious, freshly prepared meals on the go. Our menu features
-          classic fish and chips, deep fried favourites, burgers and more – all made with locally sourced ingredients.
-        </p>
-        <p>
-          We pride ourselves on friendly service and quality food. Whether you’re grabbing a quick lunch or feeding the family,
-          let us take care of dinner tonight.
-        </p>
-      </div>
-    </section>
-
-    <!-- Footer/contact section -->
-    <footer id="contact" class="footer">
-      <div class="container">
-        <div class="footer-column">
-          <h3>Contact Us</h3>
-          <p>Golden Fish Takeaways</p>
-          <p>123 Sample Street, Oamaru, Otago</p>
-          <p>Phone: <a href="tel:012345678">012 345 678</a></p>
-          <p>Email: <a href="mailto:hello@goldenfish.co.nz">hello@goldenfish.co.nz</a></p>
-        </div>
-        <div class="footer-column">
-          <h3>Opening Hours</h3>
-          <div id="openingHoursDisplay">
-            <p>Loading hours...</p>
+    <!-- Hero Section - Industry Standard -->
+    <section class="hero-modern">
+      <div class="hero-background"></div>
+      <div class="hero-container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="badge-icon">⭐</span>
+            <span>4.8 rating • 1000+ orders</span>
+          </div>
+          
+          <h1 class="hero-title">
+            Fresh Chinese Food
+            <span class="hero-highlight">Delivered Fast</span>
+          </h1>
+          
+          <p class="hero-description">
+            Authentic flavors, fresh ingredients, made to order. 
+            Fast delivery to your door or ready for collection.
+          </p>
+          
+          <div class="hero-actions">
+            <a href="menu.html" class="hero-cta primary">
+              <span>Start Your Order</span>
+              <span class="cta-icon">→</span>
+            </a>
+            <div class="hero-meta">
+              <div class="meta-item">
+                <span class="meta-icon">🚚</span>
+                <span>25-35 min delivery</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">💷</span>
+                <span>£15 minimum</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="footer-column">
-          <h3>Follow Us</h3>
-          <p>
-            <a href="#">Facebook</a> | <a href="#">Instagram</a> | <a href="#">Twitter</a>
-          </p>
+        
+        <div class="hero-visual">
+          <div class="hero-image-stack">
+            <img src="assets/fish_and_chips.jpg" alt="Golden Fish signature dish" class="hero-main-image" />
+            <div class="hero-floating-cards">
+              <div class="floating-card">
+                <span class="card-icon">🔥</span>
+                <span>Most Popular</span>
+              </div>
+              <div class="floating-card">
+                <span class="card-icon">⚡</span>
+                <span>Fast Delivery</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust Indicators -->
+    <section class="trust-section">
+      <div class="trust-container">
+        <div class="trust-items">
+          <div class="trust-item">
+            <div class="trust-icon">🕒</div>
+            <div class="trust-content">
+              <h3>Open Now</h3>
+              <p id="openingHours">5:00 PM - 11:00 PM</p>
+            </div>
+          </div>
+          
+          <div class="trust-item">
+            <div class="trust-icon">📍</div>
+            <div class="trust-content">
+              <h3>Delivery Area</h3>
+              <p>York YO10 area • Free over £25</p>
+            </div>
+          </div>
+          
+          <div class="trust-item">
+            <div class="trust-icon">⭐</div>
+            <div class="trust-content">
+              <h3>Customer Rating</h3>
+              <p>4.8/5 • 1000+ reviews</p>
+            </div>
+          </div>
+          
+          <div class="trust-item">
+            <div class="trust-icon">🔒</div>
+            <div class="trust-content">
+              <h3>Safe & Secure</h3>
+              <p>Contactless delivery available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Items - Industry Pattern -->
+    <section class="featured-section">
+      <div class="featured-container">
+        <div class="section-header">
+          <h2>Customer Favorites</h2>
+          <p>Our most loved dishes, made fresh daily</p>
+        </div>
+        
+        <div class="featured-grid">
+          <div class="featured-item">
+            <div class="item-image">
+              <img src="assets/fish_and_chips.jpg" alt="Special Curry" />
+              <div class="item-badge">Most Popular</div>
+            </div>
+            <div class="item-content">
+              <h3>Special Curry</h3>
+              <p>Our signature curry with your choice of rice or noodles</p>
+              <div class="item-footer">
+                <span class="item-price">From £12.80</span>
+                <button class="item-cta">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="featured-item">
+            <div class="item-image">
+              <img src="assets/fish_and_chips.jpg" alt="Sweet & Sour" />
+              <div class="item-badge">Chef's Choice</div>
+            </div>
+            <div class="item-content">
+              <h3>Sweet & Sour Pork</h3>
+              <p>Traditional sweet and sour with pineapple and peppers</p>
+              <div class="item-footer">
+                <span class="item-price">£11.50</span>
+                <button class="item-cta">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="featured-item">
+            <div class="item-image">
+              <img src="assets/fish_and_chips.jpg" alt="Set Dinner" />
+              <div class="item-badge">Best Value</div>
+            </div>
+            <div class="item-content">
+              <h3>Set Dinner for Two</h3>
+              <p>Perfect sharing meal with variety of dishes</p>
+              <div class="item-footer">
+                <span class="item-price">£28.00</span>
+                <button class="item-cta">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Promotions Section -->
+    <section class="promotions-section">
+      <div class="promotions-container">
+        <div class="promotion-card large">
+          <div class="promo-content">
+            <div class="promo-badge">Limited Time</div>
+            <h3>£5 off orders over £20</h3>
+            <p>Valid for new customers. Use code WELCOME5 at checkout.</p>
+            <a href="menu.html" class="promo-cta">Order Now</a>
+          </div>
+          <div class="promo-visual">
+            <span class="promo-icon">🎉</span>
+          </div>
+        </div>
+        
+        <div class="promotions-grid">
+          <div class="promotion-card">
+            <h4>Free Delivery</h4>
+            <p>On orders over £25</p>
+          </div>
+          <div class="promotion-card">
+            <h4>10% Off</h4>
+            <p>Orders over £30</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+      <div class="how-container">
+        <div class="section-header centered">
+          <h2>How it works</h2>
+          <p>Get your favorite food delivered in 3 simple steps</p>
+        </div>
+        
+        <div class="steps-grid">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-icon">📱</div>
+            <h3>Browse Menu</h3>
+            <p>Choose from our wide selection of fresh Chinese dishes</p>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-icon">🛒</div>
+            <h3>Add to Cart</h3>
+            <p>Customize your order and add items to your basket</p>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-icon">🚚</div>
+            <h3>Fast Delivery</h3>
+            <p>Enjoy fresh food delivered to your door in 25-35 minutes</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section - Modern -->
+    <section id="about" class="about-modern">
+      <div class="about-container">
+        <div class="about-content">
+          <div class="about-text">
+            <h2>Fresh ingredients, authentic flavors</h2>
+            <p class="about-lead">
+              Golden Fish has been serving the York community with fresh, 
+              authentic Chinese cuisine for over 10 years.
+            </p>
+            <div class="about-features">
+              <div class="feature-item">
+                <span class="feature-icon">🥢</span>
+                <span>Authentic recipes passed down generations</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🌿</span>
+                <span>Fresh ingredients sourced locally</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">👨‍🍳</span>
+                <span>Experienced chefs with 20+ years</span>
+              </div>
+            </div>
+          </div>
+          <div class="about-image">
+            <img src="assets/fish_and_chips.jpg" alt="Our kitchen" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact/Footer -->
+    <footer id="contact" class="modern-footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Golden Fish</h3>
+            <p>Fresh Chinese takeaway in the heart of York</p>
+            <div class="social-links">
+              <a href="#" class="social-link">Facebook</a>
+              <a href="#" class="social-link">Instagram</a>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Contact Info</h4>
+            <div class="contact-item">
+              <span class="contact-icon">📍</span>
+              <span>123 Golden Fish Street, York YO10 3BP</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">📞</span>
+              <span>01904 123456</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">✉️</span>
+              <span>orders@goldenfish.co.uk</span>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Opening Hours</h4>
+            <div class="hours-list">
+              <div class="hours-item">
+                <span>Monday</span>
+                <span>Closed</span>
+              </div>
+              <div class="hours-item">
+                <span>Tue - Thu</span>
+                <span>5:00 PM - 11:00 PM</span>
+              </div>
+              <div class="hours-item">
+                <span>Fri - Sat</span>
+                <span>5:00 PM - 12:00 AM</span>
+              </div>
+              <div class="hours-item">
+                <span>Sunday</span>
+                <span>5:00 PM - 10:30 PM</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Quick Order</h4>
+            <p>Ready to order? Get started now!</p>
+            <a href="menu.html" class="footer-cta">Browse Menu</a>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; 2024 Golden Fish. All rights reserved.</p>
+          <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>
-    
+
     <script src="script.js"></script>
     <script>
-      // Display opening hours on homepage
-      document.addEventListener('DOMContentLoaded', () => {
-        const hoursDisplay = document.getElementById('openingHoursDisplay');
-        if (hoursDisplay) {
-          const hours = getOpeningHoursDisplay();
-          hoursDisplay.innerHTML = hours.map(h => `<p style="font-size: 0.9rem; margin-bottom: 0.25rem;">${h}</p>`).join('');
-          
-          // Show current status
-          const status = getRestaurantStatus();
-          const statusEl = document.createElement('p');
-          statusEl.style.marginTop = '0.5rem';
-          statusEl.style.fontWeight = '600';
-          
+      // Update opening hours dynamically
+      function updateOpeningHours() {
+        const now = new Date();
+        const status = getRestaurantStatus ? getRestaurantStatus(now) : null;
+        const hoursElement = document.getElementById('openingHours');
+        
+        if (status && hoursElement) {
           if (status.isOpen) {
-            statusEl.style.color = '#4caf50';
-            if (status.reason) {
-              statusEl.textContent = `Open Now - ${status.reason}`;
-            } else {
-              const closeTime = status.hoursToday.close === '00:00' ? 'Midnight' : status.hoursToday.close;
-              statusEl.textContent = `Open Now - Until ${closeTime}`;
-            }
+            hoursElement.textContent = `Open until ${status.hoursToday?.close || '11:00 PM'}`;
+            hoursElement.style.color = 'var(--success)';
           } else {
-            statusEl.style.color = '#f44336';
-            if (status.nextOpen) {
-              const nextOpen = new Date(status.nextOpen);
-              const now = new Date();
-              const isToday = nextOpen.toDateString() === now.toDateString();
-              const isTomorrow = nextOpen.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
-              
-              if (isToday) {
-                statusEl.textContent = `Closed - Opens at ${formatTime(nextOpen)}`;
-              } else if (isTomorrow) {
-                statusEl.textContent = `Closed - Opens tomorrow at ${formatTime(nextOpen)}`;
-              } else {
-                statusEl.textContent = `Closed - Next: ${formatDateTime(nextOpen)}`;
-              }
-            } else {
-              statusEl.textContent = 'Closed';
-            }
+            hoursElement.textContent = status.reason || 'Currently Closed';
+            hoursElement.style.color = 'var(--warning)';
           }
-          
-          hoursDisplay.appendChild(statusEl);
         }
-      });
+      }
+      
+      // Initialize when page loads
+      document.addEventListener('DOMContentLoaded', updateOpeningHours);
     </script>
   </body>
 </html>

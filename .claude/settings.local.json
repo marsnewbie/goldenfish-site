@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:test-ordering-page.vercel.app)",
       "Bash(git push:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
