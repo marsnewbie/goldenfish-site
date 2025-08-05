@@ -227,6 +227,21 @@
         margin-top: 0.5rem;
       }
       
+      .validation-message {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(244, 67, 54, 0.1);
+        border: 1px solid var(--danger);
+      }
+      
+      .validation-message.success {
+        background: rgba(76, 175, 80, 0.1);
+        border-color: var(--success);
+        color: var(--success);
+      }
+      
       @media (max-width: 768px) {
         .checkout-main {
           grid-template-columns: 1fr;
@@ -334,7 +349,7 @@
               </div>
               <div class="form-group">
                 <label for="phone">Phone Number <span class="required">*</span></label>
-                <input type="tel" id="phone" name="phone" required>
+                <input type="tel" id="phone" name="phone" placeholder="e.g. 01904 123456, 07700 900123" required>
               </div>
             </div>
           </div>
@@ -425,6 +440,18 @@
           const postcodeInput = document.getElementById('deliveryPostcode');
           if (postcodeInput) {
             postcodeInput.addEventListener('input', () => this.calculateDeliveryFee());
+          }
+          
+          // Real-time phone validation
+          const phoneInput = document.getElementById('phone');
+          if (phoneInput) {
+            phoneInput.addEventListener('input', () => this.validatePhoneRealTime());
+          }
+          
+          // Real-time email validation
+          const emailInput = document.getElementById('email');
+          if (emailInput) {
+            emailInput.addEventListener('input', () => this.validateEmailRealTime());
           }
           
           // Payment method selection
@@ -618,6 +645,18 @@
             }
           });
           
+          // Email validation
+          const email = formData.get('email')?.trim();
+          if (email && !this.validateEmail(email)) {
+            errors.push('Please enter a valid email address');
+          }
+          
+          // UK phone validation
+          const phone = formData.get('phone')?.trim();
+          if (phone && !this.validateUKPhone(phone)) {
+            errors.push('Please enter a valid UK phone number (e.g., 01904 123456, 07700 900123, +44 1904 123456)');
+          }
+          
           // Delivery address validation
           const deliveryType = formData.get('deliveryType');
           if (deliveryType === 'delivery') {
@@ -633,6 +672,72 @@
           }
           
           return errors;
+        }
+        
+        // Email validation helper
+        validateEmail(email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(email);
+        }
+        
+        // UK phone validation helper
+        validateUKPhone(phone) {
+          // Remove all spaces, hyphens, and parentheses
+          const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+          
+          // UK phone number patterns
+          const ukPhonePatterns = [
+            /^(\+44|0044|44)?[1-9]\d{8,9}$/, // General UK landline/mobile (10-11 digits)
+            /^(\+44|0044|44)?7\d{9}$/, // UK mobile (starts with 7)
+            /^(\+44|0044|44)?[1-2]\d{9}$/, // UK landline (starts with 1 or 2)
+            /^(\+44|0044|44)?[3-9]\d{8}$/, // UK landline (starts with 3-9, 9 digits total)
+          ];
+          
+          return ukPhonePatterns.some(pattern => pattern.test(cleanPhone));
+        }
+        
+        // Real-time phone validation
+        validatePhoneRealTime() {
+          const phoneInput = document.getElementById('phone');
+          const phone = phoneInput.value.trim();
+          
+          // Remove any existing validation messages
+          const existingMessage = phoneInput.nextElementSibling;
+          if (existingMessage && existingMessage.classList.contains('validation-message')) {
+            existingMessage.remove();
+          }
+          
+          if (phone && !this.validateUKPhone(phone)) {
+            phoneInput.style.borderColor = 'var(--danger)';
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'validation-message error-message';
+            errorMessage.textContent = 'Please enter a valid UK phone number';
+            phoneInput.parentNode.appendChild(errorMessage);
+          } else {
+            phoneInput.style.borderColor = phone ? 'var(--success)' : 'var(--border)';
+          }
+        }
+        
+        // Real-time email validation
+        validateEmailRealTime() {
+          const emailInput = document.getElementById('email');
+          const email = emailInput.value.trim();
+          
+          // Remove any existing validation messages
+          const existingMessage = emailInput.nextElementSibling;
+          if (existingMessage && existingMessage.classList.contains('validation-message')) {
+            existingMessage.remove();
+          }
+          
+          if (email && !this.validateEmail(email)) {
+            emailInput.style.borderColor = 'var(--danger)';
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'validation-message error-message';
+            errorMessage.textContent = 'Please enter a valid email address';
+            emailInput.parentNode.appendChild(errorMessage);
+          } else {
+            emailInput.style.borderColor = email ? 'var(--success)' : 'var(--border)';
+          }
         }
         
         async placeOrder() {
