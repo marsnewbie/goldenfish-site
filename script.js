@@ -1263,16 +1263,27 @@ function removeFromCart(itemId) {
 function updateCart() {
   localStorage.setItem('goldenfish_cart', JSON.stringify(cart));
   const cartContent = document.getElementById('cartContent');
-  const cartTotal = document.getElementById('cartTotal');
-  if (!cartContent || !cartTotal) return;
+  const cartSummary = document.getElementById('cartSummary');
+  const checkoutSection = document.getElementById('checkoutSection');
+  if (!cartContent) return;
+  
   // Clear existing content
   cartContent.innerHTML = '';
   let total = 0;
+  
   if (cart.length === 0) {
-    const emptyMsg = document.createElement('p');
-    emptyMsg.textContent = 'Your shopping cart is empty!';
-    cartContent.appendChild(emptyMsg);
-    cartTotal.innerHTML = '';
+    // Show empty cart message
+    cartContent.innerHTML = `
+      <div class="empty-cart-message">
+        <span class="cart-icon">🛒</span>
+        <p>Your basket is empty</p>
+        <small>Add items from the menu to get started</small>
+      </div>
+    `;
+    
+    // Hide cart summary and checkout
+    if (cartSummary) cartSummary.style.display = 'none';
+    if (checkoutSection) checkoutSection.style.display = 'none';
   } else {
     cart.forEach(item => {
       // 计算包含选项的总价
@@ -1341,54 +1352,67 @@ function updateCart() {
       row.appendChild(removeBtn);
       cartContent.appendChild(row);
     });
-    cartTotal.innerHTML = '';
     
-    // 显示送餐费（如果选择送餐）
-    const deliveryType = document.querySelector('input[name="deliveryType"]:checked');
-    if (deliveryType && deliveryType.value === 'delivery' && window.currentDeliveryFee) {
-      const feeResult = window.currentDeliveryFee;
-      
-      if (feeResult.valid && feeResult.fee !== null) {
-        const deliveryRow = document.createElement('p');
-        deliveryRow.className = 'cart-delivery-fee';
-        const deliveryLabel = document.createElement('span');
-        deliveryLabel.textContent = 'Delivery Fee:';
-        const deliveryValue = document.createElement('span');
-        deliveryValue.textContent = feeResult.display;
+    // Show cart summary and checkout button
+    if (cartSummary) {
+      cartSummary.style.display = 'block';
+      const cartTotal = document.getElementById('cartTotal');
+      if (cartTotal) {
+        cartTotal.innerHTML = '';
         
-        // Add zone information
-        if (feeResult.zone) {
-          const zoneInfo = document.createElement('small');
-          zoneInfo.textContent = ` (${feeResult.zone})`;
-          zoneInfo.style.color = '#666';
-          deliveryValue.appendChild(zoneInfo);
+        // Display delivery fee if applicable
+        const deliveryType = document.querySelector('input[name="deliveryType"]:checked');
+        if (deliveryType && deliveryType.value === 'delivery' && window.currentDeliveryFee) {
+          const feeResult = window.currentDeliveryFee;
+          
+          if (feeResult.valid && feeResult.fee !== null) {
+            const deliveryRow = document.createElement('p');
+            deliveryRow.className = 'cart-delivery-fee';
+            const deliveryLabel = document.createElement('span');
+            deliveryLabel.textContent = 'Delivery Fee:';
+            const deliveryValue = document.createElement('span');
+            deliveryValue.textContent = feeResult.display;
+            
+            // Add zone information
+            if (feeResult.zone) {
+              const zoneInfo = document.createElement('small');
+              zoneInfo.textContent = ` (${feeResult.zone})`;
+              zoneInfo.style.color = '#666';
+              deliveryValue.appendChild(zoneInfo);
+            }
+            
+            deliveryRow.appendChild(deliveryLabel);
+            deliveryRow.appendChild(deliveryValue);
+            cartTotal.appendChild(deliveryRow);
+            
+            // Add delivery fee to total (only if it's a valid number)
+            if (typeof feeResult.fee === 'number') {
+              total += feeResult.fee;
+            }
+          } else if (!feeResult.valid) {
+            // Show delivery area message
+            const deliveryRow = document.createElement('p');
+            deliveryRow.className = 'cart-delivery-error';
+            deliveryRow.innerHTML = `<span style="color: #f44336;">${feeResult.display}</span>`;
+            cartTotal.appendChild(deliveryRow);
+          }
         }
         
-        deliveryRow.appendChild(deliveryLabel);
-        deliveryRow.appendChild(deliveryValue);
-        cartTotal.appendChild(deliveryRow);
-        
-        // Add delivery fee to total (only if it's a valid number)
-        if (typeof feeResult.fee === 'number') {
-          total += feeResult.fee;
-        }
-      } else if (!feeResult.valid) {
-        // Show delivery area message
-        const deliveryRow = document.createElement('p');
-        deliveryRow.className = 'cart-delivery-error';
-        deliveryRow.innerHTML = `<span style="color: #f44336;">${feeResult.display}</span>`;
-        cartTotal.appendChild(deliveryRow);
+        const totalRow = document.createElement('p');
+        const label = document.createElement('span');
+        label.textContent = 'Total:';
+        const value = document.createElement('span');
+        value.textContent = formatCurrency(total);
+        totalRow.appendChild(label);
+        totalRow.appendChild(value);
+        cartTotal.appendChild(totalRow);
       }
     }
     
-    const totalRow = document.createElement('p');
-    const label = document.createElement('span');
-    label.textContent = 'Total:';
-    const value = document.createElement('span');
-    value.textContent = formatCurrency(total);
-    totalRow.appendChild(label);
-    totalRow.appendChild(value);
-    cartTotal.appendChild(totalRow);
+    // Show checkout button
+    if (checkoutSection) {
+      checkoutSection.style.display = 'block';
+    }
   }
 }
 
@@ -1553,6 +1577,12 @@ function updateOrderOptionsDisplay() {
   const timeSelectSection = document.getElementById('timeSelectSection');
   const storeStatus = document.getElementById('storeStatus');
   const orderTime = document.getElementById('orderTime');
+  
+  // Update time section label based on delivery type
+  const timeLabel = timeSelectSection?.querySelector('label[for="orderTime"]');
+  if (timeLabel) {
+    timeLabel.textContent = selectedType === 'collection' ? 'Collection Time:' : 'Delivery Time:';
+  }
   
   const now = new Date();
   const status = getRestaurantStatus(now);
