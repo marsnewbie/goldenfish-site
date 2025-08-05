@@ -1487,6 +1487,19 @@ function updateCart() {
         // Calculate and display promotions
         const promotions = calculatePromotions(total, cart);
         
+        // Save promotions to localStorage for checkout page
+        if (promotions.discounts.length > 0) {
+          localStorage.setItem('goldenfish_applied_promotions', JSON.stringify(promotions.discounts));
+        } else {
+          localStorage.removeItem('goldenfish_applied_promotions');
+        }
+        
+        // Add free items to cart array and save
+        const currentCartItems = cart.filter(item => !item.isFreeItem);
+        const cartWithFreeItems = [...currentCartItems, ...promotions.freeItems];
+        cart = cartWithFreeItems;
+        localStorage.setItem('goldenfish_cart', JSON.stringify(cart));
+        
         // Display subtotal
         const subtotalRow = document.createElement('p');
         subtotalRow.innerHTML = `<span>Subtotal:</span><span>${formatCurrency(total)}</span>`;
@@ -1625,10 +1638,22 @@ function handleCheckout() {
     }
   }
   
-  // Store order type in localStorage for checkout page
-  localStorage.setItem('orderType', deliverySelected ? 'delivery' : 'collection');
-  if (deliverySelected && window.currentDeliveryFee) {
-    localStorage.setItem('deliveryFee', JSON.stringify(window.currentDeliveryFee));
+  // Store order data in localStorage for checkout page
+  localStorage.setItem('goldenfish_order_type', deliverySelected ? 'delivery' : 'collection');
+  
+  if (deliverySelected) {
+    const postcodeInput = document.getElementById('postcodeInput');
+    if (postcodeInput && postcodeInput.value.trim()) {
+      localStorage.setItem('goldenfish_postcode', postcodeInput.value.trim().toUpperCase());
+    }
+    
+    if (window.currentDeliveryFee) {
+      localStorage.setItem('goldenfish_delivery_fee', JSON.stringify(window.currentDeliveryFee));
+    }
+  } else {
+    // Clear delivery-related data for collection orders
+    localStorage.removeItem('goldenfish_postcode');
+    localStorage.removeItem('goldenfish_delivery_fee');
   }
   
   // Check if this is an advance order

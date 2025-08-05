@@ -3,45 +3,45 @@
 ## Project Overview
 This project is a comprehensive Chinese takeaway ordering system that reverse engineers mayfairchinesefood.co.uk functionality while building a scalable multi-restaurant platform.
 
-## Current Status
-- Basic static website with menu system (Golden Fish)
-- JavaScript-based cart functionality
-- Delivery/collection options with postcode validation
-- Modal-based item customization
+## Repository & Deployment
+- **GitHub Repository**: https://github.com/marsnewbie/goldenfish-site
+- **Vercel Deploy Hook**: https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j
+- **Live Site**: Deployed via Vercel (auto-deploy from main branch)
 
-## Target Features to Implement
+## Current Status ✅ PHASE 1 COMPLETE
+- **Industry-standard homepage** following Uber Eats/DoorDash/Just Eat best practices
+- **Professional menu system** with three-column layout (categories, menu, cart)
+- **Complete ordering flow** with delivery/collection validation
+- **Advanced checkout system** with guest/login/register options
+- **Comprehensive UK phone validation** following industry standards
+- **Promotional system** with amount/percentage/free item support
+- **Opening hours management** with advance ordering capabilities
+- **Postcode-based delivery** with flexible pricing zones
 
-### Core Ordering System
-- Advanced menu system with customizable options (e.g., Special Curry with rice/chip choices)
-- Flexible delivery pricing (by mile or postcode zones)
-- Complete checkout and payment processing
-- Opening hours management with ordering restrictions
+## Recently Completed Features
 
-### Multi-Restaurant Architecture
-- Template-based restaurant site generation
-- AI-powered menu processing from PDFs/images
-- Dynamic branding and theming system
-- Centralized order management
+### Homepage Redesign (Industry Standard)
+- Modern navigation with brand identity
+- Hero section with trust indicators and CTAs
+- Featured items showcase with badges and hover effects
+- Promotional sections with gradient backgrounds
+- Step-by-step ordering process explanation
+- Professional footer with comprehensive information
+- Simplified trust indicators (removed excessive details)
 
-### Backend Services
-- Email notifications via Resend
-- Server-side order management API
-- Restaurant order alert software with sound/printing
-- Database integration for orders and configurations
+### Menu System Enhancements
+- Removed promotions from menu page (homepage only)
+- Fixed free item logic - shows as added items without reducing subtotal
+- Enhanced delivery/collection validation before checkout
+- Comprehensive postcode validation with error handling
+- Industry-standard cart design with proper space allocation
 
-### Delivery Pricing Examples
-- Postcode-based: YO10 = £2.50, YO10 3 = £3.00
-- Distance-based: Using third-party APIs for address-to-shop calculations
-- Configurable by restaurant owners
-
-### Menu Customization Example
-**Special Curry (招牌咖喱)**
-- Boiled Rice (+£0.50)
-- Chips (+£1.00)
-- Salt & Pepper Chips (+£2.00)
-- Fried Rice (+£2.50)
-- Soft Noodles (+£2.80)
-- Crispy Noodles (+£3.00)
+### Checkout Flow Improvements
+- Fixed UK phone number validation with proper patterns
+- Added account options: Guest Checkout / Sign In / Create Account
+- Professional form validation and user feedback
+- Enhanced delivery type verification and error messages
+- Updated section numbering and improved form flow
 
 ## Technology Stack
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
@@ -52,67 +52,118 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 - **Version Control**: GitHub
 - **Payment**: TBD (Stripe/PayPal integration)
 
-## Development Commands
-- `npm run dev` - Start development server (to be configured)
-- `npm run build` - Build production version
-- `npm run lint` - Run code linting
-- `npm test` - Run test suite
-
-## File Structure
+## Current File Structure
 ```
 /
-├── assets/                 # Static assets (images, logos)
-├── src/                   # Source code (to be organized)
-│   ├── components/        # Reusable UI components
-│   ├── utils/            # Utility functions
-│   ├── api/              # API integration
-│   └── config/           # Configuration files
-├── server/               # Backend services (to be created)
-├── restaurant-app/       # Order alert software (to be created)
-├── admin/               # Restaurant management interface
-└── templates/           # Multi-restaurant templates
+├── index.html              # Modern homepage with industry UX
+├── menu.html              # Professional menu with cart system
+├── checkout.html          # Enhanced checkout with account options
+├── script.js              # Complete ordering system logic
+├── style.css              # Comprehensive styling (1800+ lines)
+├── assets/
+│   └── fish_and_chips.jpg # Main brand image
+└── .claude/
+    └── settings.local.json # Claude configuration
+```
 
-Current files:
-├── index.html           # Homepage
-├── menu.html           # Menu/ordering page
-├── checkout.html       # Checkout page
-├── script.js           # Main JavaScript functionality
-└── style.css           # Styles
+## Key Features Implemented
+
+### Promotional System
+```javascript
+promotions: {
+  enabled: true,
+  rules: [
+    {
+      id: 'amount_off_20',
+      type: 'amount_off',
+      name: '£5 off orders over £20',
+      minAmount: 20.00,
+      discount: 5.00
+    },
+    {
+      id: 'free_item_25', 
+      type: 'free_item',
+      name: 'Free Prawn Crackers over £25',
+      minAmount: 25.00,
+      freeItem: { name: 'Prawn Crackers', price: 1.50 }
+    }
+  ]
+}
+```
+
+### Delivery Pricing System
+- Postcode-based zones (YO10 = £2.50, YO10 3 = £3.00)
+- Real-time validation and fee calculation
+- Support for distance-based pricing (future)
+- Configurable minimum order amounts
+
+### Opening Hours Management
+```javascript
+openingHours: {
+  monday: { open: null, close: null }, // Closed
+  tuesday: { open: '17:00', close: '23:00' },
+  // ... advanced scheduling with holiday support
+}
+```
+
+## Next Phase Priorities
+
+### Phase 2: Backend Development
+1. **Server-side order management system**
+2. **Database structure for orders, restaurants, configurations**
+3. **User registration/login system with order history**
+4. **Email notifications using Resend**
+5. **Payment processing integration**
+
+### Phase 3: Multi-Restaurant Architecture
+1. **Template-based restaurant site generation**
+2. **AI-powered menu processing from PDFs/images**
+3. **Centralized admin dashboard**
+4. **Order alert software integration**
+
+## Development Commands
+```bash
+# Deployment
+git add . && git commit -m "message" && git push origin main
+curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j"
+
+# Future commands (to be configured)
+npm run dev          # Development server
+npm run build        # Production build  
+npm run lint         # Code linting
+npm test            # Test suite
 ```
 
 ## Integration Requirements
-- **GitHub**: Repository management and CI/CD
-- **Vercel**: Frontend hosting and serverless functions
-- **Railway Redis**: Session storage and caching
-- **Third-party Distance APIs**: Google Maps/MapBox for delivery calculations
+- **GitHub**: Repository management and CI/CD ✅
+- **Vercel**: Frontend hosting and serverless functions ✅
+- **Railway Redis**: Session storage and caching (pending)
+- **Third-party APIs**: Google Maps/MapBox for delivery (pending)
+- **Payment Gateway**: Stripe/PayPal integration (pending)
+- **Email Service**: Resend API (pending)
 
 ## Key Configuration
-- Restaurant details (name, address, postcode, hours)
-- Delivery zones and pricing rules
-- Menu structure and customization options
-- Email templates and notification settings
-- Multi-tenant restaurant management
-
-## Development Phases
-1. **Phase 1**: Enhanced frontend matching target site
-2. **Phase 2**: Backend API and database setup
-3. **Phase 3**: Multi-restaurant architecture
-4. **Phase 4**: AI menu processing system
-5. **Phase 5**: Restaurant order alert software
-6. **Phase 6**: Advanced features and optimizations
+- Restaurant details (name, address, postcode, hours) ✅
+- Delivery zones and pricing rules ✅
+- Menu structure and customization options ✅
+- Promotional discount system ✅
+- Email templates and notification settings (pending)
+- Multi-tenant restaurant management (pending)
 
 ## Notes for Development
-- Keep code modular for multi-restaurant scalability
-- Implement comprehensive error handling and validation
-- Focus on responsive design for mobile users
-- Ensure secure handling of customer data and payments
-- Build with internationalization in mind (Chinese/English)
+- Code is modular and scalable for multi-restaurant use
+- Comprehensive error handling and validation implemented
+- Responsive design optimized for mobile users
+- Ready for secure payment and customer data handling
+- Internationalization support built-in (Chinese/English)
+- Industry best practices followed throughout
 
-## Target Site Analysis
-Reference: mayfairchinesefood.co.uk
-- Single-page responsive design
-- jQuery-based cart management
-- Postcode validation system
-- Modal customization dialogs
-- Payment integration
-- Opening hours restrictions
+## Target Site Analysis Reference
+**mayfairchinesefood.co.uk** - Successfully reverse engineered:
+- ✅ Responsive design patterns
+- ✅ Cart management system  
+- ✅ Postcode validation
+- ✅ Modal customization dialogs
+- ✅ Opening hours restrictions
+- ⏳ Payment integration (Phase 2)
+- ⏳ Order management backend (Phase 2)
