@@ -37,6 +37,22 @@
       <section class="menu-content" id="menuContent"></section>
       <!-- Cart summary -->
       <aside class="cart-summary">
+        <div id="orderOptions" class="order-options">
+          <div class="delivery-type">
+            <label><input type="radio" name="deliveryType" value="delivery"> Home Delivery</label>
+            <label><input type="radio" name="deliveryType" value="collection" checked> Collection</label>
+          </div>
+          <div id="storeStatus" class="store-status"></div>
+          <div id="timeSelectGroup" class="time-select-group" style="display:none;">
+            <label for="orderTime">Select Time:</label>
+            <select id="orderTime"></select>
+          </div>
+          <div id="postcodeGroup" class="postcode-group" style="display:none;">
+            <label for="postcodeInput">Postcode:</label>
+            <input type="text" id="postcodeInput" placeholder="e.g. OX1 1AA" maxlength="8" />
+            <span id="deliveryFee"></span>
+          </div>
+        </div>
         <h4>Your Order</h4>
         <div class="cart-content" id="cartContent"></div>
         <div class="cart-total" id="cartTotal"></div>
