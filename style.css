@@ -522,6 +522,75 @@ ul {
   font-size: 1.1rem;
 }
 
+/* Promotions Banner */
+.promotions-banner {
+  margin-bottom: 2rem;
+  display: none; /* Hidden by default, shown by JS when promotions are active */
+}
+
+.promotion-card {
+  background: linear-gradient(135deg, var(--success) 0%, #66bb6a 100%);
+  color: var(--light);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.promotion-card::before {
+  content: '🎉';
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.7;
+}
+
+.promotion-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.promotion-description {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.promotion-card.amount-off {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+}
+
+.promotion-card.percent-off {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.promotion-card.free-item {
+  background: linear-gradient(135deg, var(--success) 0%, #66bb6a 100%);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+/* Cart promotion styling */
+.cart-promotion {
+  color: var(--success) !important;
+  font-weight: 600;
+  border-top: 1px dashed var(--success);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cart-free-item {
+  background: rgba(76, 175, 80, 0.1) !important;
+  border: 1px solid var(--success) !important;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
 /* Menu Sections and Items Styling */
 .menu-sections {
   padding: 0;

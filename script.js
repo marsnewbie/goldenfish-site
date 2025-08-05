@@ -286,8 +286,148 @@ const config = {
     googleMapsAPIKey: '', // To be configured
     mapboxAPIKey: '', // To be configured
     manualCalculation: true // Fallback to manual calculation if APIs unavailable
+  },
+  
+  // Promotional discount system
+  promotions: {
+    enabled: true,
+    rules: [
+      {
+        id: 'amount_off_20',
+        type: 'amount_off',
+        name: '£5 off orders over £20',
+        description: 'Save £5 when you spend £20 or more',
+        minAmount: 20.00,
+        discount: 5.00,
+        active: true
+      },
+      {
+        id: 'percent_off_30',
+        type: 'percent_off',
+        name: '10% off orders over £30',
+        description: 'Get 10% discount when you spend £30 or more',
+        minAmount: 30.00,
+        discount: 10, // percentage
+        maxDiscount: 8.00, // maximum discount amount
+        active: true
+      },
+      {
+        id: 'free_item_25',
+        type: 'free_item',
+        name: 'Free Prawn Crackers over £25',
+        description: 'Get free prawn crackers when you spend £25 or more',
+        minAmount: 25.00,
+        freeItem: {
+          name: 'Prawn Crackers',
+          price: 1.50,
+          category: 'starters'
+        },
+        active: true
+      }
+    ]
   }
 };
+
+// Promotional discount calculation functions
+function calculatePromotions(subtotal, cart = []) {
+  if (!config.promotions.enabled) {
+    return { discounts: [], totalDiscount: 0, freeItems: [] };
+  }
+  
+  const appliedDiscounts = [];
+  const freeItems = [];
+  let totalDiscount = 0;
+  
+  // Sort promotions by priority (highest minimum amount first to avoid stacking lower tier promotions)
+  const activePromotions = config.promotions.rules
+    .filter(promo => promo.active && subtotal >= promo.minAmount)
+    .sort((a, b) => b.minAmount - a.minAmount);
+  
+  // Apply the best qualifying promotion (no stacking for now)
+  if (activePromotions.length > 0) {
+    const bestPromo = activePromotions[0];
+    
+    switch (bestPromo.type) {
+      case 'amount_off':
+        totalDiscount = bestPromo.discount;
+        appliedDiscounts.push({
+          ...bestPromo,
+          discountAmount: bestPromo.discount
+        });
+        break;
+        
+      case 'percent_off':
+        let percentDiscount = (subtotal * bestPromo.discount) / 100;
+        if (bestPromo.maxDiscount && percentDiscount > bestPromo.maxDiscount) {
+          percentDiscount = bestPromo.maxDiscount;
+        }
+        totalDiscount = percentDiscount;
+        appliedDiscounts.push({
+          ...bestPromo,
+          discountAmount: percentDiscount
+        });
+        break;
+        
+      case 'free_item':
+        freeItems.push({
+          ...bestPromo.freeItem,
+          qty: 1,
+          promotionId: bestPromo.id,
+          isFreeItem: true
+        });
+        appliedDiscounts.push({
+          ...bestPromo,
+          discountAmount: bestPromo.freeItem.price
+        });
+        totalDiscount = bestPromo.freeItem.price;
+        break;
+    }
+  }
+  
+  return {
+    discounts: appliedDiscounts,
+    totalDiscount: Math.round(totalDiscount * 100) / 100, // Round to 2 decimal places
+    freeItems: freeItems
+  };
+}
+
+function getActivePromotions() {
+  if (!config.promotions.enabled) return [];
+  
+  return config.promotions.rules.filter(promo => promo.active);
+}
+
+function displayPromotionsBanner() {
+  const banner = document.getElementById('promotionsBanner');
+  if (!banner) return;
+  
+  const activePromotions = getActivePromotions();
+  
+  if (activePromotions.length === 0) {
+    banner.style.display = 'none';
+    return;
+  }
+  
+  banner.innerHTML = '';
+  banner.style.display = 'block';
+  
+  activePromotions.forEach(promo => {
+    const card = document.createElement('div');
+    card.className = `promotion-card ${promo.type}`;
+    
+    const title = document.createElement('div');
+    title.className = 'promotion-title';
+    title.textContent = promo.name;
+    
+    const description = document.createElement('p');
+    description.className = 'promotion-description';
+    description.textContent = promo.description;
+    
+    card.appendChild(title);
+    card.appendChild(description);
+    banner.appendChild(card);
+  });
+}
 
 // Enhanced opening hours management functions
 
@@ -1360,6 +1500,14 @@ function updateCart() {
       if (cartTotal) {
         cartTotal.innerHTML = '';
         
+        // Calculate and display promotions
+        const promotions = calculatePromotions(total, cart);
+        
+        // Display subtotal
+        const subtotalRow = document.createElement('p');
+        subtotalRow.innerHTML = `<span>Subtotal:</span><span>${formatCurrency(total)}</span>`;
+        cartTotal.appendChild(subtotalRow);
+        
         // Display delivery fee if applicable
         const deliveryType = document.querySelector('input[name="deliveryType"]:checked');
         if (deliveryType && deliveryType.value === 'delivery' && window.currentDeliveryFee) {
@@ -1396,6 +1544,40 @@ function updateCart() {
             deliveryRow.innerHTML = `<span style="color: #f44336;">${feeResult.display}</span>`;
             cartTotal.appendChild(deliveryRow);
           }
+        }
+        
+        // Display promotion discounts
+        if (promotions.discounts.length > 0) {
+          promotions.discounts.forEach(discount => {
+            const discountRow = document.createElement('p');
+            discountRow.className = 'cart-promotion';
+            discountRow.style.color = 'var(--success)';
+            discountRow.innerHTML = `
+              <span style="font-size: 0.9rem;">${discount.name}:</span>
+              <span>-${formatCurrency(discount.discountAmount)}</span>
+            `;
+            cartTotal.appendChild(discountRow);
+          });
+          
+          total -= promotions.totalDiscount;
+        }
+        
+        // Add free items to cart display (above total)
+        if (promotions.freeItems.length > 0) {
+          promotions.freeItems.forEach(freeItem => {
+            const freeItemDiv = document.createElement('div');
+            freeItemDiv.className = 'cart-item cart-free-item';
+            freeItemDiv.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+            freeItemDiv.style.border = '1px solid var(--success)';
+            freeItemDiv.innerHTML = `
+              <div class="cart-item-details">
+                <div class="cart-item-name">${freeItem.name} (FREE)</div>
+                <div class="cart-item-options" style="color: var(--success);">Promotional item</div>
+              </div>
+              <div class="cart-item-price" style="color: var(--success);">FREE</div>
+            `;
+            cartContent.appendChild(freeItemDiv);
+          });
         }
         
         const totalRow = document.createElement('p');
@@ -1498,6 +1680,7 @@ function init() {
   renderCategories();
   renderMenu();
   updateCart();
+  displayPromotionsBanner(); // Show active promotions
   
   // Setup order options - check for both old and new layouts
   if (document.getElementById('orderOptions')) {
