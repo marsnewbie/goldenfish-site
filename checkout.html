@@ -761,6 +761,8 @@
           this.deliveryFee = null;
           this.orderData = {};
           
+          console.log('CheckoutManager initialized with cart:', this.cart);
+          
           // Load order data from localStorage (delivery type, postcode, etc)
           this.loadOrderData();
           this.init();
@@ -780,14 +782,9 @@
             deliveryRadio.checked = true;
             
             // Update delivery option visual styles
-            document.querySelectorAll('.delivery-option').forEach(option => {
-              option.classList.remove('selected');
-            });
+            this.updateDeliveryOptionStyles();
             
-            const selectedOption = deliveryRadio.closest('.delivery-option');
-            if (selectedOption) {
-              selectedOption.classList.add('selected');
-            }
+            console.log('Set delivery type to:', orderType, 'Radio checked:', deliveryRadio.checked);
           }
           
           // Set address input if delivery
@@ -818,12 +815,14 @@
         
         init() {
           this.setupEventListeners();
-          this.renderOrderSummary();
           this.updateDeliveryOptions();
           this.populateOrderTimes();
           
           // Trigger delivery type change to show/hide address section
           this.handleDeliveryTypeChange();
+          
+          // Render order summary after setting up delivery options
+          this.renderOrderSummary();
           
           // Calculate delivery fee if postcode is already entered
           const postcodeInput = document.getElementById('deliveryPostcode');
@@ -943,10 +942,10 @@
         }
         
         async calculateDeliveryFee() {
-          const postcode = document.getElementById('deliveryPostcode').value.trim().toUpperCase();
+          const rawPostcode = document.getElementById('deliveryPostcode').value.trim();
           const feeDisplay = document.getElementById('deliveryFeeDisplay');
           
-          if (!postcode) {
+          if (!rawPostcode) {
             feeDisplay.innerHTML = '';
             feeDisplay.className = '';
             this.deliveryFee = null;
@@ -954,8 +953,9 @@
             return;
           }
           
-          // First validate UK postcode format
-          if (!this.isValidUKPostcodeFormat(postcode)) {
+          // Normalize and validate UK postcode format
+          const normalizedPostcode = this.normalizeUKPostcode(rawPostcode);
+          if (!normalizedPostcode || !this.isValidUKPostcodeFormat(rawPostcode)) {
             feeDisplay.innerHTML = '⚠️ Invalid postcode format. Please enter a complete UK postcode (e.g. YO10 3BP)';
             feeDisplay.className = 'invalid';
             this.deliveryFee = { valid: false, display: 'Invalid postcode format', zone: '', fee: null };
@@ -963,12 +963,18 @@
             return;
           }
           
+          // Update input field with normalized postcode
+          const postcodeInput = document.getElementById('deliveryPostcode');
+          if (postcodeInput && postcodeInput.value !== normalizedPostcode) {
+            postcodeInput.value = normalizedPostcode;
+          }
+          
           try {
             feeDisplay.innerHTML = '🔄 Validating postcode...';
             feeDisplay.className = 'loading';
             
             // Validate postcode exists using free API
-            const isValidPostcode = await this.validateUKPostcode(postcode);
+            const isValidPostcode = await this.validateUKPostcode(normalizedPostcode);
             
             if (!isValidPostcode) {
               feeDisplay.innerHTML = '❌ Invalid UK postcode. Please check and try again.';
@@ -979,7 +985,7 @@
             }
             
             // Calculate delivery fee
-            const feeResult = await calcDeliveryFee(postcode);
+            const feeResult = await calcDeliveryFee(normalizedPostcode);
             
             if (feeResult.valid) {
               feeDisplay.innerHTML = `
@@ -1235,19 +1241,33 @@
           return patterns.some(pattern => pattern.test(cleanPhone));
         },
         
-        // UK postcode format validation
-        isValidUKPostcodeFormat(postcode) {
-          // UK postcode regex - must be complete postcode with space and 3 characters at end
-          // Examples: SW1A 1AA, M1 1AA, B33 8TH, W1A 0AX, PO10 1AA
-          const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s[0-9][A-Z]{2}$/i;
+        // UK postcode normalization and validation
+        normalizeUKPostcode(postcode) {
+          if (!postcode) return '';
           
-          // Additional check: must have space and be at least 6 characters
-          const cleanPostcode = postcode.trim();
-          if (cleanPostcode.length < 6 || !cleanPostcode.includes(' ')) {
-            return false;
+          // Remove all spaces and convert to uppercase
+          let cleaned = postcode.trim().toUpperCase().replace(/\s/g, '');
+          
+          // Must be at least 5 characters (minimum: M11AA)
+          if (cleaned.length < 5 || cleaned.length > 7) {
+            return null; // Invalid length
           }
           
-          return ukPostcodeRegex.test(cleanPostcode);
+          // Insert space before last 3 characters
+          const formatted = cleaned.slice(0, -3) + ' ' + cleaned.slice(-3);
+          
+          return formatted;
+        },
+        
+        // UK postcode format validation
+        isValidUKPostcodeFormat(postcode) {
+          const normalized = this.normalizeUKPostcode(postcode);
+          if (!normalized) return false;
+          
+          // UK postcode regex
+          const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s[0-9][A-Z]{2}$/i;
+          
+          return ukPostcodeRegex.test(normalized);
         },
         
         // Validate UK postcode using free API

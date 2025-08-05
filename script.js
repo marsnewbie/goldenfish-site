@@ -685,19 +685,41 @@ function getOpeningHoursDisplay() {
   return hours;
 }
 
+// UK postcode normalization and validation helper
+function normalizeUKPostcode(postcode) {
+  if (!postcode) return '';
+  
+  // Remove all spaces and convert to uppercase
+  let cleaned = postcode.trim().toUpperCase().replace(/\s/g, '');
+  
+  // Must be at least 5 characters (minimum: M11AA)
+  if (cleaned.length < 5 || cleaned.length > 7) {
+    return null; // Invalid length
+  }
+  
+  // Insert space before last 3 characters
+  // Examples: YO103BP -> YO10 3BP, M11AA -> M1 1AA
+  const formatted = cleaned.slice(0, -3) + ' ' + cleaned.slice(-3);
+  
+  return formatted;
+}
+
 // UK postcode format validation helper
 function isValidUKPostcodeFormat(postcode) {
+  // First try to normalize the postcode
+  const normalized = normalizeUKPostcode(postcode);
+  if (!normalized) return false;
+  
   // UK postcode regex - must be complete postcode with space and 3 characters at end
   // Examples: SW1A 1AA, M1 1AA, B33 8TH, W1A 0AX, PO10 1AA
   const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s[0-9][A-Z]{2}$/i;
   
-  // Additional check: must have space and be at least 6 characters
-  const cleanPostcode = postcode.trim();
-  if (cleanPostcode.length < 6 || !cleanPostcode.includes(' ')) {
-    return false;
-  }
-  
-  return ukPostcodeRegex.test(cleanPostcode);
+  return ukPostcodeRegex.test(normalized);
+}
+
+// Get normalized postcode for API calls
+function getNormalizedPostcode(postcode) {
+  return normalizeUKPostcode(postcode);
 }
 
 // Enhanced delivery fee calculation with flexible pricing
@@ -717,8 +739,9 @@ async function calcDeliveryFee(postcode, address = '') {
 
 // Postcode-based delivery fee calculation
 function calcPostcodeBasedDeliveryFee(postcode) {
-  // First validate UK postcode format - must be complete
-  if (!isValidUKPostcodeFormat(postcode)) {
+  // First normalize and validate UK postcode format
+  const normalizedPostcode = getNormalizedPostcode(postcode);
+  if (!normalizedPostcode || !isValidUKPostcodeFormat(postcode)) {
     return {
       fee: null,
       display: 'Please enter complete postcode (e.g. PO10 1AA)',
@@ -727,9 +750,12 @@ function calcPostcodeBasedDeliveryFee(postcode) {
     };
   }
   
+  // Use normalized postcode for matching
+  const searchPostcode = normalizedPostcode;
+  
   // Try exact match first
-  if (config.deliveryZones[postcode]) {
-    const zone = config.deliveryZones[postcode];
+  if (config.deliveryZones[searchPostcode]) {
+    const zone = config.deliveryZones[searchPostcode];
     return {
       fee: zone.fee,
       display: zone.fee === 0 ? 'FREE' : `£${zone.fee.toFixed(2)}`,
@@ -740,7 +766,7 @@ function calcPostcodeBasedDeliveryFee(postcode) {
   
   // Try prefix matches (from longest to shortest)
   const prefixes = Object.keys(config.deliveryZones)
-    .filter(key => postcode.startsWith(key) && key !== postcode)
+    .filter(key => searchPostcode.startsWith(key) && key !== searchPostcode)
     .sort((a, b) => b.length - a.length); // Sort by length descending
   
   if (prefixes.length > 0) {
