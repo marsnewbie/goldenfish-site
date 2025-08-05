@@ -1421,9 +1421,18 @@ function updateCart() {
       </div>
     `;
     
-    // Hide cart summary and checkout
+    // Hide cart summary but show checkout section with disabled button
     if (cartSummary) cartSummary.style.display = 'none';
-    if (checkoutSection) checkoutSection.style.display = 'none';
+    if (checkoutSection) {
+      checkoutSection.style.display = 'block';
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      if (checkoutBtn) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = '<span>Add items to checkout</span>';
+        checkoutBtn.style.background = '#ccc';
+        checkoutBtn.style.cursor = 'not-allowed';
+      }
+    }
   } else {
     cart.forEach(item => {
       // 计算包含选项的总价
@@ -1600,8 +1609,9 @@ function updateCart() {
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) {
       checkoutBtn.disabled = false;
-      checkoutBtn.textContent = 'Proceed to Checkout';
-      checkoutBtn.innerHTML = '<span>Proceed to Checkout</span><span class="checkout-arrow">→</span>';
+      checkoutBtn.innerHTML = '<span>Checkout</span><span class="checkout-arrow">→</span>';
+      checkoutBtn.style.background = 'linear-gradient(135deg, var(--success) 0%, #388e3c 100%)';
+      checkoutBtn.style.cursor = 'pointer';
     }
   }
 }

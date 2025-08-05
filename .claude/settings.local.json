@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:test-ordering-page.vercel.app)"
+    ],
+    "deny": []
+  }
+}
