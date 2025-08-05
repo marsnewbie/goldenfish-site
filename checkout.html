@@ -636,6 +636,17 @@
         }
         
         async placeOrder() {
+          // Check if this is an advance order and show warning if needed
+          const checkoutBtn = document.getElementById('placeOrderBtn');
+          const isAdvanceOrder = checkoutBtn && checkoutBtn.getAttribute('data-advance-order') === 'true';
+          
+          if (isAdvanceOrder && config.advanceOrdering.showWarningMessage) {
+            const confirmed = await this.showAdvanceOrderWarning();
+            if (!confirmed) {
+              return; // User cancelled advance order
+            }
+          }
+          
           const errors = this.validateForm();
           const messagesDiv = document.getElementById('orderMessages');
           
@@ -720,6 +731,58 @@
             placeOrderBtn.disabled = false;
             placeOrderBtn.textContent = 'Place Order';
           }
+        }
+        
+        // Show advance order warning dialog
+        showAdvanceOrderWarning() {
+          return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.zIndex = '2000';
+            modal.innerHTML = `
+              <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header" style="background: var(--warning); color: white;">
+                  <h3>${config.advanceOrdering.warningMessage.title}</h3>
+                  <button class="close-btn" type="button">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <p style="margin-bottom: 1rem; line-height: 1.6;">${config.advanceOrdering.warningMessage.content}</p>
+                  <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="cancel-advance-btn" style="padding: 0.75rem 1.5rem; background: var(--gray); border: none; border-radius: 4px; cursor: pointer;">
+                      ${config.advanceOrdering.warningMessage.cancelText}
+                    </button>
+                    <button class="confirm-advance-btn" style="padding: 0.75rem 1.5rem; background: var(--warning); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                      ${config.advanceOrdering.warningMessage.confirmText}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Handle confirm
+            modal.querySelector('.confirm-advance-btn').addEventListener('click', () => {
+              document.body.removeChild(modal);
+              resolve(true);
+            });
+            
+            // Handle cancel
+            const cancelHandler = () => {
+              document.body.removeChild(modal);
+              resolve(false);
+            };
+            
+            modal.querySelector('.cancel-advance-btn').addEventListener('click', cancelHandler);
+            modal.querySelector('.close-btn').addEventListener('click', cancelHandler);
+            
+            // Click outside to cancel
+            modal.addEventListener('click', (e) => {
+              if (e.target === modal) {
+                cancelHandler();
+              }
+            });
+          });
         }
       }
       

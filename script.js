@@ -230,6 +230,21 @@ const config = {
     endDate: null
   },
   
+  // Advance ordering settings - allows customers to order during closed hours
+  advanceOrdering: {
+    enabled: true, // Merchant can toggle this feature
+    allowClosedHourOrders: true, // Allow orders when restaurant is closed
+    showWarningMessage: true, // Show warning popup when ordering during closed hours
+    warningMessage: {
+      title: 'Restaurant Currently Closed',
+      content: 'We are currently closed, but you can place an advance order. Your order will be prepared when we reopen.',
+      confirmText: 'Continue with advance order',
+      cancelText: 'Order later'
+    },
+    minimumAdvanceTime: 30, // Minimum minutes before opening to accept orders
+    maxAdvanceDays: 2 // Maximum days in advance customers can order
+  },
+  
   // Delivery pricing configuration
   deliveryPricingMode: 'postcode', // 'postcode' or 'distance'
   
@@ -453,6 +468,69 @@ function getAvailableTimes(type, date = new Date()) {
   return times;
 }
 
+// Generate available advance order times for closed hours
+function getAdvanceOrderTimes(type, fromDate = new Date()) {
+  if (!config.advanceOrdering.enabled || !config.advanceOrdering.allowClosedHourOrders) {
+    return [];
+  }
+  
+  const times = [];
+  const leadTime = type === 'delivery' ? config.deliveryLeadTime : config.collectionLeadTime;
+  const maxAdvanceDays = config.advanceOrdering.maxAdvanceDays;
+  const minimumAdvanceTime = config.advanceOrdering.minimumAdvanceTime;
+  
+  // Check next few days for available slots
+  for (let dayOffset = 0; dayOffset <= maxAdvanceDays; dayOffset++) {
+    const checkDate = new Date(fromDate);
+    checkDate.setDate(checkDate.getDate() + dayOffset);
+    
+    const status = getRestaurantStatus(checkDate);
+    
+    // Skip if restaurant is not operating on this day
+    if (!status.hoursToday) continue;
+    
+    const openTime = getTimeOnDate(checkDate, status.hoursToday.open);
+    let closeTime = getTimeOnDate(checkDate, status.hoursToday.close);
+    
+    // Handle midnight closing
+    if (status.hoursToday.close === '00:00' || closeTime <= openTime) {
+      closeTime = new Date(closeTime.getTime() + 24 * 60 * 60 * 1000);
+    }
+    
+    // For today, start from next opening time + minimum advance time
+    // For future days, start from opening time
+    let earliestTime;
+    if (dayOffset === 0) {
+      const nextOpen = getNextOpenTime(fromDate);
+      if (nextOpen) {
+        earliestTime = new Date(nextOpen.getTime() + minimumAdvanceTime * 60 * 1000);
+      } else {
+        continue; // Skip if no opening found today
+      }
+    } else {
+      earliestTime = new Date(openTime.getTime() + leadTime * 60 * 1000);
+    }
+    
+    // Generate time slots for this day
+    const currentTime = new Date(earliestTime);
+    
+    // Round up to next interval
+    const intervalMs = config.timeInterval * 60 * 1000;
+    const remainder = currentTime.getTime() % intervalMs;
+    if (remainder > 0) {
+      currentTime.setTime(currentTime.getTime() + (intervalMs - remainder));
+    }
+    
+    // Add time slots until closing
+    while (currentTime <= closeTime && times.length < 50) { // Limit to 50 slots total
+      times.push(new Date(currentTime));
+      currentTime.setTime(currentTime.getTime() + intervalMs);
+    }
+  }
+  
+  return times;
+}
+
 // Enhanced time formatting functions
 function formatTimeOption(date) {
   const pad = n => n < 10 ? '0' + n : n;
@@ -649,7 +727,7 @@ function setupOrderOptions() {
     let selectedType = 'collection';
     deliveryRadios.forEach(r => { if (r.checked) selectedType = r.value; });
     
-    // Check if restaurant is open
+    // Check if restaurant is open or if advance ordering is enabled
     if (!status.isOpen) {
       let statusMessage = status.reason;
       
@@ -667,15 +745,69 @@ function setupOrderOptions() {
         }
       }
       
-      storeStatus.innerHTML = `<span style=\"color: var(--danger); font-weight: 600;\">${statusMessage}</span>`;
-      timeSelectGroup.style.display = 'none';
-      postcodeGroup.style.display = 'none';
-      
-      // Disable checkout when closed
-      const checkoutBtn = document.getElementById('checkoutBtn');
-      if (checkoutBtn) {
-        checkoutBtn.disabled = true;
-        checkoutBtn.textContent = 'Restaurant Closed';
+      // Check if advance ordering is enabled
+      if (config.advanceOrdering.enabled && config.advanceOrdering.allowClosedHourOrders) {
+        storeStatus.innerHTML = `
+          <span style="color: var(--warning); font-weight: 600;">${statusMessage}</span>
+          <br><small style="color: var(--success); font-weight: 500;">Advance ordering available</small>
+        `;
+        
+        // Generate advance time slots
+        const advanceTimes = getAdvanceOrderTimes(selectedType);
+        orderTime.innerHTML = '';
+        
+        if (advanceTimes.length > 0) {
+          advanceTimes.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.toISOString();
+            opt.textContent = formatTimeOption(t);
+            orderTime.appendChild(opt);
+          });
+          timeSelectGroup.style.display = '';
+          
+          // Enable checkout for advance orders
+          const checkoutBtn = document.getElementById('checkoutBtn');
+          if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = 'Place Advance Order';
+            checkoutBtn.setAttribute('data-advance-order', 'true');
+          }
+        } else {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'No advance slots available';
+          opt.disabled = true;
+          orderTime.appendChild(opt);
+          timeSelectGroup.style.display = '';
+          
+          const checkoutBtn = document.getElementById('checkoutBtn');
+          if (checkoutBtn) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.textContent = 'No advance slots available';
+          }
+        }
+        
+        // Handle delivery options for advance orders
+        if (selectedType === 'delivery') {
+          postcodeGroup.style.display = '';
+          updateDeliveryFeeDisplay(postcodeInput.value);
+        } else {
+          postcodeGroup.style.display = 'none';
+          deliveryFee.textContent = '';
+        }
+        
+      } else {
+        // Traditional closed behavior - no advance ordering
+        storeStatus.innerHTML = `<span style="color: var(--danger); font-weight: 600;">${statusMessage}</span>`;
+        timeSelectGroup.style.display = 'none';
+        postcodeGroup.style.display = 'none';
+        
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+          checkoutBtn.disabled = true;
+          checkoutBtn.textContent = 'Restaurant Closed';
+          checkoutBtn.removeAttribute('data-advance-order');
+        }
       }
       return;
     }
@@ -1261,8 +1393,72 @@ function handleCheckout() {
     alert('Your cart is empty!');
     return;
   }
-  // For demonstration, redirect to a dummy checkout page
-  window.location.href = 'checkout.html';
+  
+  // Check if this is an advance order
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const isAdvanceOrder = checkoutBtn && checkoutBtn.getAttribute('data-advance-order') === 'true';
+  
+  if (isAdvanceOrder && config.advanceOrdering.showWarningMessage) {
+    showAdvanceOrderWarning().then(confirmed => {
+      if (confirmed) {
+        window.location.href = 'checkout.html';
+      }
+    });
+  } else {
+    window.location.href = 'checkout.html';
+  }
+}
+
+// Show advance order warning on menu page
+function showAdvanceOrderWarning() {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '2000';
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header" style="background: var(--warning); color: white;">
+          <h3>${config.advanceOrdering.warningMessage.title}</h3>
+          <button class="close-btn" type="button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 1rem; line-height: 1.6;">${config.advanceOrdering.warningMessage.content}</p>
+          <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="cancel-advance-btn" style="padding: 0.75rem 1.5rem; background: var(--gray); border: none; border-radius: 4px; cursor: pointer;">
+              ${config.advanceOrdering.warningMessage.cancelText}
+            </button>
+            <button class="confirm-advance-btn" style="padding: 0.75rem 1.5rem; background: var(--warning); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+              ${config.advanceOrdering.warningMessage.confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Handle confirm
+    modal.querySelector('.confirm-advance-btn').addEventListener('click', () => {
+      document.body.removeChild(modal);
+      resolve(true);
+    });
+    
+    // Handle cancel
+    const cancelHandler = () => {
+      document.body.removeChild(modal);
+      resolve(false);
+    };
+    
+    modal.querySelector('.cancel-advance-btn').addEventListener('click', cancelHandler);
+    modal.querySelector('.close-btn').addEventListener('click', cancelHandler);
+    
+    // Click outside to cancel
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        cancelHandler();
+      }
+    });
+  });
 }
 
 // Setup event listeners
