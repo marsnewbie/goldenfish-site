@@ -772,17 +772,37 @@
           const savedPostcode = localStorage.getItem('goldenfish_postcode');
           const savedDeliveryFee = localStorage.getItem('goldenfish_delivery_fee');
           
-          // Set delivery type
+          console.log('Loading order data:', { orderType, savedPostcode, savedDeliveryFee });
+          
+          // Set delivery type and update visual states
           const deliveryRadio = document.querySelector(`input[name="deliveryType"][value="${orderType}"]`);
           if (deliveryRadio) {
             deliveryRadio.checked = true;
+            
+            // Update delivery option visual styles
+            document.querySelectorAll('.delivery-option').forEach(option => {
+              option.classList.remove('selected');
+            });
+            
+            const selectedOption = deliveryRadio.closest('.delivery-option');
+            if (selectedOption) {
+              selectedOption.classList.add('selected');
+            }
           }
           
-          // Set postcode if available
-          if (savedPostcode && orderType === 'delivery') {
-            const postcodeInput = document.getElementById('deliveryPostcode');
-            if (postcodeInput) {
-              postcodeInput.value = savedPostcode;
+          // Set address input if delivery
+          if (orderType === 'delivery') {
+            const addressSection = document.getElementById('deliveryAddressSection');
+            if (addressSection) {
+              addressSection.style.display = 'block';
+            }
+            
+            // Set postcode if available
+            if (savedPostcode) {
+              const postcodeInput = document.getElementById('deliveryPostcode');
+              if (postcodeInput) {
+                postcodeInput.value = savedPostcode;
+              }
             }
           }
           
@@ -1217,9 +1237,17 @@
         
         // UK postcode format validation
         isValidUKPostcodeFormat(postcode) {
-          // UK postcode regex - must be complete postcode
-          const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
-          return ukPostcodeRegex.test(postcode);
+          // UK postcode regex - must be complete postcode with space and 3 characters at end
+          // Examples: SW1A 1AA, M1 1AA, B33 8TH, W1A 0AX, PO10 1AA
+          const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s[0-9][A-Z]{2}$/i;
+          
+          // Additional check: must have space and be at least 6 characters
+          const cleanPostcode = postcode.trim();
+          if (cleanPostcode.length < 6 || !cleanPostcode.includes(' ')) {
+            return false;
+          }
+          
+          return ukPostcodeRegex.test(cleanPostcode);
         },
         
         // Validate UK postcode using free API

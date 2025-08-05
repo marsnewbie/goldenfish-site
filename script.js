@@ -685,6 +685,21 @@ function getOpeningHoursDisplay() {
   return hours;
 }
 
+// UK postcode format validation helper
+function isValidUKPostcodeFormat(postcode) {
+  // UK postcode regex - must be complete postcode with space and 3 characters at end
+  // Examples: SW1A 1AA, M1 1AA, B33 8TH, W1A 0AX, PO10 1AA
+  const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s[0-9][A-Z]{2}$/i;
+  
+  // Additional check: must have space and be at least 6 characters
+  const cleanPostcode = postcode.trim();
+  if (cleanPostcode.length < 6 || !cleanPostcode.includes(' ')) {
+    return false;
+  }
+  
+  return ukPostcodeRegex.test(cleanPostcode);
+}
+
 // Enhanced delivery fee calculation with flexible pricing
 async function calcDeliveryFee(postcode, address = '') {
   if (!postcode) return { fee: '', display: '', zone: '' };
@@ -702,6 +717,16 @@ async function calcDeliveryFee(postcode, address = '') {
 
 // Postcode-based delivery fee calculation
 function calcPostcodeBasedDeliveryFee(postcode) {
+  // First validate UK postcode format - must be complete
+  if (!isValidUKPostcodeFormat(postcode)) {
+    return {
+      fee: null,
+      display: 'Please enter complete postcode (e.g. PO10 1AA)',
+      zone: 'Invalid format',
+      valid: false
+    };
+  }
+  
   // Try exact match first
   if (config.deliveryZones[postcode]) {
     const zone = config.deliveryZones[postcode];
