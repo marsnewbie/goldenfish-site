@@ -1595,6 +1595,14 @@ function updateCart() {
     if (checkoutSection) {
       checkoutSection.style.display = 'block';
     }
+    
+    // Ensure checkout button is properly enabled
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+      checkoutBtn.disabled = false;
+      checkoutBtn.textContent = 'Proceed to Checkout';
+      checkoutBtn.innerHTML = '<span>Proceed to Checkout</span><span class="checkout-arrow">→</span>';
+    }
   }
 }
 

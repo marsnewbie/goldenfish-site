@@ -497,7 +497,7 @@ ul {
 .menu-main {
   flex: 1;
   margin-right: 380px; /* Account for fixed cart sidebar */
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   max-width: calc(100vw - 630px); /* Account for both sidebars */
 }
 
@@ -823,13 +823,16 @@ ul {
   border-top: 1px solid var(--border);
   padding: 1rem;
   background: var(--light);
+  flex-shrink: 0;
 }
 
 .checkout-btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 1rem;
-  text-align: center;
   background: linear-gradient(135deg, var(--success) 0%, #388e3c 100%);
   color: var(--light);
   border: none;
@@ -843,10 +846,19 @@ ul {
   letter-spacing: 1px;
 }
 
+.checkout-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
 .checkout-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
   background: linear-gradient(135deg, #66bb6a 0%, #2e7d32 100%);
+}
+
+.checkout-btn:hover .checkout-arrow {
+  transform: translateX(3px);
 }
 
 .checkout-btn:disabled {
