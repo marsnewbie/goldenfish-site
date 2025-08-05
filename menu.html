@@ -28,37 +28,98 @@
         </div>
       </div>
     </header>
-    <main class="container menu-container">
-      <!-- Category sidebar -->
-      <aside class="category-sidebar">
-        <ul id="categoryList"></ul>
-      </aside>
-      <!-- Menu content -->
-      <section class="menu-content" id="menuContent"></section>
-      <!-- Cart summary -->
-      <aside class="cart-summary">
-        <div id="orderOptions" class="order-options">
-          <div class="delivery-type">
-            <label><input type="radio" name="deliveryType" value="delivery"> Home Delivery</label>
-            <label><input type="radio" name="deliveryType" value="collection" checked> Collection</label>
-          </div>
-          <div id="storeStatus" class="store-status"></div>
-          <div id="timeSelectGroup" class="time-select-group" style="display:none;">
-            <label for="orderTime">Select Time:</label>
-            <select id="orderTime"></select>
-          </div>
-          <div id="postcodeGroup" class="postcode-group" style="display:none;">
-            <label for="postcodeInput">Postcode:</label>
-            <input type="text" id="postcodeInput" placeholder="e.g. OX1 1AA" maxlength="8" />
-            <span id="deliveryFee"></span>
+    <!-- Enhanced menu layout matching mayfairchinesefood.co.uk -->
+    <div class="menu-wrapper">
+      <!-- Fixed cart sidebar - right side -->
+      <aside class="cart-sidebar" id="cartSidebar">
+        <!-- Order Options Header -->
+        <div class="cart-header">
+          <h3>Your Order</h3>
+          <div class="delivery-toggle-container">
+            <div class="delivery-toggle">
+              <button class="delivery-option" id="collectionBtn" data-type="collection">
+                <span class="option-icon">🏃</span>
+                <span class="option-text">Collection</span>
+              </button>
+              <button class="delivery-option active" id="deliveryBtn" data-type="delivery">
+                <span class="option-icon">🚚</span>
+                <span class="option-text">Delivery</span>
+              </button>
+            </div>
           </div>
         </div>
-        <h4>Your Order</h4>
-        <div class="cart-content" id="cartContent"></div>
-        <div class="cart-total" id="cartTotal"></div>
-        <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+        
+        <!-- Order Configuration -->
+        <div class="order-config">
+          <div id="storeStatus" class="store-status"></div>
+          
+          <!-- Time Selection -->
+          <div id="timeSelectSection" class="config-section">
+            <label for="orderTime">Order Time:</label>
+            <select id="orderTime" class="time-select">
+              <option>Loading times...</option>
+            </select>
+          </div>
+          
+          <!-- Delivery Address -->
+          <div id="deliverySection" class="config-section">
+            <label for="postcodeInput">Delivery Postcode:</label>
+            <div class="postcode-input-container">
+              <input type="text" id="postcodeInput" placeholder="Enter postcode" maxlength="8" />
+              <button id="postcodeCheckBtn" class="postcode-check-btn">Check</button>
+            </div>
+            <div id="deliveryFee" class="delivery-fee-display"></div>
+          </div>
+        </div>
+        
+        <!-- Cart Items -->
+        <div class="cart-items-container">
+          <div id="cartContent" class="cart-content">
+            <div class="empty-cart-message">
+              <span class="cart-icon">🛒</span>
+              <p>Your basket is empty</p>
+              <small>Add items from the menu to get started</small>
+            </div>
+          </div>
+          
+          <!-- Cart Summary -->
+          <div id="cartSummary" class="cart-summary" style="display: none;">
+            <div id="cartTotal" class="cart-total"></div>
+            <button class="checkout-btn" id="checkoutBtn">
+              <span>Proceed to Checkout</span>
+              <span class="checkout-arrow">→</span>
+            </button>
+          </div>
+        </div>
       </aside>
-    </main>
+      
+      <!-- Main menu content -->
+      <main class="menu-main">
+        <!-- Menu Header -->
+        <div class="menu-header">
+          <h1>Our Menu</h1>
+          <p>Fresh ingredients, authentic flavors, made to order</p>
+        </div>
+        
+        <!-- Category Navigation -->
+        <nav class="category-nav">
+          <div class="category-nav-container">
+            <ul id="categoryList" class="category-list"></ul>
+          </div>
+        </nav>
+        
+        <!-- Menu Sections -->
+        <div class="menu-sections" id="menuContent">
+          <!-- Dynamic menu content will be loaded here -->
+        </div>
+      </main>
+    </div>
+    
+    <!-- Hidden inputs for cart functionality -->
+    <div style="display: none;">
+      <input type="radio" name="deliveryType" value="delivery" id="hiddenDeliveryRadio" checked>
+      <input type="radio" name="deliveryType" value="collection" id="hiddenCollectionRadio">
+    </div>
     <script src="script.js"></script>
   </body>
 </html>
