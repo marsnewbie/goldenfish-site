@@ -1022,9 +1022,14 @@ function renderMenu() {
         }
       });
       
+      // Create info container for price and button
+      const infoContainer = document.createElement('div');
+      infoContainer.className = 'menu-item-info';
+      infoContainer.appendChild(priceEl);
+      infoContainer.appendChild(btn);
+      
       itemRow.appendChild(nameContainer);
-      itemRow.appendChild(priceEl);
-      itemRow.appendChild(btn);
+      itemRow.appendChild(infoContainer);
       itemsContainer.appendChild(itemRow);
     });
     section.appendChild(itemsContainer);
@@ -1469,9 +1474,183 @@ function init() {
   renderCategories();
   renderMenu();
   updateCart();
+  
+  // Setup order options - check for both old and new layouts
   if (document.getElementById('orderOptions')) {
     setupOrderOptions();
+  } else {
+    setupNewOrderOptions(); // New sidebar layout
   }
+}
+
+// Setup new sidebar delivery/collection toggle
+function setupNewOrderOptions() {
+  const collectionBtn = document.getElementById('collectionBtn');
+  const deliveryBtn = document.getElementById('deliveryBtn');
+  const deliverySection = document.getElementById('deliverySection');
+  const timeSelectSection = document.getElementById('timeSelectSection');
+  const hiddenDeliveryRadio = document.getElementById('hiddenDeliveryRadio');
+  const hiddenCollectionRadio = document.getElementById('hiddenCollectionRadio');
+  const postcodeInput = document.getElementById('postcodeInput');
+  const postcodeCheckBtn = document.getElementById('postcodeCheckBtn');
+  
+  if (!collectionBtn || !deliveryBtn) return;
+  
+  // Initial state - delivery is active by default
+  updateDeliveryToggleUI('delivery');
+  hiddenDeliveryRadio.checked = true;
+  
+  // Collection button click
+  collectionBtn.addEventListener('click', () => {
+    updateDeliveryToggleUI('collection');
+    hiddenCollectionRadio.checked = true;
+    updateOrderOptionsDisplay();
+  });
+  
+  // Delivery button click  
+  deliveryBtn.addEventListener('click', () => {
+    updateDeliveryToggleUI('delivery');
+    hiddenDeliveryRadio.checked = true;
+    updateOrderOptionsDisplay();
+  });
+  
+  // Postcode check button
+  if (postcodeCheckBtn && postcodeInput) {
+    postcodeCheckBtn.addEventListener('click', () => {
+      updateDeliveryFeeDisplay(postcodeInput.value);
+    });
+    
+    // Auto-check postcode on input
+    postcodeInput.addEventListener('input', () => {
+      if (postcodeInput.value.length >= 5) {
+        updateDeliveryFeeDisplay(postcodeInput.value);
+      }
+    });
+  }
+  
+  // Initial load
+  updateOrderOptionsDisplay();
+}
+
+// Update delivery toggle UI
+function updateDeliveryToggleUI(selectedType) {
+  const collectionBtn = document.getElementById('collectionBtn');
+  const deliveryBtn = document.getElementById('deliveryBtn');
+  
+  if (selectedType === 'collection') {
+    collectionBtn.classList.add('active');
+    deliveryBtn.classList.remove('active');
+  } else {
+    deliveryBtn.classList.add('active');
+    collectionBtn.classList.remove('active');
+  }
+}
+
+// Update order options display for new layout
+function updateOrderOptionsDisplay() {
+  const selectedType = document.querySelector('input[name="deliveryType"]:checked')?.value || 'delivery';
+  const deliverySection = document.getElementById('deliverySection');
+  const timeSelectSection = document.getElementById('timeSelectSection');
+  const storeStatus = document.getElementById('storeStatus');
+  const orderTime = document.getElementById('orderTime');
+  
+  const now = new Date();
+  const status = getRestaurantStatus(now);
+  
+  // Show/hide delivery section based on selection
+  if (deliverySection) {
+    deliverySection.style.display = selectedType === 'delivery' ? 'block' : 'none';
+  }
+  
+  // Update store status
+  if (storeStatus) {
+    if (!status.isOpen) {
+      let statusMessage = status.reason;
+      
+      if (status.nextOpen) {
+        const nextOpen = new Date(status.nextOpen);
+        const isToday = nextOpen.toDateString() === now.toDateString();
+        const isTomorrow = nextOpen.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
+        
+        if (isToday) {
+          statusMessage += `. Opens today at ${formatTime(status.nextOpen)}`;
+        } else if (isTomorrow) {
+          statusMessage += `. Opens tomorrow at ${formatTime(status.nextOpen)}`;
+        } else {
+          statusMessage += `. Next opening: ${formatDateTime(status.nextOpen)}`;
+        }
+      }
+      
+      // Check if advance ordering is enabled
+      if (config.advanceOrdering.enabled && config.advanceOrdering.allowClosedHourOrders) {
+        storeStatus.innerHTML = `
+          <span style="color: var(--warning); font-weight: 600;">${statusMessage}</span>
+          <br><small style="color: var(--success); font-weight: 500;">Advance ordering available</small>
+        `;
+        
+        // Generate advance time slots
+        const advanceTimes = getAdvanceOrderTimes(selectedType);
+        if (orderTime) {
+          orderTime.innerHTML = '';
+          
+          if (advanceTimes.length > 0) {
+            advanceTimes.forEach(t => {
+              const opt = document.createElement('option');
+              opt.value = t.toISOString();
+              opt.textContent = formatTimeOption(t);
+              orderTime.appendChild(opt);
+            });
+          } else {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No advance slots available';
+            opt.disabled = true;
+            orderTime.appendChild(opt);
+          }
+        }
+        
+      } else {
+        // Traditional closed behavior
+        storeStatus.innerHTML = `<span style="color: var(--danger); font-weight: 600;">${statusMessage}</span>`;
+        if (orderTime) {
+          orderTime.innerHTML = '<option disabled>Restaurant closed</option>';
+        }
+      }
+    } else {
+      // Restaurant is open
+      if (status.reason) {
+        storeStatus.innerHTML = `<span style="color: var(--warning); font-weight: 500;">${status.reason}</span>`;
+      } else {
+        const hoursToday = status.hoursToday;
+        let closeTime = hoursToday.close === '00:00' ? 'Midnight' : hoursToday.close;
+        storeStatus.innerHTML = `<span style="color: var(--success); font-weight: 500;">Open until ${closeTime}</span>`;
+      }
+      
+      // Generate regular time slots
+      const times = getAvailableTimes(selectedType);
+      if (orderTime) {
+        orderTime.innerHTML = '';
+        
+        if (times.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'No time slots available today';
+          opt.disabled = true;
+          orderTime.appendChild(opt);
+        } else {
+          times.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.toISOString();
+            opt.textContent = formatTimeOption(t);
+            orderTime.appendChild(opt);
+          });
+        }
+      }
+    }
+  }
+  
+  // Update cart display
+  updateCart();
 }
 
 // Initialize on DOMContentLoaded
