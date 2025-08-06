@@ -6,469 +6,118 @@
   <title>Checkout - Golden Fish</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Modern Checkout Design - Industry Standard */
+    /* Uber Eats Style Checkout - Single Page Design */
     .checkout-container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
       min-height: 100vh;
-      background: #f8f9fa;
+      background: #f6f6f6;
     }
 
+    /* Header */
     .checkout-header {
+      grid-column: 1 / -1;
       background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+      margin: -1rem -1rem 1rem -1rem;
+      border-bottom: 1px solid #e0e0e0;
     }
 
-    .checkout-progress {
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      justify-content: space-between;
     }
 
-    .progress-step {
+    .logo-section {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: #666;
-      font-size: 0.9rem;
     }
 
-    .progress-step.active {
-      color: var(--primary);
-      font-weight: 600;
+    .logo-section img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
     }
 
-    .progress-step.completed {
-      color: var(--success);
-    }
-
-    .step-number {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #e9ecef;
-      color: #666;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .progress-step.active .step-number {
-      background: var(--primary);
-      color: white;
-    }
-
-    .progress-step.completed .step-number {
-      background: var(--success);
-      color: white;
-    }
-
-    .checkout-main {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 1.5rem;
-    }
-
-    .checkout-steps {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .checkout-step {
-      display: none;
-    }
-
-    .checkout-step.active {
-      display: block;
-    }
-
-    .step-header {
-      margin-bottom: 1.5rem;
-    }
-
-    .step-title {
+    .back-button {
+      background: none;
+      border: none;
       font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.2s;
     }
 
-    .step-subtitle {
-      color: #666;
-      font-size: 0.95rem;
+    .back-button:hover {
+      background-color: #f0f0f0;
     }
 
-    /* Order Summary Sidebar */
-    .order-summary {
+    /* Main Content Area */
+    .checkout-main {
       background: white;
       border-radius: 12px;
-      padding: 1.5rem;
+      padding: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       height: fit-content;
-      position: sticky;
-      top: 20px;
     }
 
-    .summary-header {
+    /* Delivery Toggle - Uber Eats Style */
+    .delivery-toggle-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .delivery-toggle {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .summary-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .cart-items {
-      margin-bottom: 1rem;
-    }
-
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #f1f3f5;
-    }
-
-    .cart-item:last-child {
-      border-bottom: none;
-    }
-
-    .item-details {
-      flex: 1;
-    }
-
-    .item-name {
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 0.25rem;
-    }
-
-    .item-options {
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 0.25rem;
-    }
-
-    .item-quantity {
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .item-price {
-      font-weight: 600;
-      color: #333;
-      text-align: right;
-    }
-
-    .order-totals {
-      border-top: 1px solid #e9ecef;
-      padding-top: 1rem;
-    }
-
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-
-    .total-row.final {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--primary);
-      padding-top: 0.5rem;
-      border-top: 2px solid var(--primary);
-      margin-top: 0.5rem;
-    }
-
-    /* Form Elements */
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e9ecef;
+      background: #f6f6f6;
       border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .form-input.error {
-      border-color: var(--danger);
-    }
-
-    .error-message {
-      color: var(--danger);
-      font-size: 0.85rem;
-      margin-top: 0.25rem;
-    }
-
-    /* Delivery Options */
-    .delivery-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      padding: 4px;
+      position: relative;
     }
 
     .delivery-option {
-      border: 2px solid #e9ecef;
-      border-radius: 12px;
-      padding: 1rem;
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
       text-align: center;
     }
 
-    .delivery-option:hover {
-      border-color: var(--primary);
-      background: rgba(211, 47, 47, 0.02);
+    .delivery-option.active {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .delivery-option.selected {
-      border-color: var(--primary);
-      background: rgba(211, 47, 47, 0.05);
+    /* Account Type Section */
+    .account-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
     }
 
-    .delivery-option input[type="radio"] {
-      display: none;
-    }
-
-    .option-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .option-title {
+    .section-title {
+      font-size: 1.2rem;
       font-weight: 600;
+      margin-bottom: 1rem;
       color: #333;
-      margin-bottom: 0.25rem;
-    }
-
-    .option-desc {
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    /* Payment Methods */
-    .payment-methods {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .payment-method {
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .payment-method:hover {
-      border-color: var(--primary);
-    }
-
-    .payment-method.selected {
-      border-color: var(--primary);
-      background: rgba(211, 47, 47, 0.02);
-    }
-
-    .payment-method input[type="radio"] {
-      display: none;
-    }
-
-    .payment-icon {
-      font-size: 1.5rem;
-    }
-
-    .payment-details {
-      flex: 1;
-    }
-
-    .payment-name {
-      font-weight: 500;
-      color: #333;
-    }
-
-    .payment-desc {
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    /* Action Buttons */
-    .step-actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e9ecef;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      background: #f8f9fa;
-      color: #666;
-      border: 1px solid #e9ecef;
-    }
-
-    .btn-secondary:hover {
-      background: #e9ecef;
-    }
-
-    .btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Address Form */
-    .address-form {
-      display: none;
-    }
-
-    .address-form.show {
-      display: block;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .postcode-group {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .postcode-group input {
-      flex: 1;
-    }
-
-    .verify-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .verify-btn:hover {
-      background: var(--primary-hover);
-    }
-
-    .delivery-fee {
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-
-    .delivery-fee.valid {
-      background: rgba(76, 175, 80, 0.1);
-      color: var(--success);
-      border: 1px solid var(--success);
-    }
-
-    .delivery-fee.invalid {
-      background: rgba(244, 67, 54, 0.1);
-      color: var(--danger);
-      border: 1px solid var(--danger);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .checkout-main {
-        grid-template-columns: 1fr;
-      }
-
-      .order-summary {
-        order: -1;
-        position: static;
-      }
-
-      .delivery-options {
-        grid-template-columns: 1fr;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .checkout-progress {
-        font-size: 0.8rem;
-      }
-
-      .progress-step span {
-        display: none;
-      }
-    }
-
-    /* Account Selection Styles */
-    .account-selection {
-      margin-bottom: 2rem;
     }
 
     .account-options {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      gap: 12px;
     }
 
     .account-option {
@@ -484,114 +133,345 @@
     .account-option label {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1.5rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 12px;
+      gap: 12px;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
       background: white;
     }
 
     .account-option input[type="radio"]:checked + label {
-      border-color: var(--primary);
-      background: #f8f9fa;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-color: #00d084;
+      background: #f0fdf7;
     }
 
     .account-option .option-icon {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
     }
 
-    .account-option .option-title {
+    .option-content {
+      flex: 1;
+    }
+
+    .option-title {
       font-weight: 600;
-      margin-bottom: 0.25rem;
+      margin-bottom: 2px;
+      color: #333;
     }
 
-    .account-option .option-desc {
-      font-size: 0.9rem;
+    .option-desc {
+      font-size: 0.85rem;
       color: #666;
     }
 
-    /* Contact Form Styles */
-    .contact-form {
-      background: white;
+    /* Contact Information Section */
+    .contact-section {
       padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-bottom: 1px solid #e0e0e0;
     }
 
-    .form-row {
+    .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
     .form-group {
-      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
+      margin-bottom: 6px;
+      font-weight: 500;
       color: #333;
+      font-size: 0.9rem;
     }
 
     .form-group input,
     .form-group textarea {
       width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e1e5e9;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
       border-radius: 8px;
       font-size: 1rem;
-      transition: border-color 0.3s ease;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: var(--primary);
+      border-color: #00d084;
     }
 
     .form-group input:invalid {
       border-color: #e74c3c;
     }
 
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
+    .password-section {
+      margin-top: 16px;
+      display: none;
     }
 
     .field-help {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #666;
-      margin-top: 0.25rem;
+      margin-top: 4px;
     }
 
     /* Address Section */
     .address-section {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #e1e5e9;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+      display: none;
     }
 
     .address-section h3 {
-      margin: 0 0 1rem 0;
-      color: #333;
+      margin: 0 0 16px 0;
       font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Payment Section */
+    .payment-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .payment-methods {
+      display: grid;
+      gap: 12px;
+    }
+
+    .payment-method {
+      position: relative;
+    }
+
+    .payment-method input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .payment-method label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .payment-method input[type="radio"]:checked + label {
+      border-color: #00d084;
+      background: #f0fdf7;
+    }
+
+    .payment-icon {
+      font-size: 1.5rem;
+    }
+
+    .payment-info {
+      flex: 1;
+    }
+
+    .payment-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .payment-desc {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* Special Instructions */
+    .instructions-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* Order Summary Sidebar - Uber Eats Style */
+    .order-summary {
+      background: white;
+      border-radius: 12px;
+      height: fit-content;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 1rem;
+    }
+
+    .summary-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .summary-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .delivery-info {
+      background: #f8f9fa;
+      padding: 12px 16px;
+      margin-top: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .delivery-time {
+      font-weight: 600;
+      color: #00d084;
+    }
+
+    /* Cart Items */
+    .cart-items {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-options {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .item-quantity {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .item-price {
+      font-weight: 600;
+    }
+
+    .free-item .item-price {
+      color: #00d084;
+    }
+
+    /* Order Totals */
+    .order-totals {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .total-row.final {
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding-top: 8px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    /* Place Order Button */
+    .place-order-section {
+      padding: 1.5rem;
+    }
+
+    .place-order-btn {
+      width: 100%;
+      background: #00d084;
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .place-order-btn:hover {
+      background: #00b571;
+    }
+
+    .place-order-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .order-time-estimate {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #666;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0.5rem;
+      }
+
+      .checkout-header {
+        margin: -0.5rem -0.5rem 1rem -0.5rem;
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
       .account-options {
         grid-template-columns: 1fr;
       }
-      
-      .form-row {
-        grid-template-columns: 1fr;
+
+      .order-summary {
+        position: static;
       }
+    }
+
+    /* Error States */
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .form-group.error input {
+      border-color: #e74c3c;
     }
 
     /* Empty Cart State */
@@ -608,329 +488,234 @@
   </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <header class="navbar">
-    <div class="container nav-inner">
-      <div class="logo">
-        <img src="assets/fish_and_chips.jpg" alt="Golden Fish logo">
-        <span>Golden Fish</span>
-      </div>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="menu.html">Order Online</a></li>
-          <li><a href="index.html#about">About</a></li>
-          <li><a href="index.html#contact">Contact Us</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
   <div class="checkout-container">
-    <!-- Checkout Header -->
+    <!-- Header -->
     <div class="checkout-header">
-      <div class="checkout-progress">
-        <div class="progress-step active" data-step="1">
-          <div class="step-number">1</div>
-          <span>Review Order</span>
+      <div class="header-content">
+        <div class="logo-section">
+          <button class="back-button" onclick="goBack()">←</button>
+          <img src="assets/fish_and_chips.jpg" alt="Golden Fish">
+          <span style="font-weight: 600;">Golden Fish</span>
         </div>
-        <div class="progress-step" data-step="2">
-          <div class="step-number">2</div>
-          <span>Delivery</span>
-        </div>
-        <div class="progress-step" data-step="3">
-          <div class="step-number">3</div>
-          <span>Contact Info</span>
-        </div>
-        <div class="progress-step" data-step="4">
-          <div class="step-number">4</div>
-          <span>Payment</span>
-        </div>
-        <div class="progress-step" data-step="5">
-          <div class="step-number">5</div>
-          <span>Confirm</span>
+        <div>
+          <span style="color: #666;">Checkout</span>
         </div>
       </div>
     </div>
 
+    <!-- Main Content -->
     <div class="checkout-main">
-      <!-- Checkout Steps -->
-      <div class="checkout-steps">
-        <!-- Step 1: Review Order -->
-        <div class="checkout-step active" data-step="1">
-          <div class="step-header">
-            <h2 class="step-title">Review Your Order</h2>
-            <p class="step-subtitle">Check your items and add any special requests</p>
-          </div>
-
-          <div id="orderReview">
-            <!-- Order items will be loaded here -->
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Special Instructions</label>
-            <textarea class="form-input" id="specialInstructions" rows="3" placeholder="Any special requests for your order..."></textarea>
-          </div>
-
-          <div class="step-actions">
-            <button class="btn btn-secondary" onclick="goBack()">← Back to Menu</button>
-            <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
-          </div>
+      <!-- Delivery Toggle -->
+      <div class="delivery-toggle-section">
+        <div class="delivery-toggle">
+          <button class="delivery-option active" id="deliveryBtn" data-type="delivery">
+            🚚 Delivery
+          </button>
+          <button class="delivery-option" id="collectionBtn" data-type="collection">
+            📦 Pickup
+          </button>
         </div>
-
-        <!-- Step 2: Delivery Method -->
-        <div class="checkout-step" data-step="2">
-          <div class="step-header">
-            <h2 class="step-title">Delivery Method</h2>
-            <p class="step-subtitle">Choose how you'd like to receive your order</p>
-          </div>
-
-          <div class="delivery-options">
-            <div class="delivery-option" data-type="delivery">
-              <input type="radio" name="deliveryType" value="delivery" id="delivery">
-              <div class="option-icon">🚚</div>
-              <div class="option-title">Delivery</div>
-              <div class="option-desc">Delivered to your door</div>
-            </div>
-            <div class="delivery-option" data-type="collection">
-              <input type="radio" name="deliveryType" value="collection" id="collection">
-              <div class="option-icon">🏪</div>
-              <div class="option-title">Collection</div>
-              <div class="option-desc">Pick up from restaurant</div>
-            </div>
-          </div>
-
-          <div class="address-form" id="addressForm">
-            <div class="form-group">
-              <label class="form-label">Delivery Address</label>
-              <textarea class="form-input" id="deliveryAddress" rows="3" placeholder="Enter your full delivery address" required></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Postcode</label>
-                <div class="postcode-group">
-                  <input type="text" class="form-input" id="deliveryPostcode" placeholder="e.g. YO10 3BP" maxlength="8" required>
-                  <button type="button" class="verify-btn" onclick="verifyPostcode()">Verify</button>
-                </div>
-                <div id="deliveryFeeDisplay" class="delivery-fee"></div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-input" id="deliveryPhone" placeholder="07700 900123" required>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Contact Information</label>
-            <div class="form-row">
-              <input type="text" class="form-input" id="firstName" placeholder="First Name" required>
-              <input type="text" class="form-input" id="lastName" placeholder="Last Name" required>
-            </div>
-            <input type="email" class="form-input" id="email" placeholder="Email Address" style="margin-top: 1rem;" required>
-          </div>
-
-          <div class="step-actions">
-            <button class="btn btn-secondary" onclick="previousStep()">← Previous</button>
-            <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
-          </div>
+        <div id="deliveryInfo" class="delivery-info">
+          <div class="delivery-time">25-35 min</div>
+          <div>Delivered to your door</div>
         </div>
+      </div>
 
-        <!-- Step 3: Payment Method -->
-        <div class="checkout-step" data-step="3">
-          <div class="step-header">
-            <h2 class="step-title">Contact Information</h2>
-            <p class="step-subtitle">How would you like to checkout?</p>
+      <!-- Account Type -->
+      <div class="account-section">
+        <div class="section-title">How would you like to checkout?</div>
+        <div class="account-options">
+          <div class="account-option">
+            <input type="radio" name="accountType" value="guest" id="guestCheckout" checked>
+            <label for="guestCheckout">
+              <div class="option-icon">👤</div>
+              <div class="option-content">
+                <div class="option-title">Guest</div>
+                <div class="option-desc">Quick checkout</div>
+              </div>
+            </label>
           </div>
           
-          <!-- Account Type Selection -->
-          <div class="account-selection">
-            <div class="account-options">
-              <div class="account-option" data-account="guest">
-                <input type="radio" name="accountType" value="guest" id="guestCheckout" checked>
-                <label for="guestCheckout">
-                  <div class="option-icon">👤</div>
-                  <div class="option-content">
-                    <div class="option-title">Guest Checkout</div>
-                    <div class="option-desc">Quick checkout without creating account</div>
-                  </div>
-                </label>
+          <div class="account-option">
+            <input type="radio" name="accountType" value="register" id="registerCheckout">
+            <label for="registerCheckout">
+              <div class="option-icon">🔐</div>
+              <div class="option-content">
+                <div class="option-title">Create Account</div>
+                <div class="option-desc">Save for next time</div>
               </div>
-              
-              <div class="account-option" data-account="register">
-                <input type="radio" name="accountType" value="register" id="registerCheckout">
-                <label for="registerCheckout">
-                  <div class="option-icon">🔐</div>
-                  <div class="option-content">
-                    <div class="option-title">Create Account</div>
-                    <div class="option-desc">Save details for faster future orders</div>
-                  </div>
-                </label>
-              </div>
-            </div>
+            </label>
           </div>
+        </div>
+      </div>
 
-          <!-- Contact Information Form -->
-          <div class="contact-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactName">Full Name *</label>
-                <input type="text" id="contactName" name="contactName" required>
-              </div>
-              <div class="form-group">
-                <label for="contactPhone">Phone Number *</label>
-                <input type="tel" id="contactPhone" name="contactPhone" placeholder="07123 456789" required>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="contactEmail">Email Address *</label>
-              <input type="email" id="contactEmail" name="contactEmail" required>
-            </div>
-            
-            <!-- Password field for registered users only -->
-            <div class="form-group" id="passwordSection" style="display: none;">
-              <label for="contactPassword">Create Password *</label>
-              <input type="password" id="contactPassword" name="contactPassword" minlength="6">
-              <div class="field-help">Minimum 6 characters for account security</div>
-            </div>
-            
-            <!-- Delivery Address Section - shown only for delivery -->
-            <div id="deliveryAddressSection" class="address-section" style="display: none;">
-              <h3>Delivery Address</h3>
-              <div class="form-group">
-                <label for="deliveryAddress">Street Address *</label>
-                <input type="text" id="deliveryAddress" name="deliveryAddress" placeholder="123 Main Street" required>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="deliveryCity">City *</label>
-                  <input type="text" id="deliveryCity" name="deliveryCity" value="York" required>
-                </div>
-                <div class="form-group">
-                  <label for="deliveryPostcode">Postcode *</label>
-                  <input type="text" id="deliveryPostcode" name="deliveryPostcode" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="deliveryNotes">Delivery Instructions (Optional)</label>
-                <textarea id="deliveryNotes" name="deliveryNotes" placeholder="e.g., Ring doorbell, leave at door, etc."></textarea>
-              </div>
-            </div>
+      <!-- Contact Information -->
+      <div class="contact-section">
+        <div class="section-title">Contact Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" required>
           </div>
-          
-          <div class="step-actions">
-            <button type="button" class="btn btn-secondary" onclick="checkout.previousStep()">Back</button>
-            <button type="button" class="btn btn-primary" onclick="checkout.validateContactInfo()">Continue</button>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="07123 456789" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
           </div>
         </div>
 
-        <div class="checkout-step" data-step="4">
-          <div class="step-header">
-            <h2 class="step-title">Payment Method</h2>
-            <p class="step-subtitle">Choose how you'd like to pay</p>
+        <!-- Password for registered users -->
+        <div class="password-section" id="passwordSection">
+          <div class="form-group">
+            <label for="password">Create Password *</label>
+            <input type="password" id="password" name="password" minlength="6">
+            <div class="field-help">Minimum 6 characters</div>
           </div>
+        </div>
 
-          <div class="payment-methods">
-            <div class="payment-method" data-payment="card">
-              <input type="radio" name="paymentMethod" value="card" id="card">
+        <!-- Delivery Address -->
+        <div class="address-section" id="addressSection">
+          <h3>Delivery Address</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="street">Street Address *</label>
+              <input type="text" id="street" name="street" placeholder="123 Main Street">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="city">City *</label>
+              <input type="text" id="city" name="city" value="York">
+            </div>
+            <div class="form-group">
+              <label for="postcode">Postcode *</label>
+              <input type="text" id="postcode" name="postcode" placeholder="YO10 3BP">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="deliveryNotes">Delivery Instructions (Optional)</label>
+            <textarea id="deliveryNotes" name="deliveryNotes" placeholder="e.g., Ring doorbell, leave at door" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="payment-section">
+        <div class="section-title">Payment Method</div>
+        <div class="payment-methods">
+          <div class="payment-method">
+            <input type="radio" name="paymentMethod" value="card" id="cardPayment" checked>
+            <label for="cardPayment">
               <div class="payment-icon">💳</div>
-              <div class="payment-details">
-                <div class="payment-name">Credit/Debit Card</div>
+              <div class="payment-info">
+                <div class="payment-title">Credit/Debit Card</div>
                 <div class="payment-desc">Visa, Mastercard, American Express</div>
               </div>
-            </div>
+            </label>
+          </div>
+          
+          <div class="payment-method">
+            <input type="radio" name="paymentMethod" value="cash" id="cashPayment">
+            <label for="cashPayment">
+              <div class="payment-icon">💵</div>
+              <div class="payment-info">
+                <div class="payment-title">Cash on Delivery</div>
+                <div class="payment-desc">Pay when your order arrives</div>
+              </div>
+            </label>
+          </div>
 
-            <div class="payment-method" data-payment="paypal">
-              <input type="radio" name="paymentMethod" value="paypal" id="paypal">
-              <div class="payment-icon">💙</div>
-              <div class="payment-details">
-                <div class="payment-name">PayPal</div>
+          <div class="payment-method">
+            <input type="radio" name="paymentMethod" value="paypal" id="paypalPayment">
+            <label for="paypalPayment">
+              <div class="payment-icon">🅿️</div>
+              <div class="payment-info">
+                <div class="payment-title">PayPal</div>
                 <div class="payment-desc">Pay with your PayPal account</div>
               </div>
-            </div>
-
-            <div class="payment-method" data-payment="cash">
-              <input type="radio" name="paymentMethod" value="cash" id="cash">
-              <div class="payment-icon">💷</div>
-              <div class="payment-details">
-                <div class="payment-name">Cash on Delivery/Collection</div>
-                <div class="payment-desc">Pay when you receive your order</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="step-actions">
-            <button class="btn btn-secondary" onclick="previousStep()">← Previous</button>
-            <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
-          </div>
-        </div>
-
-        <!-- Step 5: Confirmation -->
-        <div class="checkout-step" data-step="5">
-          <div class="step-header">
-            <h2 class="step-title">Confirm Your Order</h2>
-            <p class="step-subtitle">Review everything before placing your order</p>
-          </div>
-
-          <div id="orderConfirmation">
-            <!-- Final order summary will be displayed here -->
-          </div>
-
-          <div class="step-actions">
-            <button class="btn btn-secondary" onclick="previousStep()">← Previous</button>
-            <button class="btn btn-primary" id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+            </label>
           </div>
         </div>
       </div>
 
-      <!-- Order Summary Sidebar -->
-      <div class="order-summary">
-        <div class="summary-header">
-          <div class="summary-title">🛒 Order Summary</div>
+      <!-- Special Instructions -->
+      <div class="instructions-section">
+        <div class="section-title">Special Instructions</div>
+        <div class="form-group">
+          <textarea id="specialInstructions" name="specialInstructions" placeholder="Any special requests for your order..." rows="3"></textarea>
         </div>
+      </div>
+    </div>
 
-        <div id="cartItems" class="cart-items">
-          <!-- Cart items will be loaded here -->
+    <!-- Order Summary Sidebar -->
+    <div class="order-summary">
+      <div class="summary-header">
+        <div class="summary-title">Your Order</div>
+        <div id="deliveryInfoSummary" class="delivery-info">
+          <div class="delivery-time">25-35 min</div>
+          <div>Delivery to YO10 3BP</div>
         </div>
+      </div>
 
-        <div class="order-totals">
-          <div class="total-row">
-            <span>Subtotal:</span>
-            <span id="subtotalAmount">£0.00</span>
-          </div>
-          <div class="total-row" id="deliveryFeeRow" style="display: none;">
-            <span>Delivery Fee:</span>
-            <span id="deliveryFeeAmount">£0.00</span>
-          </div>
-          <div class="total-row" id="discountRow" style="display: none;">
-            <span>Discount:</span>
-            <span id="discountAmount">-£0.00</span>
-          </div>
-          <div class="total-row final">
-            <span>Total:</span>
-            <span id="totalAmount">£0.00</span>
-          </div>
+      <div class="cart-items" id="cartItems">
+        <div class="empty-cart">
+          <div class="empty-cart-icon">🍽️</div>
+          <p>Your cart is empty</p>
+          <p>Add items from the menu</p>
+        </div>
+      </div>
+
+      <div class="order-totals" id="orderTotals" style="display: none;">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span id="subtotal">£0.00</span>
+        </div>
+        <div class="total-row" id="deliveryFeeRow" style="display: none;">
+          <span>Delivery Fee</span>
+          <span id="deliveryFee">£0.00</span>
+        </div>
+        <div class="total-row" id="discountRow" style="display: none;">
+          <span>Discount</span>
+          <span id="discount">-£0.00</span>
+        </div>
+        <div class="total-row final">
+          <span>Total</span>
+          <span id="total">£0.00</span>
+        </div>
+      </div>
+
+      <div class="place-order-section">
+        <button class="place-order-btn" id="placeOrderBtn" disabled>
+          Add items to place order
+        </button>
+        <div class="order-time-estimate" id="timeEstimate">
+          Estimated delivery: 25-35 minutes
         </div>
       </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
   <script>
-    // Modern Checkout Manager - Industry Standard Implementation
-    class ModernCheckoutManager {
+    class UberEatsCheckout {
       constructor() {
-        this.currentStep = 1;
         this.orderData = {
           items: [],
-          deliveryType: null,
+          deliveryType: 'delivery',
           deliveryAddress: null,
           postcode: null,
           deliveryFee: null,
           contact: {},
-          paymentMethod: null,
+          paymentMethod: 'card',
           specialInstructions: '',
           totals: {
             subtotal: 0,
@@ -944,237 +729,266 @@
       }
 
       init() {
-        console.log('ModernCheckoutManager: Initializing...');
-        this.loadCartData();
-        this.loadSavedData();
-        this.setupEventListeners();
-        this.renderOrderSummary();
-        this.renderCurrentStep();
+        this.loadOrderData();
+        this.setupEventHandlers();
+        this.renderCart();
+        this.updateDeliveryDisplay();
       }
 
-      loadCartData() {
+      loadOrderData() {
         // Load cart from localStorage
-        const cartData = localStorage.getItem('goldenfish_cart');
-        if (cartData) {
-          try {
-            this.orderData.items = JSON.parse(cartData);
-            console.log('Loaded cart items:', this.orderData.items);
-          } catch (error) {
-            console.error('Error parsing cart data:', error);
-            this.orderData.items = [];
+        try {
+          const storedCart = localStorage.getItem('goldenfish_cart');
+          if (storedCart) {
+            this.orderData.items = JSON.parse(storedCart);
           }
-        }
 
-        // Load saved order preferences
-        const orderType = localStorage.getItem('goldenfish_order_type');
-        const savedPostcode = localStorage.getItem('goldenfish_postcode');
-        const savedDeliveryFee = localStorage.getItem('goldenfish_delivery_fee');
-
-        if (orderType) {
-          this.orderData.deliveryType = orderType;
-        }
-        if (savedPostcode) {
-          this.orderData.postcode = savedPostcode;
-        }
-        if (savedDeliveryFee) {
-          try {
-            this.orderData.deliveryFee = JSON.parse(savedDeliveryFee);
-          } catch (error) {
-            console.error('Error parsing delivery fee:', error);
+          // Load delivery type
+          const deliveryType = localStorage.getItem('goldenfish_order_type');
+          if (deliveryType) {
+            this.orderData.deliveryType = deliveryType;
+            this.updateDeliveryToggle();
           }
-        }
 
-        console.log('Loaded order data:', this.orderData);
-      }
-
-      loadSavedData() {
-        // Pre-fill delivery type if available
-        if (this.orderData.deliveryType) {
-          const deliveryOption = document.querySelector(`[data-type="${this.orderData.deliveryType}"]`);
-          if (deliveryOption) {
-            this.selectDeliveryOption(deliveryOption);
+          // Load postcode and delivery fee
+          const postcode = localStorage.getItem('goldenfish_postcode');
+          const deliveryFeeData = localStorage.getItem('goldenfish_delivery_fee');
+          
+          if (postcode) {
+            this.orderData.postcode = postcode;
+            document.getElementById('postcode').value = postcode;
           }
-        }
 
-        // Pre-fill postcode if available
-        if (this.orderData.postcode) {
-          const postcodeInput = document.getElementById('deliveryPostcode');
-          if (postcodeInput) {
-            postcodeInput.value = this.orderData.postcode;
+          if (deliveryFeeData) {
+            try {
+              this.orderData.deliveryFee = JSON.parse(deliveryFeeData);
+            } catch (e) {
+              console.log('Error parsing delivery fee data');
+            }
           }
+        } catch (error) {
+          console.log('Error loading order data:', error);
         }
       }
 
-      setupEventListeners() {
-        // Delivery option selection
-        document.querySelectorAll('.delivery-option').forEach(option => {
-          option.addEventListener('click', () => {
-            this.selectDeliveryOption(option);
+      setupEventHandlers() {
+        // Delivery toggle
+        const deliveryToggle = document.querySelectorAll('.delivery-option');
+        deliveryToggle.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const type = e.target.dataset.type;
+            this.setDeliveryType(type);
           });
         });
 
-        // Payment method selection
-        document.querySelectorAll('.payment-method').forEach(method => {
-          method.addEventListener('click', () => {
-            this.selectPaymentMethod(method);
+        // Account type toggle
+        const accountTypes = document.querySelectorAll('input[name="accountType"]');
+        accountTypes.forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            this.togglePasswordSection(e.target.value === 'register');
           });
         });
 
-        // Form inputs
-        document.getElementById('specialInstructions')?.addEventListener('input', (e) => {
-          this.orderData.specialInstructions = e.target.value;
+        // Form validation
+        const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
+        requiredInputs.forEach(input => {
+          input.addEventListener('blur', () => this.validateField(input));
+          input.addEventListener('input', () => this.validateField(input));
+        });
+
+        // Phone number formatting
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', (e) => {
+          this.formatPhoneNumber(e.target);
         });
 
         // Postcode validation
-        document.getElementById('deliveryPostcode')?.addEventListener('input', (e) => {
-          const postcode = e.target.value.trim();
-          if (postcode.length >= 6) {
-            this.validatePostcode(postcode);
+        const postcodeInput = document.getElementById('postcode');
+        postcodeInput.addEventListener('blur', () => {
+          if (postcodeInput.value.trim()) {
+            this.validatePostcode(postcodeInput.value.trim());
           }
         });
-      }
 
-      selectDeliveryOption(option) {
-        // Remove selected class from all options
-        document.querySelectorAll('.delivery-option').forEach(opt => {
-          opt.classList.remove('selected');
+        // Place order button
+        document.getElementById('placeOrderBtn').addEventListener('click', () => {
+          this.placeOrder();
         });
 
-        // Add selected class to clicked option
-        option.classList.add('selected');
+        // Form change listener for validation
+        document.addEventListener('input', () => {
+          this.updatePlaceOrderButton();
+        });
+      }
 
-        // Update radio button
-        const radio = option.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-          this.orderData.deliveryType = radio.value;
-        }
-
-        // Show/hide address form
-        const addressForm = document.getElementById('addressForm');
-        if (this.orderData.deliveryType === 'delivery') {
-          addressForm.classList.add('show');
+      setDeliveryType(type) {
+        this.orderData.deliveryType = type;
+        
+        // Update toggle buttons
+        document.querySelectorAll('.delivery-option').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.querySelector(`[data-type="${type}"]`).classList.add('active');
+        
+        // Show/hide address section
+        const addressSection = document.getElementById('addressSection');
+        if (type === 'delivery') {
+          addressSection.style.display = 'block';
         } else {
-          addressForm.classList.remove('show');
-          this.orderData.deliveryFee = null;
+          addressSection.style.display = 'none';
         }
 
-        this.updateOrderSummary();
+        this.updateDeliveryDisplay();
+        this.calculateTotals();
       }
 
-      selectPaymentMethod(method) {
-        // Remove selected class from all methods
-        document.querySelectorAll('.payment-method').forEach(m => {
-          m.classList.remove('selected');
+      updateDeliveryToggle() {
+        // Set active button
+        document.querySelectorAll('.delivery-option').forEach(btn => {
+          btn.classList.remove('active');
         });
+        document.querySelector(`[data-type="${this.orderData.deliveryType}"]`).classList.add('active');
+        
+        // Show/hide address section
+        const addressSection = document.getElementById('addressSection');
+        addressSection.style.display = this.orderData.deliveryType === 'delivery' ? 'block' : 'none';
+      }
 
-        // Add selected class to clicked method
-        method.classList.add('selected');
-
-        // Update radio button
-        const radio = method.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-          this.orderData.paymentMethod = radio.value;
+      togglePasswordSection(show) {
+        const passwordSection = document.getElementById('passwordSection');
+        const passwordInput = document.getElementById('password');
+        
+        if (show) {
+          passwordSection.style.display = 'block';
+          passwordInput.setAttribute('required', '');
+        } else {
+          passwordSection.style.display = 'none';
+          passwordInput.removeAttribute('required');
         }
+      }
+
+      formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.startsWith('44')) {
+          value = '+' + value;
+        } else if (value.startsWith('0')) {
+          // UK format
+        } else if (value.length === 10) {
+          value = '0' + value;
+        }
+        input.value = value;
       }
 
       async validatePostcode(postcode) {
-        const feeDisplay = document.getElementById('deliveryFeeDisplay');
-        
+        const normalizedPostcode = this.normalizePostcode(postcode);
+        if (!normalizedPostcode) return false;
+
         try {
-          // Normalize postcode
-          const normalizedPostcode = this.normalizePostcode(postcode);
-          if (!normalizedPostcode) {
-            feeDisplay.innerHTML = '⚠️ Please enter a complete UK postcode';
-            feeDisplay.className = 'delivery-fee invalid';
-            return;
+          const response = await fetch(`https://api.postcodes.io/postcodes/${normalizedPostcode}`);
+          const data = await response.json();
+          
+          if (data.status === 200) {
+            // Valid postcode, calculate delivery fee
+            await this.calculateDeliveryFee(normalizedPostcode);
+            return true;
           }
-
-          feeDisplay.innerHTML = '🔄 Validating postcode...';
-          feeDisplay.className = 'delivery-fee';
-
-          // Validate with API
-          const isValid = await this.checkPostcodeAPI(normalizedPostcode);
-          if (!isValid) {
-            feeDisplay.innerHTML = '❌ Invalid UK postcode';
-            feeDisplay.className = 'delivery-fee invalid';
-            return;
-          }
-
-          // Calculate delivery fee
-          const feeResult = await calcDeliveryFee(normalizedPostcode);
-          this.orderData.deliveryFee = feeResult;
-
-          if (feeResult.valid) {
-            feeDisplay.innerHTML = `✅ ${feeResult.display} - ${feeResult.zone}`;
-            feeDisplay.className = 'delivery-fee valid';
-          } else {
-            feeDisplay.innerHTML = `⚠️ ${feeResult.display}`;
-            feeDisplay.className = 'delivery-fee invalid';
-          }
-
-          this.updateOrderSummary();
-
         } catch (error) {
-          console.error('Postcode validation error:', error);
-          feeDisplay.innerHTML = '❌ Error validating postcode';
-          feeDisplay.className = 'delivery-fee invalid';
+          console.log('Postcode validation error:', error);
         }
+        return false;
       }
 
       normalizePostcode(postcode) {
-        if (!postcode) return null;
-        
-        // Remove spaces and convert to uppercase
-        let cleaned = postcode.trim().toUpperCase().replace(/\s/g, '');
-        
-        if (cleaned.length < 5 || cleaned.length > 7) {
-          return null;
-        }
-        
-        // Add space before last 3 characters
+        const cleaned = postcode.trim().toUpperCase().replace(/\s/g, '');
+        if (cleaned.length < 5) return null;
         return cleaned.slice(0, -3) + ' ' + cleaned.slice(-3);
       }
 
-      async checkPostcodeAPI(postcode) {
-        try {
-          const response = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`);
-          const data = await response.json();
-          return response.ok && data.status === 200;
-        } catch (error) {
-          console.error('Postcode API error:', error);
-          return true; // Fallback: assume valid if API fails
-        }
-      }
+      async calculateDeliveryFee(postcode) {
+        // Mock delivery fee calculation based on postcode
+        const postcodePrefix = postcode.split(' ')[0];
+        let fee = 2.50; // Default fee
 
-      renderOrderSummary() {
-        if (this.orderData.items.length === 0) {
-          document.getElementById('cartItems').innerHTML = `
-            <div class="empty-cart">
-              <div class="empty-cart-icon">🛒</div>
-              <h3>Your cart is empty</h3>
-              <p>Add some items from our menu to get started</p>
-            </div>
-          `;
-          return;
+        // Example pricing zones
+        if (postcodePrefix === 'YO10') {
+          fee = 2.50;
+        } else if (postcodePrefix === 'YO11') {
+          fee = 3.00;
+        } else if (postcodePrefix === 'YO12') {
+          fee = 3.50;
         }
+
+        this.orderData.deliveryFee = {
+          valid: true,
+          fee: fee,
+          zone: postcodePrefix
+        };
 
         this.calculateTotals();
-        this.renderCartItems();
-        this.updateTotalsDisplay();
+      }
+
+      validateField(field) {
+        const value = field.value.trim();
+        const fieldGroup = field.closest('.form-group');
+        
+        // Remove existing error states
+        fieldGroup.classList.remove('error');
+        const existingError = fieldGroup.querySelector('.error-message');
+        if (existingError) existingError.remove();
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+          isValid = false;
+          errorMessage = 'This field is required';
+        }
+
+        // Email validation
+        if (field.type === 'email' && value) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            isValid = false;
+            errorMessage = 'Please enter a valid email address';
+          }
+        }
+
+        // Phone validation (UK)
+        if (field.name === 'phone' && value) {
+          const ukPhoneRegex = /^(\+44\s?|0)([1-9]\d{8,9})$/;
+          if (!ukPhoneRegex.test(value.replace(/\s/g, ''))) {
+            isValid = false;
+            errorMessage = 'Please enter a valid UK phone number';
+          }
+        }
+
+        // Password validation
+        if (field.type === 'password' && value && value.length < 6) {
+          isValid = false;
+          errorMessage = 'Password must be at least 6 characters';
+        }
+
+        if (!isValid) {
+          fieldGroup.classList.add('error');
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = errorMessage;
+          fieldGroup.appendChild(errorDiv);
+        }
+
+        return isValid;
       }
 
       calculateTotals() {
         let subtotal = 0;
+        let totalDiscount = 0;
 
-        // Calculate subtotal from items
         this.orderData.items.forEach(item => {
-          if (item.isFreeItem) return; // Skip free items for subtotal
-
           let itemPrice = item.price;
           
-          // Add option prices
+          // Add options pricing
           if (item.selectedOptions) {
             Object.values(item.selectedOptions).forEach(option => {
               if (Array.isArray(option)) {
@@ -1184,23 +998,19 @@
               }
             });
           }
+
+          const lineTotal = itemPrice * item.qty;
           
-          subtotal += itemPrice * item.qty;
+          if (item.isFreeItem) {
+            totalDiscount += lineTotal;
+          } else {
+            subtotal += lineTotal;
+          }
         });
 
-        // Calculate discount from promotions
-        const promotions = localStorage.getItem('goldenfish_applied_promotions');
-        let totalDiscount = 0;
-        if (promotions) {
-          try {
-            const promoData = JSON.parse(promotions);
-            totalDiscount = promoData.reduce((sum, promo) => sum + (promo.discountAmount || 0), 0);
-          } catch (error) {
-            console.error('Error parsing promotions:', error);
-          }
-        }
+        // Apply promotions
+        // Add your promotion logic here
 
-        // Get delivery fee
         let deliveryFee = 0;
         if (this.orderData.deliveryType === 'delivery' && this.orderData.deliveryFee?.valid) {
           deliveryFee = this.orderData.deliveryFee.fee || 0;
@@ -1212,17 +1022,31 @@
           deliveryFee: deliveryFee,
           total: Math.max(0, subtotal - totalDiscount + deliveryFee)
         };
+
+        this.updateTotalsDisplay();
       }
 
-      renderCartItems() {
-        const cartItemsContainer = document.getElementById('cartItems');
-        let html = '';
+      renderCart() {
+        const cartContainer = document.getElementById('cartItems');
+        const totalsContainer = document.getElementById('orderTotals');
 
+        if (this.orderData.items.length === 0) {
+          cartContainer.innerHTML = `
+            <div class="empty-cart">
+              <div class="empty-cart-icon">🍽️</div>
+              <p>Your cart is empty</p>
+              <p><a href="menu.html" style="color: #00d084;">Add items from menu</a></p>
+            </div>
+          `;
+          totalsContainer.style.display = 'none';
+          return;
+        }
+
+        let html = '';
         this.orderData.items.forEach(item => {
           let itemPrice = item.price;
           let optionsText = '';
 
-          // Calculate item price with options
           if (item.selectedOptions) {
             Object.values(item.selectedOptions).forEach(option => {
               if (Array.isArray(option)) {
@@ -1232,7 +1056,6 @@
               }
             });
 
-            // Build options display
             optionsText = Object.entries(item.selectedOptions)
               .map(([group, choice]) => {
                 if (Array.isArray(choice)) {
@@ -1250,373 +1073,194 @@
               <div class="item-details">
                 <div class="item-name">${item.name} ${item.isFreeItem ? '(FREE)' : ''}</div>
                 ${optionsText ? `<div class="item-options">${optionsText}</div>` : ''}
-                <div class="item-quantity">Quantity: ${item.qty}</div>
+                <div class="item-quantity">Qty: ${item.qty}</div>
               </div>
               <div class="item-price">£${lineTotal.toFixed(2)}</div>
             </div>
           `;
         });
 
-        cartItemsContainer.innerHTML = html;
+        cartContainer.innerHTML = html;
+        totalsContainer.style.display = 'block';
+        this.calculateTotals();
       }
 
       updateTotalsDisplay() {
-        document.getElementById('subtotalAmount').textContent = `£${this.orderData.totals.subtotal.toFixed(2)}`;
+        document.getElementById('subtotal').textContent = `£${this.orderData.totals.subtotal.toFixed(2)}`;
         
-        // Show/hide delivery fee
         const deliveryRow = document.getElementById('deliveryFeeRow');
         if (this.orderData.totals.deliveryFee > 0) {
           deliveryRow.style.display = 'flex';
-          document.getElementById('deliveryFeeAmount').textContent = `£${this.orderData.totals.deliveryFee.toFixed(2)}`;
+          document.getElementById('deliveryFee').textContent = `£${this.orderData.totals.deliveryFee.toFixed(2)}`;
         } else {
           deliveryRow.style.display = 'none';
         }
 
-        // Show/hide discount
         const discountRow = document.getElementById('discountRow');
         if (this.orderData.totals.discount > 0) {
           discountRow.style.display = 'flex';
-          document.getElementById('discountAmount').textContent = `-£${this.orderData.totals.discount.toFixed(2)}`;
+          document.getElementById('discount').textContent = `-£${this.orderData.totals.discount.toFixed(2)}`;
         } else {
           discountRow.style.display = 'none';
         }
 
-        document.getElementById('totalAmount').textContent = `£${this.orderData.totals.total.toFixed(2)}`;
+        document.getElementById('total').textContent = `£${this.orderData.totals.total.toFixed(2)}`;
+        
+        this.updatePlaceOrderButton();
       }
 
-      updateOrderSummary() {
-        this.calculateTotals();
-        this.updateTotalsDisplay();
-      }
+      updateDeliveryDisplay() {
+        const deliveryInfo = document.getElementById('deliveryInfo');
+        const summarySide = document.getElementById('deliveryInfoSummary');
+        const timeEstimate = document.getElementById('timeEstimate');
 
-      renderCurrentStep() {
-        // Hide all steps
-        document.querySelectorAll('.checkout-step').forEach(step => {
-          step.classList.remove('active');
-        });
-
-        // Show current step
-        const currentStepElement = document.querySelector(`[data-step="${this.currentStep}"]`);
-        if (currentStepElement) {
-          currentStepElement.classList.add('active');
-        }
-
-        // Update progress indicators
-        document.querySelectorAll('.progress-step').forEach((step, index) => {
-          const stepNumber = index + 1;
-          step.classList.remove('active', 'completed');
-          
-          if (stepNumber < this.currentStep) {
-            step.classList.add('completed');
-          } else if (stepNumber === this.currentStep) {
-            step.classList.add('active');
-          }
-        });
-
-        // Render step-specific content
-        if (this.currentStep === 1) {
-          this.renderOrderReview();
-        } else if (this.currentStep === 3) {
-          this.renderContactForm();
-        } else if (this.currentStep === 5) {
-          this.renderConfirmation();
-        }
-      }
-
-      renderOrderReview() {
-        const reviewContainer = document.getElementById('orderReview');
-        if (this.orderData.items.length === 0) {
-          reviewContainer.innerHTML = `
-            <div class="empty-cart">
-              <div class="empty-cart-icon">🛒</div>
-              <h3>Your cart is empty</h3>
-              <p>Please add some items from our menu first</p>
-            </div>
+        if (this.orderData.deliveryType === 'delivery') {
+          deliveryInfo.innerHTML = `
+            <div class="delivery-time">25-35 min</div>
+            <div>Delivered to your door</div>
           `;
-          return;
-        }
-
-        // Use the same cart rendering logic
-        this.renderCartItems();
-      }
-
-      renderContactForm() {
-        // Initialize the contact form with delivery type awareness
-        const deliverySection = document.getElementById('deliveryAddressSection');
-        const postcodeField = document.getElementById('deliveryPostcode');
-        
-        // Show address section only for delivery
-        if (this.orderData.deliveryType === 'delivery') {
-          deliverySection.style.display = 'block';
-          
-          // Pre-populate postcode if available
-          if (this.orderData.postcode) {
-            postcodeField.value = this.orderData.postcode;
-          }
+          summarySide.innerHTML = `
+            <div class="delivery-time">25-35 min</div>
+            <div>Delivery ${this.orderData.postcode ? 'to ' + this.orderData.postcode : ''}</div>
+          `;
+          timeEstimate.textContent = 'Estimated delivery: 25-35 minutes';
         } else {
-          deliverySection.style.display = 'none';
-        }
-
-        // Set up account type change handler
-        const accountTypeInputs = document.querySelectorAll('input[name="accountType"]');
-        const passwordSection = document.getElementById('passwordSection');
-        
-        accountTypeInputs.forEach(input => {
-          input.addEventListener('change', (e) => {
-            if (e.target.value === 'register') {
-              passwordSection.style.display = 'block';
-              document.getElementById('contactPassword').setAttribute('required', 'required');
-            } else {
-              passwordSection.style.display = 'none';
-              document.getElementById('contactPassword').removeAttribute('required');
-            }
-          });
-        });
-      }
-
-      validateContactInfo() {
-        const name = document.getElementById('contactName').value.trim();
-        const phone = document.getElementById('contactPhone').value.trim();
-        const email = document.getElementById('contactEmail').value.trim();
-        const accountType = document.querySelector('input[name="accountType"]:checked').value;
-        
-        // Basic validation
-        if (!name || !phone || !email) {
-          alert('Please fill in all required contact information.');
-          return false;
-        }
-
-        // UK phone validation
-        const ukPhoneRegex = /^(\+44\s?|0)([1-9]\d{8,9})$/;
-        if (!ukPhoneRegex.test(phone.replace(/\s/g, ''))) {
-          alert('Please enter a valid UK phone number.');
-          return false;
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          alert('Please enter a valid email address.');
-          return false;
-        }
-
-        // For delivery, validate address
-        if (this.orderData.deliveryType === 'delivery') {
-          const address = document.getElementById('deliveryAddress').value.trim();
-          const city = document.getElementById('deliveryCity').value.trim();
-          const postcode = document.getElementById('deliveryPostcode').value.trim();
-          
-          if (!address || !city || !postcode) {
-            alert('Please fill in all delivery address fields.');
-            return false;
-          }
-        }
-
-        // For registered users, validate password
-        if (accountType === 'register') {
-          const password = document.getElementById('contactPassword').value;
-          if (!password || password.length < 6) {
-            alert('Please create a password with at least 6 characters.');
-            return false;
-          }
-        }
-
-        // Store contact information
-        this.orderData.contact = {
-          name: name,
-          phone: phone,
-          email: email,
-          accountType: accountType,
-          password: accountType === 'register' ? document.getElementById('contactPassword').value : null
-        };
-
-        // Store delivery address if applicable
-        if (this.orderData.deliveryType === 'delivery') {
-          this.orderData.deliveryAddress = {
-            street: document.getElementById('deliveryAddress').value.trim(),
-            city: document.getElementById('deliveryCity').value.trim(),
-            postcode: document.getElementById('deliveryPostcode').value.trim(),
-            instructions: document.getElementById('deliveryNotes').value.trim()
-          };
-        }
-
-        // Proceed to next step
-        this.nextStep();
-        return true;
-      }
-
-      renderConfirmation() {
-        const confirmationContainer = document.getElementById('orderConfirmation');
-        
-        let html = `
-          <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <h4>📋 Order Details</h4>
-            <p><strong>Items:</strong> ${this.orderData.items.length} item(s)</p>
-            <p><strong>Delivery:</strong> ${this.orderData.deliveryType === 'delivery' ? 'Delivery' : 'Collection'}</p>
-            ${this.orderData.deliveryType === 'delivery' && this.orderData.deliveryAddress ? 
-              `<p><strong>Address:</strong> ${this.orderData.deliveryAddress.street}, ${this.orderData.deliveryAddress.city}, ${this.orderData.deliveryAddress.postcode}</p>` : 
-              ''}
-            <p><strong>Payment:</strong> ${this.getPaymentMethodName()}</p>
-            <p><strong>Total:</strong> £${this.orderData.totals.total.toFixed(2)}</p>
-          </div>
-          
-          <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e1e5e9;">
-            <h4>👤 Contact Information</h4>
-            ${this.orderData.contact ? `
-              <p><strong>Name:</strong> ${this.orderData.contact.name}</p>
-              <p><strong>Phone:</strong> ${this.orderData.contact.phone}</p>
-              <p><strong>Email:</strong> ${this.orderData.contact.email}</p>
-              <p><strong>Account:</strong> ${this.orderData.contact.accountType === 'register' ? 'New Customer Account' : 'Guest Checkout'}</p>
-              ${this.orderData.deliveryAddress && this.orderData.deliveryAddress.instructions ? 
-                `<p><strong>Delivery Notes:</strong> ${this.orderData.deliveryAddress.instructions}</p>` : 
-                ''}
-            ` : '<p>Contact information not provided</p>'}
-          </div>
-        `;
-
-        confirmationContainer.innerHTML = html;
-      }
-
-      getPaymentMethodName() {
-        const paymentMap = {
-          'card': 'Credit/Debit Card',
-          'paypal': 'PayPal',
-          'cash': 'Cash on Delivery/Collection'
-        };
-        return paymentMap[this.orderData.paymentMethod] || 'Not selected';
-      }
-
-      validateCurrentStep() {
-        switch (this.currentStep) {
-          case 1:
-            return this.orderData.items.length > 0;
-          case 2:
-            return this.validateDeliveryStep();
-          case 3:
-            return this.orderData.paymentMethod !== null;
-          default:
-            return true;
+          deliveryInfo.innerHTML = `
+            <div class="delivery-time">15-20 min</div>
+            <div>Ready for collection</div>
+          `;
+          summarySide.innerHTML = `
+            <div class="delivery-time">15-20 min</div>
+            <div>Ready for pickup</div>
+          `;
+          timeEstimate.textContent = 'Ready for pickup in 15-20 minutes';
         }
       }
 
-      validateDeliveryStep() {
-        if (!this.orderData.deliveryType) return false;
+      updatePlaceOrderButton() {
+        const btn = document.getElementById('placeOrderBtn');
         
-        if (this.orderData.deliveryType === 'delivery') {
-          const address = document.getElementById('deliveryAddress')?.value;
-          const postcode = document.getElementById('deliveryPostcode')?.value;
-          return address && postcode && this.orderData.deliveryFee?.valid;
-        }
-        
-        // Validate contact info
-        const firstName = document.getElementById('firstName')?.value;
-        const lastName = document.getElementById('lastName')?.value;
-        const email = document.getElementById('email')?.value;
-        
-        return firstName && lastName && email;
-      }
-
-      nextStep() {
-        if (!this.validateCurrentStep()) {
-          alert('Please complete all required fields before continuing.');
+        if (this.orderData.items.length === 0) {
+          btn.disabled = true;
+          btn.textContent = 'Add items to place order';
           return;
         }
 
-        if (this.currentStep < 4) {
-          this.currentStep++;
-          this.renderCurrentStep();
+        // Check required fields
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        let addressValid = true;
+        if (this.orderData.deliveryType === 'delivery') {
+          const street = document.getElementById('street').value.trim();
+          const city = document.getElementById('city').value.trim();
+          const postcode = document.getElementById('postcode').value.trim();
+          addressValid = street && city && postcode;
         }
-      }
 
-      previousStep() {
-        if (this.currentStep > 1) {
-          this.currentStep--;
-          this.renderCurrentStep();
+        const accountType = document.querySelector('input[name="accountType"]:checked').value;
+        let passwordValid = true;
+        if (accountType === 'register') {
+          const password = document.getElementById('password').value;
+          passwordValid = password && password.length >= 6;
+        }
+
+        if (firstName && lastName && phone && email && addressValid && passwordValid) {
+          btn.disabled = false;
+          btn.textContent = `Place order • £${this.orderData.totals.total.toFixed(2)}`;
+        } else {
+          btn.disabled = true;
+          btn.textContent = 'Complete all required fields';
         }
       }
 
       async placeOrder() {
-        if (!this.validateCurrentStep()) {
-          alert('Please review your order details.');
+        // Validate all fields
+        if (!this.validateAllFields()) {
+          alert('Please complete all required fields correctly.');
           return;
         }
 
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        placeOrderBtn.disabled = true;
-        placeOrderBtn.textContent = 'Processing...';
+        // Collect order data
+        this.collectOrderData();
 
         try {
-          // Collect all order data
-          const finalOrder = {
-            ...this.orderData,
-            contact: {
-              firstName: document.getElementById('firstName')?.value,
-              lastName: document.getElementById('lastName')?.value,
-              email: document.getElementById('email')?.value,
-              phone: document.getElementById('deliveryPhone')?.value
-            },
-            deliveryAddress: document.getElementById('deliveryAddress')?.value,
-            orderNumber: 'GF' + Date.now().toString().slice(-6),
-            timestamp: new Date().toISOString()
-          };
-
-          console.log('Placing order:', finalOrder);
+          // Show loading state
+          const btn = document.getElementById('placeOrderBtn');
+          btn.disabled = true;
+          btn.textContent = 'Placing your order...';
 
           // Simulate API call
           await new Promise(resolve => setTimeout(resolve, 2000));
 
-          // Clear cart
-          localStorage.removeItem('goldenfish_cart');
-          localStorage.removeItem('goldenfish_applied_promotions');
-          localStorage.removeItem('goldenfish_order_type');
-          localStorage.removeItem('goldenfish_postcode');
-          localStorage.removeItem('goldenfish_delivery_fee');
-
-          // Show success message
-          alert(`Order placed successfully! Order number: ${finalOrder.orderNumber}`);
+          // Success
+          alert('Order placed successfully! You will receive a confirmation email shortly.');
           
-          // Redirect to homepage
+          // Clear cart and redirect
+          localStorage.removeItem('goldenfish_cart');
           window.location.href = 'index.html';
 
         } catch (error) {
-          console.error('Error placing order:', error);
-          alert('Error placing order. Please try again.');
+          console.error('Order placement error:', error);
+          alert('There was an error placing your order. Please try again.');
           
-          placeOrderBtn.disabled = false;
-          placeOrderBtn.textContent = 'Place Order';
+          // Reset button
+          const btn = document.getElementById('placeOrderBtn');
+          btn.disabled = false;
+          btn.textContent = `Place order • £${this.orderData.totals.total.toFixed(2)}`;
         }
+      }
+
+      validateAllFields() {
+        const requiredFields = document.querySelectorAll('input[required], textarea[required]');
+        let allValid = true;
+
+        requiredFields.forEach(field => {
+          if (!this.validateField(field)) {
+            allValid = false;
+          }
+        });
+
+        return allValid;
+      }
+
+      collectOrderData() {
+        this.orderData.contact = {
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          accountType: document.querySelector('input[name="accountType"]:checked').value
+        };
+
+        if (this.orderData.deliveryType === 'delivery') {
+          this.orderData.deliveryAddress = {
+            street: document.getElementById('street').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            postcode: document.getElementById('postcode').value.trim(),
+            instructions: document.getElementById('deliveryNotes').value.trim()
+          };
+        }
+
+        this.orderData.paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        this.orderData.specialInstructions = document.getElementById('specialInstructions').value.trim();
+
+        console.log('Order data:', this.orderData);
       }
     }
 
-    // Global functions for button clicks
-    function nextStep() {
-      checkoutManager.nextStep();
-    }
+    // Initialize checkout
+    let checkout;
+    document.addEventListener('DOMContentLoaded', () => {
+      checkout = new UberEatsCheckout();
+    });
 
-    function previousStep() {
-      checkoutManager.previousStep();
-    }
-
+    // Helper functions
     function goBack() {
       window.location.href = 'menu.html';
     }
-
-    function verifyPostcode() {
-      const postcode = document.getElementById('deliveryPostcode').value;
-      if (postcode) {
-        checkoutManager.validatePostcode(postcode);
-      }
-    }
-
-    function placeOrder() {
-      checkoutManager.placeOrder();
-    }
-
-    // Initialize checkout manager when page loads
-    let checkoutManager;
-    document.addEventListener('DOMContentLoaded', () => {
-      checkoutManager = new ModernCheckoutManager();
-    });
   </script>
 </body>
 </html>
