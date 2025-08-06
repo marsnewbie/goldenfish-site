@@ -227,6 +227,102 @@
       display: none;
     }
 
+    /* Sign In Section Styles */
+    .signin-section {
+      margin-top: 1rem;
+      padding: 1.5rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      background: #f8f9fa;
+    }
+
+    .signin-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .signin-btn {
+      padding: 12px 24px;
+      background: #00d084;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .signin-btn:hover {
+      background: #00b571;
+    }
+
+    .signin-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .forgot-password {
+      color: #00d084;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .signin-status {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .signin-status.error {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      display: block;
+    }
+
+    .signin-status.success {
+      background: #efe;
+      border: 1px solid #cfc;
+      color: #3c3;
+      display: block;
+    }
+
+    .signin-success {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .welcome-message {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .success-icon {
+      font-size: 2rem;
+    }
+
+    .welcome-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+
+    .welcome-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
     .field-help {
       font-size: 0.8rem;
       color: #666;
@@ -543,6 +639,17 @@
           </div>
           
           <div class="account-option">
+            <input type="radio" name="accountType" value="signin" id="signinCheckout">
+            <label for="signinCheckout">
+              <div class="option-icon">🔑</div>
+              <div class="option-content">
+                <div class="option-title">Sign In</div>
+                <div class="option-desc">Access your account</div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="account-option">
             <input type="radio" name="accountType" value="register" id="registerCheckout">
             <label for="registerCheckout">
               <div class="option-icon">🔐</div>
@@ -586,6 +693,36 @@
             <label for="password">Create Password *</label>
             <input type="password" id="password" name="password" minlength="6">
             <div class="field-help">Minimum 6 characters</div>
+          </div>
+        </div>
+
+        <!-- Sign In section for existing users -->
+        <div class="signin-section" id="signinSection" style="display: none;">
+          <div class="signin-form">
+            <div class="form-group">
+              <label for="signinEmail">Email Address *</label>
+              <input type="email" id="signinEmail" name="signinEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+              <label for="signinPassword">Password *</label>
+              <input type="password" id="signinPassword" name="signinPassword" placeholder="Enter your password">
+            </div>
+            <div class="signin-actions">
+              <button type="button" class="signin-btn" id="signinBtn">Sign In</button>
+              <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+            <div class="signin-status" id="signinStatus"></div>
+          </div>
+          
+          <!-- Success state after signin -->
+          <div class="signin-success" id="signinSuccess" style="display: none;">
+            <div class="welcome-message">
+              <div class="success-icon">✅</div>
+              <div class="welcome-text">
+                <div class="welcome-title">Welcome back!</div>
+                <div class="welcome-subtitle" id="welcomeUserName"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -806,9 +943,13 @@
         const accountTypes = document.querySelectorAll('input[name="accountType"]');
         accountTypes.forEach(radio => {
           radio.addEventListener('change', (e) => {
-            this.togglePasswordSection(e.target.value === 'register');
+            this.toggleAuthSections(e.target.value);
           });
         });
+
+        // Sign In button
+        const signinBtn = document.getElementById('signinBtn');
+        signinBtn.addEventListener('click', () => this.handleSignIn());
 
         // Form validation
         const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
@@ -875,17 +1016,128 @@
         addressSection.style.display = this.orderData.deliveryType === 'delivery' ? 'block' : 'none';
       }
 
-      togglePasswordSection(show) {
+      toggleAuthSections(accountType) {
         const passwordSection = document.getElementById('passwordSection');
+        const signinSection = document.getElementById('signinSection');
+        const contactSection = document.querySelector('.contact-section');
         const passwordInput = document.getElementById('password');
         
-        if (show) {
-          passwordSection.style.display = 'block';
-          passwordInput.setAttribute('required', '');
-        } else {
-          passwordSection.style.display = 'none';
-          passwordInput.removeAttribute('required');
+        // Hide all auth-specific sections first
+        passwordSection.style.display = 'none';
+        signinSection.style.display = 'none';
+        passwordInput.removeAttribute('required');
+        
+        // Show contact form for guest and register
+        contactSection.style.display = (accountType === 'signin') ? 'none' : 'block';
+        
+        switch(accountType) {
+          case 'guest':
+            // Guest: Only show contact form (already visible)
+            break;
+            
+          case 'register':
+            // Register: Show contact form + password section
+            passwordSection.style.display = 'block';
+            passwordInput.setAttribute('required', '');
+            break;
+            
+          case 'signin':
+            // Sign In: Show sign in form, hide contact form
+            signinSection.style.display = 'block';
+            break;
         }
+      }
+
+      async handleSignIn() {
+        const email = document.getElementById('signinEmail').value.trim();
+        const password = document.getElementById('signinPassword').value;
+        const signinBtn = document.getElementById('signinBtn');
+        const signinStatus = document.getElementById('signinStatus');
+        
+        // Basic validation
+        if (!email || !password) {
+          this.showSignInStatus('Please enter both email and password.', 'error');
+          return;
+        }
+        
+        // Show loading state
+        signinBtn.disabled = true;
+        signinBtn.textContent = 'Signing In...';
+        signinStatus.className = 'signin-status';
+        signinStatus.style.display = 'none';
+        
+        try {
+          // Call backend API for authentication
+          console.log('🔐 Attempting sign in for:', email);
+          
+          const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/auth/signin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Sign in successful:', result);
+            
+            // Show success and populate user data
+            this.handleSignInSuccess(result.user);
+            
+          } else {
+            const error = await response.json().catch(() => ({ message: 'Sign in failed' }));
+            this.showSignInStatus(error.message || 'Invalid email or password.', 'error');
+          }
+          
+        } catch (error) {
+          console.error('❌ Sign in error:', error);
+          this.showSignInStatus('Unable to connect to authentication service. Please try again.', 'error');
+        } finally {
+          // Reset button state
+          signinBtn.disabled = false;
+          signinBtn.textContent = 'Sign In';
+        }
+      }
+      
+      showSignInStatus(message, type) {
+        const signinStatus = document.getElementById('signinStatus');
+        signinStatus.textContent = message;
+        signinStatus.className = `signin-status ${type}`;
+        signinStatus.style.display = 'block';
+      }
+      
+      handleSignInSuccess(user) {
+        // Hide sign in form, show success message
+        const signinForm = document.querySelector('.signin-form');
+        const signinSuccess = document.getElementById('signinSuccess');
+        const welcomeUserName = document.getElementById('welcomeUserName');
+        
+        signinForm.style.display = 'none';
+        welcomeUserName.textContent = `${user.firstName} ${user.lastName} • ${user.email}`;
+        signinSuccess.style.display = 'block';
+        
+        // Store user session data
+        this.orderData.user = user;
+        this.orderData.contact = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          accountType: 'signin'
+        };
+        
+        // Auto-populate delivery address if user has a saved address
+        if (user.savedAddresses && user.savedAddresses.length > 0) {
+          const defaultAddress = user.savedAddresses.find(addr => addr.isDefault) || user.savedAddresses[0];
+          if (defaultAddress) {
+            document.getElementById('street').value = defaultAddress.street;
+            document.getElementById('city').value = defaultAddress.city;
+            document.getElementById('postcode').value = defaultAddress.postcode;
+          }
+        }
+        
+        console.log('✅ User signed in successfully:', user.firstName, user.lastName);
       }
 
       formatPhoneNumber(input) {
@@ -1253,13 +1505,26 @@
       }
 
       collectOrderData() {
-        this.orderData.contact = {
-          firstName: document.getElementById('firstName').value.trim(),
-          lastName: document.getElementById('lastName').value.trim(),
-          phone: document.getElementById('phone').value.trim(),
-          email: document.getElementById('email').value.trim(),
-          accountType: document.querySelector('input[name="accountType"]:checked').value
-        };
+        const accountType = document.querySelector('input[name="accountType"]:checked').value;
+        
+        if (accountType === 'signin' && this.orderData.contact) {
+          // User is signed in, use stored contact data
+          console.log('🔑 Using signed-in user data');
+        } else {
+          // Guest or register - collect from form
+          this.orderData.contact = {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            accountType: accountType
+          };
+        }
+        
+        // Add password for registration
+        if (accountType === 'register') {
+          this.orderData.contact.password = document.getElementById('password').value;
+        }
 
         if (this.orderData.deliveryType === 'delivery') {
           this.orderData.deliveryAddress = {
