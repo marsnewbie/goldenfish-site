@@ -1339,21 +1339,34 @@
         
         console.log('🚀 Submitting order to backend API...');
         
-        // Prepare order data for API
+        // Prepare order data for API (format for backend compatibility)
         const orderData = {
           customerInfo: {
             firstName: this.orderData.contact.firstName,
             lastName: this.orderData.contact.lastName,
             email: this.orderData.contact.email,
             phone: this.orderData.contact.phone,
-            accountType: this.orderData.contact.accountType,
+            accountType: this.orderData.contact.accountType || 'guest',
             password: this.orderData.contact.password
           },
-          items: this.orderData.items,
+          // Convert items array - change 'quantity' to 'qty' for backend compatibility
+          items: this.orderData.items.map(item => ({
+            name: item.name,
+            price: item.price,
+            qty: item.quantity || item.qty, // Support both formats
+            selectedOptions: item.selectedOptions,
+            isFreeItem: item.isFreeItem || false
+          })),
           deliveryType: this.orderData.deliveryType,
-          deliveryAddress: this.orderData.deliveryAddress,
-          specialInstructions: this.orderData.specialInstructions,
-          paymentMethod: this.orderData.paymentMethod,
+          // Format delivery address for backend compatibility
+          deliveryAddress: this.orderData.deliveryType === 'delivery' ? {
+            street: this.orderData.deliveryAddress?.address || document.getElementById('address').value,
+            city: 'York', // Default city for now
+            postcode: this.orderData.postcode || document.getElementById('postcode').value,
+            instructions: this.orderData.deliveryAddress?.instructions || document.getElementById('deliveryInstructions')?.value || ''
+          } : undefined,
+          specialInstructions: this.orderData.specialInstructions || '',
+          paymentMethod: this.orderData.paymentMethod || 'card',
           totals: this.orderData.totals
         };
 
