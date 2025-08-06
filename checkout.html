@@ -873,6 +873,28 @@
         this.init();
       }
 
+      // Initialize authentication mode from URL parameters
+      initializeAuthFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const authMode = urlParams.get('auth');
+        
+        console.log('🔗 URL auth parameter:', authMode);
+        
+        if (authMode && ['guest', 'signin', 'register'].includes(authMode)) {
+          // Select the appropriate radio button
+          const targetRadio = document.querySelector(`input[name="accountType"][value="${authMode}"]`);
+          if (targetRadio) {
+            // Uncheck all radio buttons first
+            document.querySelectorAll('input[name="accountType"]').forEach(radio => {
+              radio.checked = false;
+            });
+            // Check the target radio button
+            targetRadio.checked = true;
+            console.log(`✅ Pre-selected ${authMode} mode from URL`);
+          }
+        }
+      }
+
       init() {
         this.loadOrderData();
         this.setupEventHandlers();
@@ -880,6 +902,7 @@
         this.updateDeliveryDisplay();
         
         // Initialize authentication sections
+        this.initializeAuthFromURL();
         const defaultAccountType = document.querySelector('input[name="accountType"]:checked').value;
         this.toggleAuthSections(defaultAccountType);
       }
@@ -1022,10 +1045,19 @@
       }
 
       toggleAuthSections(accountType) {
+        console.log('🔄 toggleAuthSections called with:', accountType);
+        
         const passwordSection = document.getElementById('passwordSection');
         const signinSection = document.getElementById('signinSection');
         const contactSection = document.querySelector('.contact-section');
         const passwordInput = document.getElementById('password');
+        
+        console.log('📋 Elements found:', {
+          passwordSection: !!passwordSection,
+          signinSection: !!signinSection, 
+          contactSection: !!contactSection,
+          passwordInput: !!passwordInput
+        });
         
         // Hide all auth-specific sections first
         passwordSection.style.display = 'none';
@@ -1037,16 +1069,19 @@
         
         switch(accountType) {
           case 'guest':
+            console.log('✅ Showing guest mode (contact form only)');
             // Guest: Only show contact form (already visible)
             break;
             
           case 'register':
+            console.log('✅ Showing register mode (contact form + password)');
             // Register: Show contact form + password section
             passwordSection.style.display = 'block';
             passwordInput.setAttribute('required', '');
             break;
             
           case 'signin':
+            console.log('✅ Showing signin mode (signin form only)');
             // Sign In: Show sign in form, hide contact form
             signinSection.style.display = 'block';
             break;
