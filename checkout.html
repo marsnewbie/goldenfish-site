@@ -1397,15 +1397,8 @@
               console.log(`📥 Response status: ${response.status} ${response.statusText}`);
               
               if (response.ok) {
-                const result = await response.json();
-                console.log('✅ Order submitted successfully:', result);
-                
-                // Store successful order data
-                this.orderData.orderNumber = result.data?.orderNumber || result.orderNumber;
-                this.orderData.estimatedTime = result.data?.estimatedTime || 30;
-                
-                this.showStep4Success();
-                return; // Exit the entire method on success
+                // Success! Break out of the loop to continue with success handling
+                break;
               } else {
                 const errorText = await response.text();
                 console.error(`❌ Failed with ${apiUrl}:`, errorText);
