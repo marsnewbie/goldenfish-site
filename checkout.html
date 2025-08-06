@@ -459,6 +459,141 @@
       }
     }
 
+    /* Account Selection Styles */
+    .account-selection {
+      margin-bottom: 2rem;
+    }
+
+    .account-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .account-option {
+      position: relative;
+    }
+
+    .account-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .account-option label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .account-option input[type="radio"]:checked + label {
+      border-color: var(--primary);
+      background: #f8f9fa;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .account-option .option-icon {
+      font-size: 1.5rem;
+    }
+
+    .account-option .option-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .account-option .option-desc {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* Contact Form Styles */
+    .contact-form {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-group input:invalid {
+      border-color: #e74c3c;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field-help {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    /* Address Section */
+    .address-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e1e5e9;
+    }
+
+    .address-section h3 {
+      margin: 0 0 1rem 0;
+      color: #333;
+      font-size: 1.1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .account-options {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* Empty Cart State */
     .empty-cart {
       text-align: center;
@@ -505,10 +640,14 @@
         </div>
         <div class="progress-step" data-step="3">
           <div class="step-number">3</div>
-          <span>Payment</span>
+          <span>Contact Info</span>
         </div>
         <div class="progress-step" data-step="4">
           <div class="step-number">4</div>
+          <span>Payment</span>
+        </div>
+        <div class="progress-step" data-step="5">
+          <div class="step-number">5</div>
           <span>Confirm</span>
         </div>
       </div>
@@ -601,6 +740,94 @@
         <!-- Step 3: Payment Method -->
         <div class="checkout-step" data-step="3">
           <div class="step-header">
+            <h2 class="step-title">Contact Information</h2>
+            <p class="step-subtitle">How would you like to checkout?</p>
+          </div>
+          
+          <!-- Account Type Selection -->
+          <div class="account-selection">
+            <div class="account-options">
+              <div class="account-option" data-account="guest">
+                <input type="radio" name="accountType" value="guest" id="guestCheckout" checked>
+                <label for="guestCheckout">
+                  <div class="option-icon">👤</div>
+                  <div class="option-content">
+                    <div class="option-title">Guest Checkout</div>
+                    <div class="option-desc">Quick checkout without creating account</div>
+                  </div>
+                </label>
+              </div>
+              
+              <div class="account-option" data-account="register">
+                <input type="radio" name="accountType" value="register" id="registerCheckout">
+                <label for="registerCheckout">
+                  <div class="option-icon">🔐</div>
+                  <div class="option-content">
+                    <div class="option-title">Create Account</div>
+                    <div class="option-desc">Save details for faster future orders</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information Form -->
+          <div class="contact-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="contactName">Full Name *</label>
+                <input type="text" id="contactName" name="contactName" required>
+              </div>
+              <div class="form-group">
+                <label for="contactPhone">Phone Number *</label>
+                <input type="tel" id="contactPhone" name="contactPhone" placeholder="07123 456789" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="contactEmail">Email Address *</label>
+              <input type="email" id="contactEmail" name="contactEmail" required>
+            </div>
+            
+            <!-- Password field for registered users only -->
+            <div class="form-group" id="passwordSection" style="display: none;">
+              <label for="contactPassword">Create Password *</label>
+              <input type="password" id="contactPassword" name="contactPassword" minlength="6">
+              <div class="field-help">Minimum 6 characters for account security</div>
+            </div>
+            
+            <!-- Delivery Address Section - shown only for delivery -->
+            <div id="deliveryAddressSection" class="address-section" style="display: none;">
+              <h3>Delivery Address</h3>
+              <div class="form-group">
+                <label for="deliveryAddress">Street Address *</label>
+                <input type="text" id="deliveryAddress" name="deliveryAddress" placeholder="123 Main Street" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="deliveryCity">City *</label>
+                  <input type="text" id="deliveryCity" name="deliveryCity" value="York" required>
+                </div>
+                <div class="form-group">
+                  <label for="deliveryPostcode">Postcode *</label>
+                  <input type="text" id="deliveryPostcode" name="deliveryPostcode" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="deliveryNotes">Delivery Instructions (Optional)</label>
+                <textarea id="deliveryNotes" name="deliveryNotes" placeholder="e.g., Ring doorbell, leave at door, etc."></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="checkout.previousStep()">Back</button>
+            <button type="button" class="btn btn-primary" onclick="checkout.validateContactInfo()">Continue</button>
+          </div>
+        </div>
+
+        <div class="checkout-step" data-step="4">
+          <div class="step-header">
             <h2 class="step-title">Payment Method</h2>
             <p class="step-subtitle">Choose how you'd like to pay</p>
           </div>
@@ -640,8 +867,8 @@
           </div>
         </div>
 
-        <!-- Step 4: Confirmation -->
-        <div class="checkout-step" data-step="4">
+        <!-- Step 5: Confirmation -->
+        <div class="checkout-step" data-step="5">
           <div class="step-header">
             <h2 class="step-title">Confirm Your Order</h2>
             <p class="step-subtitle">Review everything before placing your order</p>
@@ -1089,7 +1316,9 @@
         // Render step-specific content
         if (this.currentStep === 1) {
           this.renderOrderReview();
-        } else if (this.currentStep === 4) {
+        } else if (this.currentStep === 3) {
+          this.renderContactForm();
+        } else if (this.currentStep === 5) {
           this.renderConfirmation();
         }
       }
@@ -1111,6 +1340,111 @@
         this.renderCartItems();
       }
 
+      renderContactForm() {
+        // Initialize the contact form with delivery type awareness
+        const deliverySection = document.getElementById('deliveryAddressSection');
+        const postcodeField = document.getElementById('deliveryPostcode');
+        
+        // Show address section only for delivery
+        if (this.orderData.deliveryType === 'delivery') {
+          deliverySection.style.display = 'block';
+          
+          // Pre-populate postcode if available
+          if (this.orderData.postcode) {
+            postcodeField.value = this.orderData.postcode;
+          }
+        } else {
+          deliverySection.style.display = 'none';
+        }
+
+        // Set up account type change handler
+        const accountTypeInputs = document.querySelectorAll('input[name="accountType"]');
+        const passwordSection = document.getElementById('passwordSection');
+        
+        accountTypeInputs.forEach(input => {
+          input.addEventListener('change', (e) => {
+            if (e.target.value === 'register') {
+              passwordSection.style.display = 'block';
+              document.getElementById('contactPassword').setAttribute('required', 'required');
+            } else {
+              passwordSection.style.display = 'none';
+              document.getElementById('contactPassword').removeAttribute('required');
+            }
+          });
+        });
+      }
+
+      validateContactInfo() {
+        const name = document.getElementById('contactName').value.trim();
+        const phone = document.getElementById('contactPhone').value.trim();
+        const email = document.getElementById('contactEmail').value.trim();
+        const accountType = document.querySelector('input[name="accountType"]:checked').value;
+        
+        // Basic validation
+        if (!name || !phone || !email) {
+          alert('Please fill in all required contact information.');
+          return false;
+        }
+
+        // UK phone validation
+        const ukPhoneRegex = /^(\+44\s?|0)([1-9]\d{8,9})$/;
+        if (!ukPhoneRegex.test(phone.replace(/\s/g, ''))) {
+          alert('Please enter a valid UK phone number.');
+          return false;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          alert('Please enter a valid email address.');
+          return false;
+        }
+
+        // For delivery, validate address
+        if (this.orderData.deliveryType === 'delivery') {
+          const address = document.getElementById('deliveryAddress').value.trim();
+          const city = document.getElementById('deliveryCity').value.trim();
+          const postcode = document.getElementById('deliveryPostcode').value.trim();
+          
+          if (!address || !city || !postcode) {
+            alert('Please fill in all delivery address fields.');
+            return false;
+          }
+        }
+
+        // For registered users, validate password
+        if (accountType === 'register') {
+          const password = document.getElementById('contactPassword').value;
+          if (!password || password.length < 6) {
+            alert('Please create a password with at least 6 characters.');
+            return false;
+          }
+        }
+
+        // Store contact information
+        this.orderData.contact = {
+          name: name,
+          phone: phone,
+          email: email,
+          accountType: accountType,
+          password: accountType === 'register' ? document.getElementById('contactPassword').value : null
+        };
+
+        // Store delivery address if applicable
+        if (this.orderData.deliveryType === 'delivery') {
+          this.orderData.deliveryAddress = {
+            street: document.getElementById('deliveryAddress').value.trim(),
+            city: document.getElementById('deliveryCity').value.trim(),
+            postcode: document.getElementById('deliveryPostcode').value.trim(),
+            instructions: document.getElementById('deliveryNotes').value.trim()
+          };
+        }
+
+        // Proceed to next step
+        this.nextStep();
+        return true;
+      }
+
       renderConfirmation() {
         const confirmationContainer = document.getElementById('orderConfirmation');
         
@@ -1119,9 +1453,24 @@
             <h4>📋 Order Details</h4>
             <p><strong>Items:</strong> ${this.orderData.items.length} item(s)</p>
             <p><strong>Delivery:</strong> ${this.orderData.deliveryType === 'delivery' ? 'Delivery' : 'Collection'}</p>
-            ${this.orderData.deliveryType === 'delivery' ? `<p><strong>Address:</strong> ${document.getElementById('deliveryAddress')?.value || 'Not provided'}</p>` : ''}
+            ${this.orderData.deliveryType === 'delivery' && this.orderData.deliveryAddress ? 
+              `<p><strong>Address:</strong> ${this.orderData.deliveryAddress.street}, ${this.orderData.deliveryAddress.city}, ${this.orderData.deliveryAddress.postcode}</p>` : 
+              ''}
             <p><strong>Payment:</strong> ${this.getPaymentMethodName()}</p>
             <p><strong>Total:</strong> £${this.orderData.totals.total.toFixed(2)}</p>
+          </div>
+          
+          <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e1e5e9;">
+            <h4>👤 Contact Information</h4>
+            ${this.orderData.contact ? `
+              <p><strong>Name:</strong> ${this.orderData.contact.name}</p>
+              <p><strong>Phone:</strong> ${this.orderData.contact.phone}</p>
+              <p><strong>Email:</strong> ${this.orderData.contact.email}</p>
+              <p><strong>Account:</strong> ${this.orderData.contact.accountType === 'register' ? 'New Customer Account' : 'Guest Checkout'}</p>
+              ${this.orderData.deliveryAddress && this.orderData.deliveryAddress.instructions ? 
+                `<p><strong>Delivery Notes:</strong> ${this.orderData.deliveryAddress.instructions}</p>` : 
+                ''}
+            ` : '<p>Contact information not provided</p>'}
           </div>
         `;
 
