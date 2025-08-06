@@ -1362,8 +1362,8 @@
         try {
           // Try local development first, then Railway production
           const apiUrls = [
-            'http://localhost:3000/api/orders',  // Local development
-            'https://goldenfish-backend-production.up.railway.app/api/orders' // Railway production (update with actual URL)
+            'https://goldenfish-backend-production.up.railway.app/api/orders', // Railway production
+            'http://localhost:3000/api/orders'  // Local development fallback
           ];
           
           let response;
