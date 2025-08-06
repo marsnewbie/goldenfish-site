@@ -1279,8 +1279,66 @@
         console.log('Order data:', this.orderData);
       }
 
+      generateOrderNumber() {
+        // Option 1: Date-based with daily counter (YYMMDD-XXX)
+        // Option 2: Long random ID for security
+        
+        const useRandomId = false; // Set to true for long random IDs
+        
+        if (useRandomId) {
+          // Generate long random order ID (16 chars)
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+          let result = 'GF-';
+          for (let i = 0; i < 12; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          return result;
+        } else {
+          // Date-based with daily counter
+          const now = new Date();
+          const dateStr = now.getFullYear().toString().slice(-2) + 
+                         (now.getMonth() + 1).toString().padStart(2, '0') + 
+                         now.getDate().toString().padStart(2, '0');
+          
+          // Get or create daily counter
+          const counterKey = `gf_daily_counter_${dateStr}`;
+          let dailyCounter = parseInt(localStorage.getItem(counterKey) || '0');
+          dailyCounter += 1;
+          
+          // Store updated counter
+          localStorage.setItem(counterKey, dailyCounter.toString());
+          
+          // Clean up old counters (keep only last 30 days)
+          this.cleanupOldCounters();
+          
+          return `GF${dateStr}-${dailyCounter.toString().padStart(3, '0')}`;
+        }
+      }
+
+      cleanupOldCounters() {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        // Check localStorage for old counters and remove them
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('gf_daily_counter_')) {
+            const dateStr = key.replace('gf_daily_counter_', '');
+            if (dateStr.length === 6) {
+              const year = 2000 + parseInt(dateStr.slice(0, 2));
+              const month = parseInt(dateStr.slice(2, 4)) - 1;
+              const day = parseInt(dateStr.slice(4, 6));
+              const counterDate = new Date(year, month, day);
+              
+              if (counterDate < thirtyDaysAgo) {
+                localStorage.removeItem(key);
+              }
+            }
+          }
+        });
+      }
+
       async sendOrderConfirmationEmail() {
-        const orderNumber = 'GF' + Date.now().toString().slice(-6);
+        const orderNumber = this.generateOrderNumber();
         const customerName = `${this.orderData.contact.firstName} ${this.orderData.contact.lastName}`;
         
         // Generate order items HTML
@@ -1417,32 +1475,52 @@
         `;
 
         try {
+          console.log('🚀 Attempting to send email to:', this.orderData.contact.email);
+          console.log('📧 Order number:', orderNumber);
+          
+          const requestBody = {
+            from: 'onlineorder@ringorderai.com',
+            to: [this.orderData.contact.email],
+            subject: `Order Confirmation #${orderNumber} - Golden Fish`,
+            html: emailHtml
+          };
+          
+          console.log('📤 Request body:', requestBody);
+
           const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer re_jTuYL41J_DpqE9iM23spyFRds7R8rua9x',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              from: 'onlineorder@ringorderai.com',
-              to: [this.orderData.contact.email],
-              subject: `Order Confirmation #${orderNumber} - Golden Fish`,
-              html: emailHtml
-            })
+            body: JSON.stringify(requestBody)
           });
 
+          console.log('📨 Response status:', response.status);
+          console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()));
+
           if (!response.ok) {
-            throw new Error(`Email API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('❌ API Error Response:', errorText);
+            throw new Error(`Email API error: ${response.status} - ${errorText}`);
           }
 
           const result = await response.json();
-          console.log('Email sent successfully:', result);
+          console.log('✅ Email sent successfully:', result);
           
           // Store order number for reference
           this.orderData.orderNumber = orderNumber;
+          
+          // Show success message with more details
+          alert(`Order confirmed! 🎉\nOrder #${orderNumber}\nConfirmation email sent to: ${this.orderData.contact.email}`);
 
         } catch (error) {
-          console.error('Email sending failed:', error);
+          console.error('❌ Email sending failed:', error);
+          console.error('❌ Error type:', error.constructor.name);
+          console.error('❌ Error message:', error.message);
+          
+          // Show user that email failed but order was processed
+          alert(`Order #${orderNumber} confirmed! ✅\n\nNote: Confirmation email could not be sent due to technical limitations.\nPlease save your order number: ${orderNumber}`);
           // Don't fail the order if email fails
         }
       }

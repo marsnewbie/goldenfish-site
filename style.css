@@ -1079,16 +1079,19 @@ ul {
   color: var(--primary);
 }
 
-.nav-link.primary-cta {
+.nav-link.primary-cta,
+.nav-link.nav-cta {
   background: var(--primary);
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 25px;
   font-weight: 600;
   transition: all 0.3s ease;
+  margin-right: 0.75rem;
 }
 
-.nav-link.primary-cta:hover {
+.nav-link.primary-cta:hover,
+.nav-link.nav-cta:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
