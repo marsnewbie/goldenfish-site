@@ -1365,7 +1365,7 @@
             postcode: this.orderData.postcode || document.getElementById('postcode').value,
             instructions: this.orderData.deliveryAddress?.instructions || document.getElementById('deliveryInstructions')?.value || ''
           } : undefined,
-          specialInstructions: this.orderData.specialInstructions || '',
+          specialInstructions: this.orderData.specialInstructions || undefined, // Don't send empty string
           paymentMethod: this.orderData.paymentMethod || 'card',
           totals: this.orderData.totals
         };
@@ -1385,6 +1385,7 @@
           for (const apiUrl of apiUrls) {
             try {
               console.log(`🔄 Trying API endpoint: ${apiUrl}`);
+              console.log(`📤 Request payload:`, JSON.stringify(orderData, null, 2));
               
               response = await fetch(apiUrl, {
                 method: 'POST',
@@ -1394,13 +1395,25 @@
                 body: JSON.stringify(orderData)
               });
               
+              console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+              
               if (response.ok) {
-                break; // Success! Stop trying other URLs
+                const result = await response.json();
+                console.log('✅ Order submitted successfully:', result);
+                
+                // Store successful order data
+                this.orderData.orderNumber = result.data?.orderNumber || result.orderNumber;
+                this.orderData.estimatedTime = result.data?.estimatedTime || 30;
+                
+                this.showStep4Success();
+                return; // Exit the entire method on success
               } else {
-                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                const errorText = await response.text();
+                console.error(`❌ Failed with ${apiUrl}:`, errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
               }
             } catch (error) {
-              console.log(`❌ Failed with ${apiUrl}:`, error.message);
+              console.error(`❌ Failed with ${apiUrl}:`, error.message);
               lastError = error;
               response = null;
             }
