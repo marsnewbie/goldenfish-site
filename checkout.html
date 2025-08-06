@@ -1084,6 +1084,13 @@
             console.log('✅ Showing signin mode (signin form only)');
             // Sign In: Show sign in form, hide contact form
             signinSection.style.display = 'block';
+            signinSection.style.visibility = 'visible';
+            signinSection.style.opacity = '1';
+            console.log('🔧 Applied signin section styles:', {
+              display: signinSection.style.display,
+              visibility: signinSection.style.visibility,
+              opacity: signinSection.style.opacity
+            });
             break;
         }
       }

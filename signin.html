@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Golden Fish</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .signin-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signin-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .signin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 0.875rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .signin-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+        }
+
+        .signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .signin-btn:active {
+            transform: translateY(0);
+        }
+
+        .signin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            text-align: center;
+        }
+
+        .auth-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .auth-links a:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .back-link {
+            background: #f8f9fa !important;
+            color: #666 !important;
+            border: 1px solid #e1e5e9;
+        }
+
+        .back-link:hover {
+            background: #e9ecef !important;
+            color: #333 !important;
+        }
+
+        .status-message {
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .status-message.error {
+            background: #fee;
+            color: #c53030;
+            border: 1px solid #fed7d7;
+        }
+
+        .status-message.success {
+            background: #f0fff4;
+            color: #38a169;
+            border: 1px solid #9ae6b4;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .signin-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+
+            .logo h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signin-container">
+        <div class="logo">
+            <h1>🐟 Golden Fish</h1>
+            <p>Welcome back to your account</p>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <form class="signin-form" id="signinForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="signin-btn" id="signinBtn">Sign In</button>
+
+            <div class="forgot-password">
+                <a href="#" onclick="showForgotPassword()">Forgot your password?</a>
+            </div>
+        </form>
+
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <div class="auth-links">
+            <a href="checkout.html?auth=register">Create New Account</a>
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        class SignInManager {
+            constructor() {
+                this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
+                this.init();
+            }
+
+            init() {
+                document.getElementById('signinForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSignIn();
+                });
+
+                // Check if user is already signed in
+                this.checkExistingSession();
+            }
+
+            async checkExistingSession() {
+                const token = localStorage.getItem('auth_token');
+                if (token) {
+                    try {
+                        const response = await fetch(`${this.apiBase}/auth/verify`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.showSuccess(`Already signed in as ${data.data.firstName} ${data.data.lastName}`);
+                            // Redirect after 2 seconds
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        }
+                    } catch (error) {
+                        // Token invalid, continue with normal flow
+                        localStorage.removeItem('auth_token');
+                    }
+                }
+            }
+
+            async handleSignIn() {
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const btn = document.getElementById('signinBtn');
+
+                if (!email || !password) {
+                    this.showError('Please enter both email and password.');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Signing In...';
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/signin`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Store auth token
+                        localStorage.setItem('auth_token', data.data.token);
+                        localStorage.setItem('user_data', JSON.stringify(data.data.user));
+
+                        this.showSuccess(`Welcome back, ${data.data.user.firstName}!`);
+                        
+                        // Redirect to home page after 1.5 seconds
+                        setTimeout(() => {
+                            const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                            window.location.href = returnUrl;
+                        }, 1500);
+
+                    } else {
+                        this.showError(data.message || 'Sign in failed. Please try again.');
+                    }
+
+                } catch (error) {
+                    console.error('Sign in error:', error);
+                    this.showError('Connection error. Please try again.');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                }
+            }
+
+            showError(message) {
+                const statusDiv = document.getElementById('statusMessage');
+                statusDiv.className = 'status-message error';
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const statusDiv = document.getElementById('statusMessage');
+                statusDiv.className = 'status-message success';
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new SignInManager();
+        });
+
+        function showForgotPassword() {
+            alert('Password reset functionality coming soon! Please contact support if you need help.');
+        }
+    </script>
+</body>
+</html>
