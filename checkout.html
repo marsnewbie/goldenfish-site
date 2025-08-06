@@ -1090,12 +1090,17 @@
             signinSection.style.border = '5px solid #00ff00'; // Debug: green border
             signinSection.style.minHeight = '200px'; // Debug: ensure height
             signinSection.style.zIndex = '9999'; // Debug: bring to front
+            signinSection.style.position = 'relative'; // Debug: ensure positioning
+            signinSection.innerHTML = '<h1 style="color: white; font-size: 24px;">DEBUG SIGNIN SECTION IS HERE</h1>' + signinSection.innerHTML; // Debug: add visible content
             console.log('🔧 Applied signin section styles:', {
               display: signinSection.style.display,
               visibility: signinSection.style.visibility,
               opacity: signinSection.style.opacity,
               backgroundColor: signinSection.style.backgroundColor,
-              position: signinSection.getBoundingClientRect()
+              position: signinSection.getBoundingClientRect(),
+              innerHTML: signinSection.innerHTML.length,
+              offsetHeight: signinSection.offsetHeight,
+              offsetWidth: signinSection.offsetWidth
             });
             break;
         }
