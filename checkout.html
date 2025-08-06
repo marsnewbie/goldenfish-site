@@ -1373,10 +1373,9 @@
         console.log('📤 Order data:', orderData);
 
         try {
-          // Try local development first, then Railway production
+          // Use Railway production API only (localhost fallback removed for production)
           const apiUrls = [
-            'https://goldenfish-backend-production.up.railway.app/api/orders', // Railway production
-            'http://localhost:3000/api/orders'  // Local development fallback
+            'https://goldenfish-backend-production.up.railway.app/api/orders' // Railway production
           ];
           
           let response;
