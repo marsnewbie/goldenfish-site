@@ -394,8 +394,15 @@
             }
 
             redirectToReturnUrl() {
-                const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
-                window.location.href = returnUrl;
+                const urlParams = new URLSearchParams(window.location.search);
+                const returnUrl = urlParams.get('return') || 'index.html';
+                
+                console.log('🔄 Redirecting after login to:', returnUrl);
+                
+                // Add a small delay to let user see the success message
+                setTimeout(() => {
+                    window.location.href = returnUrl;
+                }, 1000);
             }
 
             showError(message) {
