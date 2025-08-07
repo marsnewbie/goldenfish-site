@@ -710,6 +710,69 @@
         font-size: 0.8rem;
       }
     }
+
+    /* Magic Link Specific Styles */
+    .magic-link-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f8f9ff, #e7f3ff);
+      border: 2px solid #007bff;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .magic-link-icon {
+      font-size: 2rem;
+      animation: sparkle 2s infinite;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .magic-link-info h3 {
+      margin: 0 0 0.5rem 0;
+      color: #007bff;
+      font-size: 1.2rem;
+    }
+
+    .magic-link-info p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .magic-link-help {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #28a745;
+    }
+
+    .magic-link-help p {
+      margin: 0 0 0.5rem 0;
+      font-weight: 600;
+      color: #28a745;
+    }
+
+    .magic-link-help ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: #666;
+    }
+
+    .magic-link-help li {
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    #magicLinkBtnText {
+      transition: all 0.3s ease;
+    }
   </style>
 </head>
 <body>
@@ -774,72 +837,44 @@
           <div class="auth-option">
             <input type="radio" name="checkoutType" value="signin" id="signinOption">
             <label for="signinOption" class="auth-option-label">
-              <div class="option-icon">🔑</div>
+              <div class="option-icon">✨</div>
               <div class="option-content">
-                <div class="option-title">Sign In</div>
-                <div class="option-desc">Access your account</div>
-              </div>
-            </label>
-          </div>
-
-          <div class="auth-option">
-            <input type="radio" name="checkoutType" value="register" id="registerOption">
-            <label for="registerOption" class="auth-option-label">
-              <div class="option-icon">📝</div>
-              <div class="option-content">
-                <div class="option-title">Create Account</div>
-                <div class="option-desc">Save for next time</div>
+                <div class="option-title">Sign In with Magic Link</div>
+                <div class="option-desc">Passwordless login - new users automatically registered</div>
               </div>
             </label>
           </div>
         </div>
 
-        <!-- Sign In Form - Shows immediately when Sign In is selected -->
+        <!-- Magic Link Sign In Form - Modern Passwordless Authentication -->
         <div class="auth-form signin-form" id="signinForm" style="display: none;">
+          <div class="magic-link-info">
+            <div class="magic-link-icon">✨</div>
+            <div>
+              <h3>Sign In with Magic Link</h3>
+              <p>No password needed! We'll send a secure link to your email for instant sign-in.</p>
+            </div>
+          </div>
           <div class="form-group">
             <label for="signinEmail">Email Address</label>
-            <input type="email" id="signinEmail" placeholder="Enter your email" required>
-          </div>
-          <div class="form-group">
-            <label for="signinPassword">Password</label>
-            <input type="password" id="signinPassword" placeholder="Enter your password" required>
+            <input type="email" id="signinEmail" placeholder="Enter your email address" required>
           </div>
           <div class="auth-actions">
-            <button type="button" class="auth-btn primary" onclick="authManager.handleSignIn()">Sign In</button>
-            <a href="#" class="forgot-password-link">Forgot Password?</a>
+            <button type="button" class="auth-btn primary" onclick="authManager.handleMagicLinkSignIn()">
+              <span id="magicLinkBtnText">Send Magic Link</span>
+            </button>
+          </div>
+          <div class="magic-link-help">
+            <p><strong>How it works:</strong></p>
+            <ol>
+              <li>Enter your email address</li>
+              <li>Check your email for a magic link</li>
+              <li>Click the link to sign in instantly</li>
+            </ol>
           </div>
           <div class="auth-status-message" id="signinStatusMessage"></div>
         </div>
 
-        <!-- Register Form - Shows immediately when Register is selected -->
-        <div class="auth-form register-form" id="registerForm" style="display: none;">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="registerFirstName">First Name</label>
-              <input type="text" id="registerFirstName" placeholder="First name" required>
-            </div>
-            <div class="form-group">
-              <label for="registerLastName">Last Name</label>
-              <input type="text" id="registerLastName" placeholder="Last name" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="registerEmail">Email Address</label>
-            <input type="email" id="registerEmail" placeholder="Enter your email" required>
-          </div>
-          <div class="form-group">
-            <label for="registerPhone">Phone Number</label>
-            <input type="tel" id="registerPhone" placeholder="07123 456789" required>
-          </div>
-          <div class="form-group">
-            <label for="registerPassword">Create Password</label>
-            <input type="password" id="registerPassword" placeholder="At least 6 characters" minlength="6" required>
-          </div>
-          <div class="auth-actions">
-            <button type="button" class="auth-btn primary" onclick="authManager.handleRegister()">Create Account</button>
-          </div>
-          <div class="auth-status-message" id="registerStatusMessage"></div>
-        </div>
       </div>
 
       <!-- Signed-In User Information -->
@@ -1038,14 +1073,32 @@
           });
         });
 
-        // Enter key handlers
-        document.getElementById('signinPassword').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') this.handleSignIn();
+        // Enter key handler for Magic Link email
+        document.getElementById('signinEmail').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleMagicLinkSignIn();
         });
 
-        document.getElementById('registerPassword').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') this.handleRegister();
-        });
+        // Check for Magic Link authentication state changes
+        if (typeof modernAuth !== 'undefined') {
+          modernAuth.supabase?.auth?.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+              console.log('✅ Magic Link authentication successful');
+              this.currentUser = {
+                id: session.user.id,
+                email: session.user.email,
+                firstName: session.user.user_metadata?.first_name || '',
+                lastName: session.user.user_metadata?.last_name || ''
+              };
+              
+              const statusDiv = document.getElementById('signinStatusMessage');
+              this.showStatusMessage(statusDiv, `Welcome, ${this.currentUser.email}!`, 'success');
+              
+              setTimeout(() => {
+                this.showSignedInState();
+              }, 1500);
+            }
+          });
+        }
       }
 
       initializeFromURL() {
@@ -1078,14 +1131,15 @@
         console.log('🔄 Auth option changed to:', selectedOption);
       }
 
-      async handleSignIn() {
+      // New Magic Link Authentication Handler
+      async handleMagicLinkSignIn() {
         const email = document.getElementById('signinEmail').value.trim();
-        const password = document.getElementById('signinPassword').value;
         const statusDiv = document.getElementById('signinStatusMessage');
         const submitBtn = document.querySelector('#signinForm .auth-btn');
+        const btnText = document.getElementById('magicLinkBtnText');
 
-        if (!email || !password) {
-          this.showStatusMessage(statusDiv, 'Please enter both email and password.', 'error');
+        if (!email) {
+          this.showStatusMessage(statusDiv, 'Please enter your email address.', 'error');
           return;
         }
 
@@ -1095,42 +1149,44 @@
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Signing In...';
+        btnText.textContent = 'Sending Magic Link...';
 
         try {
-          const response = await fetch(`${this.apiBase}/auth/signin`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
+          // Wait for modern auth to be ready
+          if (typeof modernAuth !== 'undefined' && modernAuth.initPromise) {
+            await modernAuth.initPromise;
+          }
 
-          const result = await response.json();
-
-          if (response.ok && result.success) {
-            localStorage.setItem('auth_token', result.data.token);
-            localStorage.setItem('user_data', JSON.stringify(result.data.user));
+          const result = await modernAuth.signInWithMagicLink(email, window.location.href);
+          
+          if (result.success) {
+            this.showStatusMessage(statusDiv, result.message, 'success');
+            btnText.textContent = 'Magic Link Sent! Check Email';
             
-            this.currentUser = result.data.user;
-            this.showStatusMessage(statusDiv, `Welcome back, ${this.currentUser.firstName}!`, 'success');
-            
+            // Show additional instructions
             setTimeout(() => {
-              this.showSignedInState();
-            }, 1500);
+              this.showStatusMessage(statusDiv, 
+                'Magic link sent to your email! Click the link to sign in instantly. ' +
+                'If you don\'t see it, check your spam folder. New users will be automatically registered.',
+                'info'
+              );
+            }, 2000);
           } else {
-            // If authentication is having issues, provide alternative
-            let errorMsg = result.message || 'Authentication service temporarily unavailable.';
-            if (result.message && result.message.includes('temporarily unavailable')) {
-              errorMsg += '\n\nYou can still place your order as a guest. Simply select "Continue as Guest" above to proceed with your order.';
-            }
-            this.showStatusMessage(statusDiv, errorMsg, 'error');
+            this.showStatusMessage(statusDiv, result.message || 'Failed to send magic link', 'error');
+            btnText.textContent = 'Send Magic Link';
+            submitBtn.disabled = false;
           }
         } catch (error) {
-          console.error('❌ Sign in error:', error);
-          this.showStatusMessage(statusDiv, 'Unable to connect to authentication service. Please try again later or contact support.', 'error');
-        } finally {
+          console.error('❌ Magic link error:', error);
+          this.showStatusMessage(statusDiv, 'Unable to send magic link. Please try again later.', 'error');
+          btnText.textContent = 'Send Magic Link';
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In';
         }
+      }
+
+      // Keep legacy function for backward compatibility but redirect to Magic Link
+      async handleSignIn() {
+        return this.handleMagicLinkSignIn();
       }
 
       async handleRegister() {
@@ -1751,6 +1807,11 @@
       window.location.href = 'menu.html';
     }
   </script>
+  
+  <!-- Supabase Modern Authentication -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-auth.js"></script>
   <script src="global-auth.js"></script>
 </body>
 </html>
