@@ -57,8 +57,8 @@ STEP 6: Get Project Credentials
 
 // Replace these with your actual Supabase project credentials
 const SUPABASE_CONFIG = {
-    url: 'YOUR_SUPABASE_URL', // e.g., 'https://xyzcompany.supabase.co'
-    anonKey: 'YOUR_SUPABASE_ANON_KEY', // Your project's anonymous key
+    url: 'https://cyitrtjkoqxkolvtsydx.supabase.co', // Your Supabase project URL
+    anonKey: 'YOUR_SUPABASE_ANON_KEY', // Get this from Supabase Dashboard > Settings > API
     
     // Auth configuration
     auth: {
