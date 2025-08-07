@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 快速设置验证</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .setup-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .step h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        .email-input {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .email-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <h1>🚀 Supabase 设置验证工具</h1>
+        <p>这个工具将帮你验证Supabase配置是否正确，并测试认证功能。</p>
+
+        <div class="step">
+            <h3>📋 第1步：验证连接</h3>
+            <p>点击下面按钮测试与Supabase的连接：</p>
+            <button onclick="testConnection()">测试连接</button>
+            <div id="connectionStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>🗄️ 第2步：检查数据库架构</h3>
+            <p>验证数据库表是否已正确创建：</p>
+            <button onclick="checkSchema()">检查数据库架构</button>
+            <div id="schemaStatus"></div>
+            
+            <div id="sqlInstructions" style="display: none; margin-top: 15px;">
+                <h4>⚠️ 需要运行数据库架构</h4>
+                <p>请在Supabase SQL编辑器中运行以下脚本：</p>
+                <ol>
+                    <li>打开 <a href="https://supabase.com/dashboard/project/cyitrtjkoqxkolvtsydx/sql" target="_blank">Supabase SQL 编辑器</a></li>
+                    <li>复制整个 <code>supabase-schema.sql</code> 文件内容</li>
+                    <li>粘贴到SQL编辑器并点击 "Run"</li>
+                    <li>返回这里重新测试</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>✨ 第3步：测试Magic Link认证</h3>
+            <p>测试无密码邮箱登录功能：</p>
+            <div class="email-input">
+                <input type="email" id="testEmail" placeholder="输入你的邮箱地址" />
+                <button onclick="testMagicLink()">发送Magic Link</button>
+            </div>
+            <div id="magicLinkStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>🏢 第4步：创建租户数据</h3>
+            <p>为Golden Fish创建基础数据：</p>
+            <button onclick="createTenantData()">创建租户和餐厅数据</button>
+            <div id="tenantStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>🎯 第5步：完整测试</h3>
+            <p>测试完整的认证流程：</p>
+            <button onclick="window.open('modern-checkout.html', '_blank')">打开现代化结账页面</button>
+            <button onclick="window.open('https://test-ordering-page.vercel.app/modern-checkout.html', '_blank')">打开生产环境</button>
+        </div>
+
+        <div id="overallStatus" class="status info">
+            <h3>📊 系统状态</h3>
+            <p>点击上面的测试按钮来验证你的设置...</p>
+        </div>
+    </div>
+
+    <!-- 加载Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <script>
+        let supabaseClient = null;
+        let setupResults = {
+            connection: false,
+            schema: false,
+            auth: false,
+            tenant: false
+        };
+
+        // 初始化Supabase客户端
+        setTimeout(() => {
+            if (window.supabaseManager && window.supabaseManager.client) {
+                supabaseClient = window.supabaseManager.client;
+                showStatus('connectionStatus', 'Supabase客户端已初始化', 'success');
+            } else {
+                showStatus('connectionStatus', '等待Supabase客户端初始化...', 'info');
+            }
+        }, 1000);
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.innerHTML = message;
+        }
+
+        async function testConnection() {
+            showStatus('connectionStatus', '正在测试连接...', 'info');
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase客户端未初始化');
+                }
+
+                // 测试简单的连接
+                const { data, error } = await supabaseClient
+                    .from('tenants')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                showStatus('connectionStatus', '✅ 连接成功！Supabase配置正确', 'success');
+                setupResults.connection = true;
+                updateOverallStatus();
+            } catch (error) {
+                showStatus('connectionStatus', `❌ 连接失败: ${error.message}`, 'error');
+                setupResults.connection = false;
+                updateOverallStatus();
+            }
+        }
+
+        async function checkSchema() {
+            showStatus('schemaStatus', '正在检查数据库架构...', 'info');
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('请先测试连接');
+                }
+
+                // 检查关键表是否存在
+                const tables = ['tenants', 'user_profiles', 'restaurants', 'orders'];
+                const results = [];
+                
+                for (const table of tables) {
+                    try {
+                        const { error } = await supabaseClient
+                            .from(table)
+                            .select('count')
+                            .limit(1);
+                        
+                        if (error && error.code === '42P01') {
+                            results.push(`❌ 表 '${table}' 不存在`);
+                        } else {
+                            results.push(`✅ 表 '${table}' 存在`);
+                        }
+                    } catch (e) {
+                        results.push(`❌ 表 '${table}' 检查失败`);
+                    }
+                }
+
+                const allExists = results.every(r => r.includes('✅'));
+                
+                if (allExists) {
+                    showStatus('schemaStatus', '✅ 数据库架构完整！\n' + results.join('\n'), 'success');
+                    setupResults.schema = true;
+                    document.getElementById('sqlInstructions').style.display = 'none';
+                } else {
+                    showStatus('schemaStatus', '⚠️ 部分表缺失：\n' + results.join('\n'), 'error');
+                    setupResults.schema = false;
+                    document.getElementById('sqlInstructions').style.display = 'block';
+                }
+                
+                updateOverallStatus();
+            } catch (error) {
+                showStatus('schemaStatus', `❌ 架构检查失败: ${error.message}`, 'error');
+                setupResults.schema = false;
+                updateOverallStatus();
+            }
+        }
+
+        async function testMagicLink() {
+            const email = document.getElementById('testEmail').value;
+            
+            if (!email) {
+                showStatus('magicLinkStatus', '请输入邮箱地址', 'error');
+                return;
+            }
+
+            showStatus('magicLinkStatus', '正在发送Magic Link...', 'info');
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('请先测试连接');
+                }
+
+                const { data, error } = await supabaseClient.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin + '/modern-checkout.html'
+                    }
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                showStatus('magicLinkStatus', `✅ Magic Link已发送到 ${email}！请检查邮箱（包括垃圾邮件文件夹）`, 'success');
+                setupResults.auth = true;
+                updateOverallStatus();
+            } catch (error) {
+                showStatus('magicLinkStatus', `❌ Magic Link发送失败: ${error.message}`, 'error');
+                setupResults.auth = false;
+                updateOverallStatus();
+            }
+        }
+
+        async function createTenantData() {
+            showStatus('tenantStatus', '正在创建租户数据...', 'info');
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('请先测试连接');
+                }
+
+                // 检查租户是否已存在
+                const { data: existingTenant } = await supabaseClient
+                    .from('tenants')
+                    .select('id')
+                    .eq('slug', 'golden-fish')
+                    .single();
+
+                if (existingTenant) {
+                    showStatus('tenantStatus', '✅ Golden Fish租户已存在！', 'success');
+                    setupResults.tenant = true;
+                    updateOverallStatus();
+                    return;
+                }
+
+                // 创建租户
+                const { data: tenant, error: tenantError } = await supabaseClient
+                    .from('tenants')
+                    .insert({
+                        name: 'Golden Fish Group',
+                        slug: 'golden-fish',
+                        business_name: 'Golden Fish Restaurant Group Ltd',
+                        email: 'admin@goldenfish.co.uk',
+                        plan: 'premium',
+                        settings: {}
+                    })
+                    .select()
+                    .single();
+
+                if (tenantError) {
+                    throw tenantError;
+                }
+
+                // 创建餐厅
+                const { data: restaurant, error: restaurantError } = await supabaseClient
+                    .from('restaurants')
+                    .insert({
+                        tenant_id: tenant.id,
+                        name: 'Golden Fish York',
+                        slug: 'golden-fish-york',
+                        address_line1: '123 Golden Fish Street',
+                        city: 'York',
+                        postal_code: 'YO10 3BP',
+                        phone: '01904 123456',
+                        opening_hours: {
+                            "monday": "closed",
+                            "tuesday": {"open": "17:00", "close": "23:00"},
+                            "wednesday": {"open": "17:00", "close": "23:00"},
+                            "thursday": {"open": "17:00", "close": "23:00"},
+                            "friday": {"open": "17:00", "close": "00:00"},
+                            "saturday": {"open": "17:00", "close": "00:00"},
+                            "sunday": {"open": "17:00", "close": "22:30"}
+                        },
+                        delivery_zones: [
+                            {"postcode": "YO10", "fee": 2.50},
+                            {"postcode": "YO1", "fee": 3.00}
+                        ]
+                    })
+                    .select()
+                    .single();
+
+                if (restaurantError) {
+                    throw restaurantError;
+                }
+
+                showStatus('tenantStatus', `✅ 成功创建！\n租户: ${tenant.name}\n餐厅: ${restaurant.name}`, 'success');
+                setupResults.tenant = true;
+                updateOverallStatus();
+            } catch (error) {
+                showStatus('tenantStatus', `❌ 创建失败: ${error.message}`, 'error');
+                setupResults.tenant = false;
+                updateOverallStatus();
+            }
+        }
+
+        function updateOverallStatus() {
+            const completed = Object.values(setupResults).filter(Boolean).length;
+            const total = Object.keys(setupResults).length;
+            
+            let message = `<h3>📊 设置进度: ${completed}/${total}</h3>`;
+            
+            if (completed === total) {
+                message += '<p>🎉 <strong>恭喜！所有设置都已完成！</strong></p>';
+                message += '<p>你的现代化认证系统已经准备就绪。现在可以:</p>';
+                message += '<ul>';
+                message += '<li>✅ 使用Magic Link无密码登录</li>';
+                message += '<li>✅ 在支持的设备上使用生物识别认证</li>';
+                message += '<li>✅ 支持多租户餐厅管理</li>';
+                message += '<li>✅ 享受企业级安全保护</li>';
+                message += '</ul>';
+                showStatus('overallStatus', message, 'success');
+            } else {
+                message += '<p>请完成上面标记为红色的步骤。</p>';
+                showStatus('overallStatus', message, 'info');
+            }
+        }
+
+        // 页面加载后自动测试连接
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (document.readyState === 'complete') {
+                    testConnection();
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
