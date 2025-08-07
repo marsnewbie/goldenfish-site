@@ -1116,18 +1116,23 @@
       }
 
       handleAuthOptionChange(selectedOption) {
-        // Hide all forms first
-        document.getElementById('signinForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'none';
+        // Hide signin form (only form that exists)
+        const signinForm = document.getElementById('signinForm');
+        if (signinForm) {
+          signinForm.style.display = 'none';
+        }
         
         // Show the appropriate form immediately
         if (selectedOption === 'signin') {
-          document.getElementById('signinForm').style.display = 'block';
-          document.getElementById('signinEmail').focus();
-        } else if (selectedOption === 'register') {
-          document.getElementById('registerForm').style.display = 'block';
-          document.getElementById('registerFirstName').focus();
+          if (signinForm) {
+            signinForm.style.display = 'block';
+            const emailInput = document.getElementById('signinEmail');
+            if (emailInput) {
+              emailInput.focus();
+            }
+          }
         }
+        // Note: register option removed since registerForm doesn't exist in this checkout
 
         console.log('🔄 Auth option changed to:', selectedOption);
       }
@@ -1158,16 +1163,24 @@
             await modernAuth.initPromise;
           }
 
-          // Simplified magic link using direct Supabase client
-          if (!window.supabase) {
-            throw new Error('Supabase client not loaded');
+          // Use global Supabase client from supabase-config.js
+          let supabaseClient = null;
+          
+          // Try to use existing global client first
+          if (window.supabaseManager && window.supabaseManager.client) {
+            supabaseClient = window.supabaseManager.client;
+          } else if (window.supabase) {
+            // Create single global client if none exists
+            if (!window.globalSupabaseClient) {
+              window.globalSupabaseClient = window.supabase.createClient(
+                'https://cyitrtjkoqxkolvtsydx.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5aXRydGprb3F4a29sdnRzeWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzMxMDIsImV4cCI6MjA3MDEwOTEwMn0.3t6mSgDMEj70C40mXuL4C0OxPvntbf-pPAcav9aLU6M'
+              );
+            }
+            supabaseClient = window.globalSupabaseClient;
+          } else {
+            throw new Error('Supabase client not available');
           }
-
-          // Create Supabase client directly without complex setup
-          const supabaseClient = window.supabase.createClient(
-            'https://cyitrtjkoqxkolvtsydx.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5aXRydGprb3F4a29sdnRzeWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzMxMDIsImV4cCI6MjA3MDEwOTEwMn0.3t6mSgDMEj70C40mXuL4C0OxPvntbf-pPAcav9aLU6M'
-          );
 
           const { data, error } = await supabaseClient.auth.signInWithOtp({
             email: email,
@@ -1447,6 +1460,15 @@
             this.orderData.postcode = postcode;
             document.getElementById('postcode').value = postcode;
           }
+          
+          // Load applied promotions from menu page
+          const appliedPromotions = localStorage.getItem('goldenfish_applied_promotions');
+          if (appliedPromotions) {
+            this.orderData.appliedPromotions = JSON.parse(appliedPromotions);
+            console.log('✅ Loaded promotions:', this.orderData.appliedPromotions);
+          } else {
+            this.orderData.appliedPromotions = [];
+          }
 
           if (deliveryFeeData) {
             try {
@@ -1538,11 +1560,18 @@
           deliveryFee = this.orderData.deliveryFee.fee || 0;
         }
 
+        // Calculate promotion discounts
+        let totalDiscount = 0;
+        if (this.orderData.appliedPromotions && this.orderData.appliedPromotions.length > 0) {
+          totalDiscount = this.orderData.appliedPromotions.reduce((sum, promo) => sum + promo.amount, 0);
+          console.log('✅ Applied promotion discounts:', totalDiscount);
+        }
+
         this.orderData.totals = {
           subtotal: subtotal,
-          discount: 0,
+          discount: totalDiscount,
           deliveryFee: deliveryFee,
-          total: subtotal + deliveryFee
+          total: subtotal - totalDiscount + deliveryFee
         };
 
         this.updateTotalsDisplay();
@@ -1616,6 +1645,15 @@
           document.getElementById('deliveryFee').textContent = `£${this.orderData.totals.deliveryFee.toFixed(2)}`;
         } else {
           deliveryRow.style.display = 'none';
+        }
+
+        // Show discount row if there are promotions
+        const discountRow = document.getElementById('discountRow');
+        if (this.orderData.totals.discount > 0) {
+          discountRow.style.display = 'flex';
+          document.getElementById('discount').textContent = `-£${this.orderData.totals.discount.toFixed(2)}`;
+        } else {
+          discountRow.style.display = 'none';
         }
 
         document.getElementById('total').textContent = `£${this.orderData.totals.total.toFixed(2)}`;

@@ -82,28 +82,23 @@ class SupabaseManager {
     }
 
     async init() {
-        // Initialize Supabase client
+        // Simplified Supabase client initialization - minimal config
         if (typeof window !== 'undefined' && window.supabase) {
             this.client = window.supabase.createClient(
                 this.config.url,
                 this.config.anonKey,
                 {
                     auth: {
-                        persistSession: this.config.auth.session.persistSession,
-                        autoRefreshToken: this.config.auth.session.autoRefreshToken,
-                        detectSessionInUrl: true,
-                        flowType: 'pkce' // OAuth 2.1 with PKCE for security
-                    },
-                    global: {
-                        headers: {
-                            'X-Client-Info': 'golden-fish-ordering@1.0.0'
-                        }
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                        // Removed complex PKCE configuration that might cause issues
                     }
                 }
             );
 
-            console.log('✅ Supabase client initialized');
-            await this.setupAuth();
+            console.log('✅ Supabase client initialized (simplified)');
+            // Removed complex auth setup that depends on database tables
         } else {
             console.error('❌ Supabase library not loaded');
         }
@@ -146,11 +141,20 @@ class SupabaseManager {
         const user = session.user;
         console.log('✅ User signed in:', user.email);
 
-        // Load or create user profile
-        await this.ensureUserProfile(user);
+        // Simplified user handling - just store in localStorage
+        localStorage.setItem('auth_user', JSON.stringify({
+            id: user.id,
+            email: user.email,
+            signed_in_at: new Date().toISOString()
+        }));
 
-        // Load user's tenants
-        await this.loadUserTenants(user.id);
+        // Set default tenant for single restaurant
+        this.currentTenant = {
+            id: 'golden-fish-default',
+            name: 'Golden Fish',
+            slug: 'golden-fish',
+            type: 'restaurant'
+        };
 
         // Update UI
         this.updateAuthUI(true, user);
