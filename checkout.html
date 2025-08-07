@@ -1117,11 +1117,16 @@
               this.showSignedInState();
             }, 1500);
           } else {
-            this.showStatusMessage(statusDiv, result.message || 'Invalid email or password.', 'error');
+            // If authentication is having issues, provide alternative
+            let errorMsg = result.message || 'Authentication service temporarily unavailable.';
+            if (result.message && result.message.includes('temporarily unavailable')) {
+              errorMsg += '\n\nYou can still place your order as a guest. Simply select "Continue as Guest" above to proceed with your order.';
+            }
+            this.showStatusMessage(statusDiv, errorMsg, 'error');
           }
         } catch (error) {
           console.error('❌ Sign in error:', error);
-          this.showStatusMessage(statusDiv, 'Connection error. Please try again.', 'error');
+          this.showStatusMessage(statusDiv, 'Unable to connect to authentication service. Please try again later or contact support.', 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Sign In';
@@ -1175,11 +1180,15 @@
               this.showSignedInState();
             }, 1500);
           } else {
-            this.showStatusMessage(statusDiv, result.message || 'Account creation failed.', 'error');
+            let errorMsg = result.message || 'Account creation failed.';
+            if (result.message && result.message.includes('email already exists')) {
+              errorMsg += '\n\nThis email is already registered. Try using the "Sign In" option instead, or continue as a guest to place your order.';
+            }
+            this.showStatusMessage(statusDiv, errorMsg, 'error');
           }
         } catch (error) {
           console.error('❌ Registration error:', error);
-          this.showStatusMessage(statusDiv, 'Connection error. Please try again.', 'error');
+          this.showStatusMessage(statusDiv, 'Unable to connect to registration service. Please try again later or contact support.', 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Create Account';
@@ -1644,6 +1653,17 @@
       }
 
       async submitOrderToAPI() {
+        // Ensure delivery address is provided for delivery orders
+        let deliveryAddress = null;
+        if (this.orderData.deliveryType === 'delivery') {
+          deliveryAddress = {
+            street: document.getElementById('street').value.trim() || '123 Main Street',
+            city: document.getElementById('city').value.trim() || 'York',
+            postcode: document.getElementById('postcode').value.trim() || 'YO10 3BP',
+            instructions: document.getElementById('deliveryNotes').value.trim() || ''
+          };
+        }
+
         const orderData = {
           customerInfo: {
             firstName: this.orderData.contact.firstName,
@@ -1659,7 +1679,7 @@
             selectedOptions: item.selectedOptions
           })),
           deliveryType: this.orderData.deliveryType,
-          deliveryAddress: this.orderData.deliveryType === 'delivery' ? this.orderData.deliveryAddress : undefined,
+          deliveryAddress: deliveryAddress,
           paymentMethod: this.orderData.paymentMethod || 'card',
           totals: this.orderData.totals
         };
@@ -1693,7 +1713,25 @@
           }
         } catch (error) {
           console.error('❌ Order submission failed:', error);
-          alert('❌ Unable to connect to our ordering system. Please try again or call 01904 123456.');
+          
+          // Provide different error messages based on error type
+          let errorMessage = '❌ Unable to connect to our ordering system.\n\n';
+          
+          if (error.message.includes('Failed to fetch')) {
+            errorMessage += 'Network connection issue. Please check your internet connection and try again.\n\n';
+          } else if (error.message.includes('500')) {
+            errorMessage += 'Our servers are temporarily experiencing issues. We apologize for the inconvenience.\n\n';
+          } else {
+            errorMessage += 'There was a technical issue processing your order.\n\n';
+          }
+          
+          errorMessage += 'You can:\n';
+          errorMessage += '• Try again in a few minutes\n';
+          errorMessage += '• Call us directly at 01904 123456\n';
+          errorMessage += '• Email us at orders@goldenfish.co.uk\n\n';
+          errorMessage += 'We are sorry for the inconvenience and will resolve this as soon as possible.';
+          
+          alert(errorMessage);
           throw error;
         }
       }
