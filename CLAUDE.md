@@ -18,9 +18,18 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 - **Email Service**: Resend API (re_jTuYL41J_DpqE9iM23spyFRds7R8rua9x)
 - **Admin Email**: marsnewbie6655@gmail.com
 
-## Current Status ✅ PHASE 1 & 2 COMPLETE - FULL STACK READY
+## Current Status ✅ PHASE 1 & 2 COMPLETE + AUTHENTICATION SYSTEM - FULL STACK READY
 
-### 🚀 **MAJOR MILESTONE: Complete Checkout System Redesign**
+### 🚀 **LATEST MILESTONE: Industry-Standard Authentication System (Aug 2025)**
+- **Complete Authentication Redesign** following Uber Eats/DoorDash best practices
+- **Guest Checkout Priority** - Primary green button (industry standard)
+- **Progressive Authentication** - Email-first flow with smart user detection
+- **Global Authentication State** - Consistent user experience across all pages
+- **Auto-populated Forms** - Signed-in users get information pre-filled
+- **Professional User Interface** - User avatars, dropdowns, sign out functionality
+- **Cross-page Integration** - Updated index.html, menu.html, checkout.html, signin.html
+
+### 🚀 **PREVIOUS MILESTONE: Complete Checkout System Redesign**
 - **Industry-Standard 4-Step Checkout Flow** following Uber Eats/DoorDash best practices
 - **ModernCheckoutManager Class** with comprehensive state management
 - **Real-time Postcode Validation** using postcodes.io free API
@@ -200,10 +209,23 @@ promotions: {
 4. **Analytics dashboard** for order tracking and business insights
 
 ## Development Commands
+
+### ⚠️ **CRITICAL DEPLOYMENT PROCESS**
+**Frontend is linked via GitHub → Vercel auto-deploy. Must push to GitHub first!**
+
 ```bash
-# Deployment workflow
-git add . && git commit -m "message" && git push origin main
+# ✅ CORRECT Deployment workflow
+git add . && git commit -m "message" && git push origin main  # MUST push to GitHub first!
+# Vercel will auto-deploy from GitHub, OR manually trigger:
 curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j"
+
+# ❌ WRONG: Using Vercel hook without pushing to GitHub first
+# This won't work because Vercel deploys from GitHub, not local files
+
+# Repository Links (CRITICAL - DO NOT LOSE)
+# Frontend GitHub: https://github.com/marsnewbie/goldenfish-site.git  
+# Backend GitHub: https://github.com/marsnewbie/goldenfish-backend.git
+# Vercel Hook: https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j
 
 # Testing URLs
 # Homepage: https://test-ordering-page.vercel.app/
@@ -216,6 +238,20 @@ npm run build        # Production build
 npm run lint         # Code linting  
 npm test            # Test suite
 ```
+
+### 🚨 **DEPLOYMENT LESSONS LEARNED**
+**August 2025 - Authentication System Deployment**
+
+**❌ Issue**: Forgot to push to GitHub before using Vercel hook
+- Vercel is connected to GitHub repository for auto-deployment
+- Using webhook without GitHub push deploys old code
+- Always verify `git push origin main` before Vercel deployment
+
+**✅ Solution**: Always follow this sequence:
+1. `git add . && git commit -m "message"`
+2. `git push origin main` ← **CRITICAL STEP**  
+3. Vercel auto-deploys OR manually trigger hook
+4. Verify deployment at https://test-ordering-page.vercel.app/
 
 ## Integration Status
 - **GitHub**: Repository management and CI/CD ✅
