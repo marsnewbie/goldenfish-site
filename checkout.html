@@ -1108,9 +1108,10 @@
         if (authParam === 'signin') {
           document.getElementById('signinOption').checked = true;
           this.handleAuthOptionChange('signin');
-        } else if (authParam === 'register') {
-          document.getElementById('registerOption').checked = true;
-          this.handleAuthOptionChange('register');
+          // Auto-focus on email field for better UX
+          setTimeout(() => {
+            document.getElementById('signinEmail')?.focus();
+          }, 500);
         }
       }
 
