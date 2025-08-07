@@ -6,17 +6,20 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 ## Repository & Deployment Architecture
 
 ### Frontend (Vercel)
-- **GitHub Repository**: https://github.com/marsnewbie/goldenfish-site
+- **GitHub Repository**: https://github.com/marsnewbie/goldenfish-site.git
 - **Vercel Deploy Hook**: https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j
 - **Live Site**: https://test-ordering-page.vercel.app/
 - **Technology**: HTML5, CSS3, JavaScript ES6+
+- **Deployment**: Vercel auto-deploys from GitHub repository
 
 ### Backend API (Railway)
-- **GitHub Repository**: https://github.com/marsnewbie/goldenfish-backend
+- **GitHub Repository**: https://github.com/marsnewbie/goldenfish-backend.git
 - **Railway Project**: goldenfish-backend (GitHub deployment)
+- **API Endpoint**: https://goldenfish-backend-production.up.railway.app/api
 - **Technology**: Node.js, TypeScript, Express, PostgreSQL, Redis
 - **Email Service**: Resend API (re_jTuYL41J_DpqE9iM23spyFRds7R8rua9x)
 - **Admin Email**: marsnewbie6655@gmail.com
+- **Deployment**: Railway auto-deploys from GitHub repository
 
 ## Current Status ✅ PHASE 1 & 2 COMPLETE + AUTHENTICATION SYSTEM - FULL STACK READY
 
@@ -222,10 +225,15 @@ curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSs
 # ❌ WRONG: Using Vercel hook without pushing to GitHub first
 # This won't work because Vercel deploys from GitHub, not local files
 
-# Repository Links (CRITICAL - DO NOT LOSE)
+# 🔗 CRITICAL REPOSITORY LINKS (DO NOT LOSE)
 # Frontend GitHub: https://github.com/marsnewbie/goldenfish-site.git  
 # Backend GitHub: https://github.com/marsnewbie/goldenfish-backend.git
 # Vercel Hook: https://api.vercel.com/v1/integrations/deploy/prj_uQ71O2CTm227NMSsddXA0nk8Ur2k/hwlkcOX50j
+
+# 📁 DUAL REPOSITORY STRUCTURE
+# Frontend: Local → GitHub → Vercel (auto-deploy)
+# Backend: Local → GitHub → Railway (auto-deploy)
+# Both repositories are completely separate but work together via API calls
 
 # Testing URLs
 # Homepage: https://test-ordering-page.vercel.app/
