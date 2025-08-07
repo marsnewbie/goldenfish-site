@@ -165,7 +165,7 @@
       color: #333;
     }
 
-    /* Industry-Standard Authentication Section */
+    /* Simple Industry-Standard Authentication Section */
     .auth-section {
       padding: 1.5rem;
       border-bottom: 1px solid #e0e0e0;
@@ -174,130 +174,111 @@
     .section-title {
       font-size: 1.2rem;
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       color: #333;
     }
 
-    .auth-methods {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    /* Simple Three-Option Radio Selection */
+    .auth-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* Guest Checkout - Primary Option */
-    .guest-checkout {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      border: none;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
+    .auth-option {
+      position: relative;
+    }
+
+    .auth-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .auth-option-label {
       display: flex;
       align-items: center;
       gap: 1rem;
-    }
-
-    .guest-checkout:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
-    }
-
-    .guest-checkout .method-icon {
-      font-size: 1.5rem;
-    }
-
-    .guest-checkout .method-content {
-      flex: 1;
-    }
-
-    .guest-checkout .method-title {
-      font-size: 1.1rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .guest-checkout .method-desc {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-
-    /* Sign In Options */
-    .signin-options {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .signin-method {
-      flex: 1;
-      background: white;
+      padding: 1rem 1.25rem;
       border: 2px solid #e0e0e0;
-      padding: 1rem;
       border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      transition: all 0.2s ease;
+      background: white;
     }
 
-    .signin-method:hover {
+    .auth-option-label:hover {
       border-color: #007bff;
       background: #f8f9fa;
     }
 
-    .signin-method.active {
+    .auth-option input[type="radio"]:checked + .auth-option-label {
       border-color: #007bff;
       background: #e7f3ff;
     }
 
-    .signin-method .method-icon {
-      font-size: 1.2rem;
+    /* Guest option gets special styling */
+    .guest-label {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border-color: #28a745;
     }
 
-    .signin-method .method-content {
+    .guest-label:hover {
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      border-color: #1e7e34;
+    }
+
+    .auth-option input[type="radio"]:checked + .guest-label {
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      border-color: #1e7e34;
+    }
+
+    .option-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .option-content {
       flex: 1;
     }
 
-    .signin-method .method-title {
+    .option-title {
       font-weight: 600;
+      font-size: 1rem;
       margin-bottom: 0.25rem;
-      color: #333;
     }
 
-    .signin-method .method-desc {
-      font-size: 0.8rem;
-      color: #666;
+    .option-desc {
+      font-size: 0.85rem;
+      opacity: 0.8;
     }
 
-    /* Progressive Authentication Form */
+    /* Authentication Forms */
     .auth-form {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       padding: 1.5rem;
       background: #f8f9fa;
       border-radius: 8px;
-      display: none;
+      border: 1px solid #dee2e6;
     }
 
-    .auth-form.active {
-      display: block;
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
-    .email-first-step {
-      display: block;
+    .forgot-password-link {
+      color: #007bff;
+      text-decoration: none;
+      font-size: 0.9rem;
     }
 
-    .auth-details-step {
-      display: none;
-    }
-
-    .auth-details-step.active {
-      display: block;
+    .forgot-password-link:hover {
+      text-decoration: underline;
     }
 
     .form-group {
@@ -709,8 +690,8 @@
         grid-template-columns: 1fr;
       }
 
-      .signin-options {
-        flex-direction: column;
+      .form-row {
+        grid-template-columns: 1fr;
       }
 
       .auth-actions {
@@ -719,6 +700,14 @@
 
       .order-summary {
         position: static;
+      }
+
+      .option-title {
+        font-size: 0.95rem;
+      }
+
+      .option-desc {
+        font-size: 0.8rem;
       }
     }
   </style>
@@ -765,90 +754,91 @@
         </div>
       </div>
 
-      <!-- Industry-Standard Authentication Section -->
+      <!-- Simple Industry-Standard Authentication Section -->
       <div class="auth-section" id="authSection">
         <div class="section-title">How would you like to checkout?</div>
-        <div class="auth-methods">
-          <!-- Guest Checkout - Primary Option -->
-          <button class="guest-checkout" onclick="authManager.selectGuestCheckout()">
-            <div class="method-icon">🚀</div>
-            <div class="method-content">
-              <div class="method-title">Continue as Guest</div>
-              <div class="method-desc">Quick and easy checkout without creating an account</div>
-            </div>
-          </button>
+        
+        <!-- Simple Three-Option Radio Selection -->
+        <div class="auth-options">
+          <div class="auth-option">
+            <input type="radio" name="checkoutType" value="guest" id="guestOption" checked>
+            <label for="guestOption" class="auth-option-label guest-label">
+              <div class="option-icon">🚀</div>
+              <div class="option-content">
+                <div class="option-title">Continue as Guest</div>
+                <div class="option-desc">Quick checkout without account</div>
+              </div>
+            </label>
+          </div>
 
-          <!-- Sign In Options -->
-          <div class="signin-options">
-            <button class="signin-method" onclick="authManager.selectSignInMethod('email')">
-              <div class="method-icon">📧</div>
-              <div class="method-content">
-                <div class="method-title">Sign In</div>
-                <div class="method-desc">Access your account</div>
+          <div class="auth-option">
+            <input type="radio" name="checkoutType" value="signin" id="signinOption">
+            <label for="signinOption" class="auth-option-label">
+              <div class="option-icon">🔑</div>
+              <div class="option-content">
+                <div class="option-title">Sign In</div>
+                <div class="option-desc">Access your account</div>
               </div>
-            </button>
-            
-            <button class="signin-method" onclick="authManager.selectSignInMethod('register')">
-              <div class="method-icon">🔐</div>
-              <div class="method-content">
-                <div class="method-title">Create Account</div>
-                <div class="method-desc">Save for next time</div>
+            </label>
+          </div>
+
+          <div class="auth-option">
+            <input type="radio" name="checkoutType" value="register" id="registerOption">
+            <label for="registerOption" class="auth-option-label">
+              <div class="option-icon">📝</div>
+              <div class="option-content">
+                <div class="option-title">Create Account</div>
+                <div class="option-desc">Save for next time</div>
               </div>
-            </button>
+            </label>
           </div>
         </div>
 
-        <!-- Progressive Authentication Form -->
-        <div class="auth-form" id="authForm">
-          <!-- Step 1: Email First -->
-          <div class="email-first-step" id="emailFirstStep">
+        <!-- Sign In Form - Shows immediately when Sign In is selected -->
+        <div class="auth-form signin-form" id="signinForm" style="display: none;">
+          <div class="form-group">
+            <label for="signinEmail">Email Address</label>
+            <input type="email" id="signinEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="signinPassword">Password</label>
+            <input type="password" id="signinPassword" placeholder="Enter your password" required>
+          </div>
+          <div class="auth-actions">
+            <button type="button" class="auth-btn primary" onclick="authManager.handleSignIn()">Sign In</button>
+            <a href="#" class="forgot-password-link">Forgot Password?</a>
+          </div>
+          <div class="auth-status-message" id="signinStatusMessage"></div>
+        </div>
+
+        <!-- Register Form - Shows immediately when Register is selected -->
+        <div class="auth-form register-form" id="registerForm" style="display: none;">
+          <div class="form-row">
             <div class="form-group">
-              <label for="authEmail">Email Address</label>
-              <input type="email" id="authEmail" placeholder="Enter your email address" required>
+              <label for="registerFirstName">First Name</label>
+              <input type="text" id="registerFirstName" placeholder="First name" required>
             </div>
-            <div class="auth-actions">
-              <button type="button" class="auth-btn primary" onclick="authManager.processEmail()">Continue</button>
-              <button type="button" class="auth-btn secondary" onclick="authManager.cancelAuth()">Cancel</button>
-            </div>
-          </div>
-
-          <!-- Step 2: Authentication Details -->
-          <div class="auth-details-step" id="authDetailsStep">
-            <div id="signinFields" style="display: none;">
-              <div class="form-group">
-                <label for="authPassword">Password</label>
-                <input type="password" id="authPassword" placeholder="Enter your password" required>
-              </div>
-            </div>
-            
-            <div id="registerFields" style="display: none;">
-              <div class="form-group">
-                <label for="authFirstName">First Name</label>
-                <input type="text" id="authFirstName" placeholder="Enter your first name" required>
-              </div>
-              <div class="form-group">
-                <label for="authLastName">Last Name</label>
-                <input type="text" id="authLastName" placeholder="Enter your last name" required>
-              </div>
-              <div class="form-group">
-                <label for="authPhone">Phone Number</label>
-                <input type="tel" id="authPhone" placeholder="07123 456789" required>
-              </div>
-              <div class="form-group">
-                <label for="authNewPassword">Create Password</label>
-                <input type="password" id="authNewPassword" placeholder="At least 6 characters" minlength="6" required>
-              </div>
-            </div>
-
-            <div class="auth-actions">
-              <button type="button" class="auth-btn primary" onclick="authManager.submitAuth()">
-                <span id="authSubmitText">Sign In</span>
-              </button>
-              <button type="button" class="auth-btn secondary" onclick="authManager.goBackToEmail()">Back</button>
+            <div class="form-group">
+              <label for="registerLastName">Last Name</label>
+              <input type="text" id="registerLastName" placeholder="Last name" required>
             </div>
           </div>
-
-          <div class="auth-status-message" id="authStatusMessage"></div>
+          <div class="form-group">
+            <label for="registerEmail">Email Address</label>
+            <input type="email" id="registerEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPhone">Phone Number</label>
+            <input type="tel" id="registerPhone" placeholder="07123 456789" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Create Password</label>
+            <input type="password" id="registerPassword" placeholder="At least 6 characters" minlength="6" required>
+          </div>
+          <div class="auth-actions">
+            <button type="button" class="auth-btn primary" onclick="authManager.handleRegister()">Create Account</button>
+          </div>
+          <div class="auth-status-message" id="registerStatusMessage"></div>
         </div>
       </div>
 
@@ -994,11 +984,10 @@
   </div>
 
   <script>
-    // Industry-Standard Authentication Manager
+    // Simple Industry-Standard Authentication Manager
     class AuthManager {
       constructor() {
         this.currentUser = null;
-        this.authMode = 'guest'; // guest, signin, register
         this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
         
         this.init();
@@ -1008,11 +997,11 @@
         // Check for existing authentication on page load
         this.checkExistingAuth();
         
+        // Setup simple event handlers
+        this.setupEventHandlers();
+        
         // Initialize from URL parameters
         this.initializeFromURL();
-        
-        // Setup event listeners
-        this.setupEventListeners();
       }
 
       async checkExistingAuth() {
@@ -1021,11 +1010,8 @@
         
         if (token && userData) {
           try {
-            // Verify token is still valid
             const response = await fetch(`${this.apiBase}/auth/verify`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
+              headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
@@ -1034,7 +1020,6 @@
               this.showSignedInState();
               console.log('✅ User already authenticated:', this.currentUser);
             } else {
-              // Token expired, clear auth
               this.clearAuth();
             }
           } catch (error) {
@@ -1044,216 +1029,157 @@
         }
       }
 
+      setupEventHandlers() {
+        // Simple radio button listeners
+        const authOptions = document.querySelectorAll('input[name="checkoutType"]');
+        authOptions.forEach(option => {
+          option.addEventListener('change', (e) => {
+            this.handleAuthOptionChange(e.target.value);
+          });
+        });
+
+        // Enter key handlers
+        document.getElementById('signinPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleSignIn();
+        });
+
+        document.getElementById('registerPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleRegister();
+        });
+      }
+
       initializeFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         const authParam = urlParams.get('auth');
         
         if (authParam === 'signin') {
-          this.selectSignInMethod('email');
+          document.getElementById('signinOption').checked = true;
+          this.handleAuthOptionChange('signin');
         } else if (authParam === 'register') {
-          this.selectSignInMethod('register');
+          document.getElementById('registerOption').checked = true;
+          this.handleAuthOptionChange('register');
         }
       }
 
-      setupEventListeners() {
-        // Email input enter key
-        document.getElementById('authEmail').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            this.processEmail();
-          }
-        });
+      handleAuthOptionChange(selectedOption) {
+        // Hide all forms first
+        document.getElementById('signinForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'none';
+        
+        // Show the appropriate form immediately
+        if (selectedOption === 'signin') {
+          document.getElementById('signinForm').style.display = 'block';
+          document.getElementById('signinEmail').focus();
+        } else if (selectedOption === 'register') {
+          document.getElementById('registerForm').style.display = 'block';
+          document.getElementById('registerFirstName').focus();
+        }
 
-        // Password input enter key
-        document.getElementById('authPassword').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            this.submitAuth();
-          }
-        });
+        console.log('🔄 Auth option changed to:', selectedOption);
       }
 
-      selectGuestCheckout() {
-        this.authMode = 'guest';
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('userInfoSection').style.display = 'none';
-        this.clearAuth();
-        this.updateFormState();
-        console.log('🎯 Selected guest checkout');
-      }
+      async handleSignIn() {
+        const email = document.getElementById('signinEmail').value.trim();
+        const password = document.getElementById('signinPassword').value;
+        const statusDiv = document.getElementById('signinStatusMessage');
+        const submitBtn = document.querySelector('#signinForm .auth-btn');
 
-      selectSignInMethod(method) {
-        this.authMode = method;
-        const authForm = document.getElementById('authForm');
-        const authSection = document.getElementById('authSection');
-        
-        // Show auth form
-        authForm.classList.add('active');
-        
-        // Reset form
-        document.getElementById('emailFirstStep').style.display = 'block';
-        document.getElementById('authDetailsStep').style.display = 'none';
-        document.getElementById('authEmail').value = '';
-        document.getElementById('authEmail').focus();
-        
-        // Clear any previous status
-        document.getElementById('authStatusMessage').style.display = 'none';
-        
-        console.log('🔑 Selected auth method:', method);
-      }
-
-      async processEmail() {
-        const email = document.getElementById('authEmail').value.trim();
-        
-        if (!email || !this.validateEmail(email)) {
-          this.showAuthStatus('Please enter a valid email address.', 'error');
+        if (!email || !password) {
+          this.showStatusMessage(statusDiv, 'Please enter both email and password.', 'error');
           return;
         }
 
-        // Fallback: use selected method (progressive auth endpoint not yet implemented)
-        try {
-          // TODO: Implement /auth/check-email endpoint for progressive authentication
-          // For now, proceed with the selected method
-          this.showAuthDetails(this.authMode, email);
-        } catch (error) {
-          console.error('❌ Email check error:', error);
-          // Fallback to selected method
-          this.showAuthDetails(this.authMode, email);
-        }
-      }
-
-      showAuthDetails(mode, email) {
-        document.getElementById('emailFirstStep').style.display = 'none';
-        document.getElementById('authDetailsStep').style.display = 'block';
-        
-        const signinFields = document.getElementById('signinFields');
-        const registerFields = document.getElementById('registerFields');
-        const submitText = document.getElementById('authSubmitText');
-        
-        if (mode === 'signin') {
-          signinFields.style.display = 'block';
-          registerFields.style.display = 'none';
-          submitText.textContent = 'Sign In';
-          document.getElementById('authPassword').focus();
-        } else {
-          signinFields.style.display = 'none';
-          registerFields.style.display = 'block';
-          submitText.textContent = 'Create Account';
-          document.getElementById('authFirstName').focus();
-        }
-        
-        this.authMode = mode;
-        console.log(`📧 Email processed: ${email} → ${mode} mode`);
-      }
-
-      async submitAuth() {
-        const email = document.getElementById('authEmail').value.trim();
-        
-        if (this.authMode === 'signin') {
-          await this.handleSignIn(email);
-        } else {
-          await this.handleRegister(email);
-        }
-      }
-
-      async handleSignIn(email) {
-        const password = document.getElementById('authPassword').value;
-        
-        if (!password) {
-          this.showAuthStatus('Please enter your password.', 'error');
+        if (!this.validateEmail(email)) {
+          this.showStatusMessage(statusDiv, 'Please enter a valid email address.', 'error');
           return;
         }
 
-        const submitBtn = document.querySelector('#authDetailsStep .auth-btn.primary');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Signing In...';
 
         try {
           const response = await fetch(`${this.apiBase}/auth/signin`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
           });
 
           const result = await response.json();
 
           if (response.ok && result.success) {
-            // Store auth data
             localStorage.setItem('auth_token', result.data.token);
             localStorage.setItem('user_data', JSON.stringify(result.data.user));
             
             this.currentUser = result.data.user;
-            this.showAuthStatus(`Welcome back, ${this.currentUser.firstName}!`, 'success');
+            this.showStatusMessage(statusDiv, `Welcome back, ${this.currentUser.firstName}!`, 'success');
             
             setTimeout(() => {
               this.showSignedInState();
             }, 1500);
           } else {
-            this.showAuthStatus(result.message || 'Invalid email or password.', 'error');
+            this.showStatusMessage(statusDiv, result.message || 'Invalid email or password.', 'error');
           }
         } catch (error) {
           console.error('❌ Sign in error:', error);
-          this.showAuthStatus('Connection error. Please try again.', 'error');
+          this.showStatusMessage(statusDiv, 'Connection error. Please try again.', 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Sign In';
         }
       }
 
-      async handleRegister(email) {
-        const firstName = document.getElementById('authFirstName').value.trim();
-        const lastName = document.getElementById('authLastName').value.trim();
-        const phone = document.getElementById('authPhone').value.trim();
-        const password = document.getElementById('authNewPassword').value;
+      async handleRegister() {
+        const firstName = document.getElementById('registerFirstName').value.trim();
+        const lastName = document.getElementById('registerLastName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const phone = document.getElementById('registerPhone').value.trim();
+        const password = document.getElementById('registerPassword').value;
+        const statusDiv = document.getElementById('registerStatusMessage');
+        const submitBtn = document.querySelector('#registerForm .auth-btn');
 
-        if (!firstName || !lastName || !phone || !password) {
-          this.showAuthStatus('Please fill in all required fields.', 'error');
+        if (!firstName || !lastName || !email || !phone || !password) {
+          this.showStatusMessage(statusDiv, 'Please fill in all required fields.', 'error');
+          return;
+        }
+
+        if (!this.validateEmail(email)) {
+          this.showStatusMessage(statusDiv, 'Please enter a valid email address.', 'error');
           return;
         }
 
         if (password.length < 6) {
-          this.showAuthStatus('Password must be at least 6 characters.', 'error');
+          this.showStatusMessage(statusDiv, 'Password must be at least 6 characters.', 'error');
           return;
         }
 
-        const submitBtn = document.querySelector('#authDetailsStep .auth-btn.primary');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Creating Account...';
 
         try {
           const response = await fetch(`${this.apiBase}/auth/signup`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              email,
-              password,
-              firstName,
-              lastName,
-              phone
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, firstName, lastName, phone })
           });
 
           const result = await response.json();
 
           if (response.ok && result.success) {
-            // Store auth data
             localStorage.setItem('auth_token', result.data.token);
             localStorage.setItem('user_data', JSON.stringify(result.data.user));
             
             this.currentUser = result.data.user;
-            this.showAuthStatus(`Account created! Welcome, ${this.currentUser.firstName}!`, 'success');
+            this.showStatusMessage(statusDiv, `Account created! Welcome, ${this.currentUser.firstName}!`, 'success');
             
             setTimeout(() => {
               this.showSignedInState();
             }, 1500);
           } else {
-            this.showAuthStatus(result.message || 'Account creation failed.', 'error');
+            this.showStatusMessage(statusDiv, result.message || 'Account creation failed.', 'error');
           }
         } catch (error) {
           console.error('❌ Registration error:', error);
-          this.showAuthStatus('Connection error. Please try again.', 'error');
+          this.showStatusMessage(statusDiv, 'Connection error. Please try again.', 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Create Account';
@@ -1318,25 +1244,25 @@
         document.getElementById('authSection').style.display = 'block';
         document.getElementById('userInfoSection').style.display = 'none';
         
-        // Reset form
-        this.resetForm();
+        // Reset to guest checkout
+        document.getElementById('guestOption').checked = true;
+        this.handleAuthOptionChange('guest');
         
+        this.resetForm();
         console.log('🔄 User changed, showing auth options');
       }
 
       signOut() {
         this.clearAuth();
-        
-        // Show auth section again
         document.getElementById('authSection').style.display = 'block';
         document.getElementById('userInfoSection').style.display = 'none';
         
-        // Reset form
+        // Reset to guest checkout
+        document.getElementById('guestOption').checked = true;
+        this.handleAuthOptionChange('guest');
+        
         this.resetForm();
-        
-        // Show success message
         alert('You have been signed out successfully.');
-        
         console.log('👋 User signed out');
       }
 
@@ -1350,7 +1276,6 @@
       }
 
       resetForm() {
-        // Clear form fields
         document.getElementById('firstName').value = '';
         document.getElementById('lastName').value = '';
         document.getElementById('phone').value = '';
@@ -1361,19 +1286,7 @@
         document.getElementById('deliveryNotes').value = '';
       }
 
-      cancelAuth() {
-        document.getElementById('authForm').classList.remove('active');
-        console.log('❌ Authentication cancelled');
-      }
-
-      goBackToEmail() {
-        document.getElementById('emailFirstStep').style.display = 'block';
-        document.getElementById('authDetailsStep').style.display = 'none';
-        document.getElementById('authEmail').focus();
-      }
-
-      showAuthStatus(message, type) {
-        const statusDiv = document.getElementById('authStatusMessage');
+      showStatusMessage(statusDiv, message, type) {
         statusDiv.textContent = message;
         statusDiv.className = `auth-status-message ${type}`;
         statusDiv.style.display = 'block';
@@ -1382,19 +1295,6 @@
           setTimeout(() => {
             statusDiv.style.display = 'none';
           }, 5000);
-        }
-      }
-
-      updateFormState() {
-        // Update form state based on authentication status
-        const contactSection = document.querySelector('.contact-section');
-        
-        if (this.currentUser) {
-          // User is signed in, auto-populate
-          this.autoPopulateForm();
-        } else {
-          // Guest checkout or not signed in
-          this.resetForm();
         }
       }
 
