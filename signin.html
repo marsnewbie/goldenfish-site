@@ -5,283 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Golden Fish</title>
     <link rel="stylesheet" href="style.css">
-    
     <style>
-        /* Authentication page specific styles */
-        .auth-page-container {
-            min-height: calc(100vh - 120px);
+        .signin-container {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 2rem 1rem;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
-        .auth-card {
+        .signin-card {
             background: white;
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
             width: 100%;
-            max-width: 440px;
-            padding: 2.5rem;
-            position: relative;
         }
 
-        .auth-header {
+        .signin-header {
             text-align: center;
             margin-bottom: 2rem;
         }
 
-        .auth-title {
-            color: #2c3e50;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .signin-header img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
         }
 
-        .auth-subtitle {
-            color: #6c757d;
-            font-size: 1rem;
+        .magic-link-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border: 2px solid #007bff;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
         }
 
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        .magic-link-icon {
+            font-size: 2rem;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.95rem;
+            color: #333;
         }
 
         .form-group input {
+            width: 100%;
             padding: 1rem;
             border: 2px solid #e9ecef;
             border-radius: 12px;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            box-sizing: border-box;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: #007bff;
-            background: white;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
-        .form-group input::placeholder {
-            color: #adb5bd;
-        }
-
-        .auth-btn {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        .magic-link-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border: none;
-            padding: 1rem 1.5rem;
+            padding: 1rem 2rem;
             border-radius: 12px;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .auth-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
-        }
-
-        .auth-btn:active {
-            transform: translateY(0);
-        }
-
-        .auth-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .auth-links {
-            margin-top: 1.5rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .auth-links a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .auth-links a:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
-        .auth-divider {
-            text-align: center;
-            margin: 1.5rem 0;
-            position: relative;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #dee2e6;
-        }
-
-        .auth-divider span {
-            background: white;
-            padding: 0 1rem;
-            position: relative;
+            width: 100%;
+            font-size: 1rem;
         }
 
         .status-message {
             padding: 1rem;
             border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+            margin: 1rem 0;
             display: none;
-        }
-
-        .status-message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
         .status-message.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
         }
 
         .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #6c757d !important;
-            background: #f8f9fa !important;
-            border: 1px solid #dee2e6 !important;
-        }
-
-        .back-link:hover {
-            color: #495057 !important;
-            background: #e9ecef !important;
-        }
-
-        .forgot-password {
-            margin-top: 0.75rem;
             text-align: center;
+            margin-top: 2rem;
         }
 
-        .forgot-password a {
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .forgot-password a:hover {
+        .back-link a {
             color: #007bff;
-            text-decoration: underline;
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 480px) {
-            .auth-card {
-                padding: 2rem 1.5rem;
-                margin: 0.5rem;
-            }
-
-            .auth-title {
-                font-size: 1.75rem;
-            }
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <!-- Use same navbar as main site -->
-    <header class="modern-navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <img src="assets/fish_and_chips.jpg" alt="Golden Fish" class="brand-logo" />
-                <div class="brand-info">
-                    <h1 class="brand-name">Golden Fish</h1>
-                    <div class="brand-tagline">Fresh Chinese Takeaway</div>
-                </div>
-            </div>
-            
-            <nav class="nav-menu">
-                <div class="nav-links">
-                    <a href="index.html" class="nav-link nav-cta">Home</a>
-                    <a href="index.html#about" class="nav-link nav-cta">About</a>
-                    <a href="index.html#contact" class="nav-link nav-cta">Contact</a>
-                    <a href="menu.html" class="nav-link primary-cta">Order Online</a>
-                </div>
-            </nav>
-            
-            <div class="nav-auth">
-                <button class="auth-btn login-btn" onclick="window.location.href='signin.html'" disabled style="opacity: 0.6;">Sign In</button>
-                <button class="auth-btn register-btn" onclick="window.location.href='checkout.html?auth=register'" style="margin-left: 8px;">Register</button>
-            </div>
-        </div>
-    </header>
-
-    <div class="auth-page-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1 class="auth-title">Welcome Back</h1>
-                <p class="auth-subtitle">Sign in to your Golden Fish account</p>
+    <div class="signin-container">
+        <div class="signin-card">
+            <div class="signin-header">
+                <img src="assets/fish_and_chips.jpg" alt="Golden Fish">
+                <h1>Sign In</h1>
+                <p>Access your Golden Fish account</p>
             </div>
 
             <div id="statusMessage" class="status-message"></div>
 
-            <form class="auth-form" id="signinForm">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="Enter your email address" required>
+            <div class="magic-link-info">
+                <div class="magic-link-icon">✨</div>
+                <div>
+                    <h3>Magic Link Sign In</h3>
+                    <p>No password needed!</p>
                 </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div>
-
-                <button type="submit" class="auth-btn" id="signinBtn">Sign In</button>
-
-                <div class="forgot-password">
-                    <a href="#" onclick="handleForgotPassword()">Forgot your password?</a>
-                </div>
-            </form>
-
-            <div class="auth-divider">
-                <span>or</span>
             </div>
+            
+            <div class="form-group">
+                <label for="magicLinkEmail">Email Address</label>
+                <input type="email" id="magicLinkEmail" placeholder="Enter your email address" required>
+            </div>
+            
+            <button class="magic-link-btn" onclick="sendMagicLink()">
+                <span id="magicLinkBtnText">Send Magic Link</span>
+            </button>
 
-            <div class="auth-links">
-                <a href="checkout.html?auth=register">Create New Account</a>
-                <a href="index.html" class="back-link">← Back to Home</a>
+            <div class="back-link">
+                <a href="index.html">← Back to Homepage</a>
             </div>
         </div>
     </div>
@@ -291,167 +166,46 @@
     <script src="supabase-auth.js"></script>
     
     <script>
-        class LegacyAuthManager {
-            constructor() {
-                this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
-                this.init();
-            }
-
-            init() {
-                document.getElementById('signinForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleSignIn();
-                });
-
-                // Check if user is already signed in
-                this.checkExistingSession();
-            }
-
-            async checkExistingSession() {
-                const token = localStorage.getItem('auth_token');
-                if (token) {
-                    try {
-                        const response = await fetch(`${this.apiBase}/auth/verify`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.showSuccess(`Already signed in as ${data.data.firstName} ${data.data.lastName}`);
-                            setTimeout(() => {
-                                this.redirectToReturnUrl();
-                            }, 2000);
-                        }
-                    } catch (error) {
-                        localStorage.removeItem('auth_token');
-                        localStorage.removeItem('user_data');
-                    }
-                }
-            }
-
-            async handleSignIn() {
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const btn = document.getElementById('signinBtn');
-
-                if (!email || !password) {
-                    this.showError('Please enter both email and password.');
-                    return;
-                }
-
-                if (!this.validateEmail(email)) {
-                    this.showError('Please enter a valid email address.');
-                    return;
-                }
-
-                btn.disabled = true;
-                btn.textContent = 'Signing In...';
-
-                try {
-                    const response = await fetch(`${this.apiBase}/auth/signin`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email, password })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok && data.success) {
-                        localStorage.setItem('auth_token', data.data.token);
-                        localStorage.setItem('user_data', JSON.stringify(data.data.user));
-
-                        this.showSuccess(`Welcome back, ${data.data.user.firstName}!`);
-                        
-                        setTimeout(() => {
-                            this.redirectToReturnUrl();
-                        }, 1500);
-
-                    } else {
-                        // Handle different error scenarios
-                        if (response.status === 401) {
-                            this.showError('Invalid email or password. Please try again.');
-                        } else if (response.status === 409) {
-                            this.showError('This email is already registered. Please sign in instead.');
-                        } else if (response.status === 500) {
-                            this.showError('Server error. Please try again in a few moments.');
-                        } else {
-                            this.showError(data.message || 'Sign in failed. Please try again.');
-                        }
-                    }
-
-                } catch (error) {
-                    console.error('Sign in error:', error);
-                    this.showError('Connection error. Please check your internet connection and try again.');
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
-                }
-            }
-
-            validateEmail(email) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
-            }
-
-            redirectToReturnUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const returnUrl = urlParams.get('return') || 'index.html';
-                
-                console.log('🔄 Redirecting after login to:', returnUrl);
-                
-                // Add a small delay to let user see the success message
-                setTimeout(() => {
-                    window.location.href = returnUrl;
-                }, 1000);
-            }
-
-            showError(message) {
-                const statusDiv = document.getElementById('statusMessage');
-                statusDiv.className = 'status-message error';
-                statusDiv.textContent = message;
-                statusDiv.style.display = 'block';
-                
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 8000);
-            }
-
-            showSuccess(message) {
-                const statusDiv = document.getElementById('statusMessage');
-                statusDiv.className = 'status-message success';
-                statusDiv.textContent = message;
-                statusDiv.style.display = 'block';
-            }
-        }
-
-        function handleForgotPassword() {
-            const email = document.getElementById('email').value.trim();
+        async function sendMagicLink() {
+            const email = document.getElementById('magicLinkEmail').value.trim();
+            const btn = document.querySelector('.magic-link-btn');
+            const btnText = document.getElementById('magicLinkBtnText');
+            
             if (!email) {
-                alert('Please enter your email address first, then click "Forgot Password".');
+                showStatus('Please enter your email address', 'error');
                 return;
             }
-            
-            // For now, show a simple alert. In production, this would trigger a password reset email
-            alert(`Password reset instructions will be sent to ${email}.\n\nNote: This feature is coming soon! For now, please contact support at orders@goldenfish.co.uk if you need help accessing your account.`);
+
+            btn.disabled = true;
+            btnText.textContent = 'Sending...';
+
+            try {
+                if (modernAuth && modernAuth.initPromise) {
+                    await modernAuth.initPromise;
+                }
+
+                const result = await modernAuth.signInWithMagicLink(email, window.location.href);
+                
+                if (result.success) {
+                    showStatus('Magic link sent! Check your email.', 'success');
+                    btnText.textContent = 'Check Email';
+                } else {
+                    showStatus(result.message, 'error');
+                    btnText.textContent = 'Send Magic Link';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                showStatus('Failed to send magic link', 'error');
+                btnText.textContent = 'Send Magic Link';
+                btn.disabled = false;
+            }
         }
 
-        // Initialize when DOM is loaded  
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for modern auth to be ready
-            if (window.modernAuth) {
-                await window.modernAuth.initPromise;
-                console.log('🔄 Redirecting to modern authentication...');
-                window.location.href = 'modern-checkout.html?auth=signin';
-            } else {
-                // Fallback to legacy auth
-                new LegacyAuthManager();
-            }
-        });
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.textContent = message;
+        }
     </script>
-    <script src="global-auth.js"></script>
 </body>
 </html>
