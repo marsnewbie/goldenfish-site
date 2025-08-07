@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Golden Fish</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Modern Authentication UI (2025 Standards) */
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .auth-method {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .auth-method:hover {
+            border-color: #007bff;
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.15);
+        }
+
+        .auth-method.selected {
+            border-color: #007bff;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .auth-method-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-method-content {
+            flex: 1;
+        }
+
+        .auth-method-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .auth-method-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .auth-method-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .auth-method-badge.recommended {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+        }
+
+        .auth-method-badge.new {
+            background: linear-gradient(135deg, #fd7e14, #e63946);
+        }
+
+        /* Magic Link Form */
+        .magic-link-form {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .magic-link-form.show {
+            display: block;
+        }
+
+        .email-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .email-input input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .email-input input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .magic-link-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .magic-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .magic-link-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Social OAuth Buttons */
+        .social-auth {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: white;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            color: #007bff;
+        }
+
+        .social-btn.google {
+            border-color: #db4437;
+        }
+
+        .social-btn.google:hover {
+            background: #db4437;
+            color: white;
+        }
+
+        .social-btn.apple {
+            border-color: #000;
+        }
+
+        .social-btn.apple:hover {
+            background: #000;
+            color: white;
+        }
+
+        /* Passkey UI */
+        .passkey-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-radius: 12px;
+            border: 2px dashed #9c27b0;
+            display: none;
+        }
+
+        .passkey-section.show {
+            display: block;
+        }
+
+        .passkey-btn {
+            background: linear-gradient(135deg, #9c27b0, #673ab7);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .passkey-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3);
+        }
+
+        /* Guest Checkout Enhancement */
+        .guest-checkout {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+        }
+
+        .guest-checkout:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+        }
+
+        /* Status Messages */
+        .auth-status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .auth-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .auth-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .auth-status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .auth-method {
+                padding: 1rem;
+            }
+
+            .social-auth {
+                flex-direction: column;
+            }
+
+            .email-input {
+                flex-direction: column;
+            }
+        }
+
+        /* Existing checkout styles integration */
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .checkout-main {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="modern-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="assets/fish_and_chips.jpg" alt="Golden Fish" class="brand-logo" />
+                <div class="brand-info">
+                    <h1 class="brand-name">Golden Fish</h1>
+                    <div class="brand-tagline">Fresh Chinese Takeaway</div>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link nav-cta">Home</a>
+                    <a href="index.html#about" class="nav-link nav-cta">About</a>
+                    <a href="index.html#contact" class="nav-link nav-cta">Contact</a>
+                    <a href="menu.html" class="nav-link primary-cta">Order Online</a>
+                </div>
+            </nav>
+            
+            <div class="nav-auth">
+                <button class="auth-btn login-btn" onclick="window.location.href='signin.html?return=checkout.html'">Sign In</button>
+                <button class="auth-btn register-btn" onclick="window.location.href='checkout.html?auth=register'" style="margin-left: 8px;">Register</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="checkout-container">
+        <!-- Main Checkout Content -->
+        <div class="checkout-main">
+            <h1>Complete Your Order</h1>
+            
+            <!-- Authentication Section -->
+            <div class="auth-container">
+                <h2>Choose How to Continue</h2>
+                <div id="authStatus" class="auth-status"></div>
+                
+                <div class="auth-methods">
+                    <!-- Guest Checkout (Primary) -->
+                    <div class="auth-method guest-checkout selected" data-method="guest">
+                        <div class="auth-method-icon">🛒</div>
+                        <div class="auth-method-content">
+                            <div class="auth-method-title">Guest Checkout</div>
+                            <div class="auth-method-description">Quick checkout without account creation</div>
+                        </div>
+                        <div class="auth-method-badge">Fastest</div>
+                    </div>
+
+                    <!-- Magic Link Sign In (Recommended) -->
+                    <div class="auth-method" data-method="magic-link">
+                        <div class="auth-method-icon">✨</div>
+                        <div class="auth-method-content">
+                            <div class="auth-method-title">Sign In with Email</div>
+                            <div class="auth-method-description">Secure, passwordless login via email link</div>
+                        </div>
+                        <div class="auth-method-badge recommended">Recommended</div>
+                    </div>
+
+                    <!-- Passkey Authentication (if supported) -->
+                    <div class="auth-method" data-method="passkey" id="passkeyMethod" style="display: none;">
+                        <div class="auth-method-icon">🔐</div>
+                        <div class="auth-method-content">
+                            <div class="auth-method-title">Use Passkey</div>
+                            <div class="auth-method-description">Biometric authentication with Face ID or fingerprint</div>
+                        </div>
+                        <div class="auth-method-badge new">New</div>
+                    </div>
+
+                    <!-- Social OAuth -->
+                    <div class="auth-method" data-method="social">
+                        <div class="auth-method-icon">👤</div>
+                        <div class="auth-method-content">
+                            <div class="auth-method-title">Social Sign In</div>
+                            <div class="auth-method-description">Continue with Google or Apple</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Magic Link Form -->
+                <div id="magicLinkForm" class="magic-link-form">
+                    <h3>Sign In with Magic Link</h3>
+                    <p>We'll send a secure link to your email - no password needed!</p>
+                    <div class="email-input">
+                        <input type="email" id="magicLinkEmail" placeholder="Enter your email address" required>
+                        <button class="magic-link-btn" onclick="sendMagicLink()">
+                            <span id="magicLinkText">Send Magic Link</span>
+                        </button>
+                    </div>
+                    <p class="form-help">Check your email and click the link to sign in instantly.</p>
+                </div>
+
+                <!-- Social OAuth Buttons -->
+                <div id="socialAuthForm" class="magic-link-form">
+                    <h3>Continue with Social Account</h3>
+                    <div class="social-auth">
+                        <button class="social-btn google" onclick="signInWithGoogle()">
+                            <span>🔍</span> Google
+                        </button>
+                        <button class="social-btn apple" onclick="signInWithApple()">
+                            <span>🍎</span> Apple
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Passkey Section -->
+                <div id="passkeyForm" class="passkey-section">
+                    <h3>🔐 Use Your Passkey</h3>
+                    <p>Sign in securely with your biometric authentication</p>
+                    <button class="passkey-btn" onclick="signInWithPasskey()">
+                        Use Face ID / Fingerprint
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rest of checkout form will appear after authentication -->
+            <div id="checkoutForm" style="display: none;">
+                <div class="checkout-steps">
+                    <div class="step active">
+                        <span class="step-number">1</span>
+                        <span class="step-title">Delivery Details</span>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <span class="step-title">Payment</span>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <span class="step-title">Confirm</span>
+                    </div>
+                </div>
+
+                <!-- Delivery form -->
+                <div class="delivery-form">
+                    <h3>Delivery Information</h3>
+                    <!-- Form fields will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <div id="orderItems">
+                <!-- Order items will be loaded here -->
+            </div>
+            <div class="order-total">
+                <div class="total-line">
+                    <span>Subtotal</span>
+                    <span id="subtotal">£0.00</span>
+                </div>
+                <div class="total-line">
+                    <span>Delivery</span>
+                    <span id="deliveryFee">£2.50</span>
+                </div>
+                <div class="total-line total">
+                    <span>Total</span>
+                    <span id="orderTotal">£2.50</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-auth.js"></script>
+    
+    <script>
+        class ModernCheckout {
+            constructor() {
+                this.selectedMethod = 'guest';
+                this.orderData = this.loadOrderData();
+                this.init();
+            }
+
+            init() {
+                this.setupAuthMethodSelection();
+                this.checkWebAuthnSupport();
+                this.loadOrderSummary();
+                this.handleUrlParams();
+            }
+
+            setupAuthMethodSelection() {
+                const methods = document.querySelectorAll('.auth-method');
+                methods.forEach(method => {
+                    method.addEventListener('click', () => {
+                        // Remove selected class from all methods
+                        methods.forEach(m => m.classList.remove('selected'));
+                        
+                        // Add selected class to clicked method
+                        method.classList.add('selected');
+                        
+                        // Hide all forms
+                        document.querySelectorAll('.magic-link-form, .passkey-section').forEach(form => {
+                            form.classList.remove('show');
+                        });
+                        
+                        // Show appropriate form
+                        const methodType = method.dataset.method;
+                        this.selectedMethod = methodType;
+                        
+                        switch(methodType) {
+                            case 'guest':
+                                this.showGuestCheckout();
+                                break;
+                            case 'magic-link':
+                                document.getElementById('magicLinkForm').classList.add('show');
+                                document.getElementById('magicLinkEmail').focus();
+                                break;
+                            case 'passkey':
+                                document.getElementById('passkeyForm').classList.add('show');
+                                break;
+                            case 'social':
+                                document.getElementById('socialAuthForm').classList.add('show');
+                                break;
+                        }
+                    });
+                });
+            }
+
+            async checkWebAuthnSupport() {
+                if (modernAuth && modernAuth.webAuthnSupported) {
+                    document.getElementById('passkeyMethod').style.display = 'flex';
+                    
+                    // Check if user has registered passkeys
+                    if (modernAuth.isSignedIn) {
+                        // Show passkey option prominently for returning users
+                        const passkeyMethod = document.getElementById('passkeyMethod');
+                        passkeyMethod.insertAdjacentHTML('beforeend', 
+                            '<div class="auth-method-badge">Available</div>'
+                        );
+                    }
+                }
+            }
+
+            showGuestCheckout() {
+                document.getElementById('checkoutForm').style.display = 'block';
+                this.populateGuestForm();
+            }
+
+            populateGuestForm() {
+                // Pre-populate with any stored guest data
+                const guestData = localStorage.getItem('guest_checkout_data');
+                if (guestData) {
+                    const data = JSON.parse(guestData);
+                    // Populate form fields
+                }
+            }
+
+            loadOrderData() {
+                const cartData = localStorage.getItem('cartData');
+                return cartData ? JSON.parse(cartData) : { items: [], total: 0 };
+            }
+
+            loadOrderSummary() {
+                const orderItems = document.getElementById('orderItems');
+                const subtotal = document.getElementById('subtotal');
+                const orderTotal = document.getElementById('orderTotal');
+
+                if (this.orderData.items && this.orderData.items.length > 0) {
+                    let itemsHtml = '';
+                    let total = 0;
+
+                    this.orderData.items.forEach(item => {
+                        const itemTotal = item.price * item.quantity;
+                        total += itemTotal;
+                        
+                        itemsHtml += `
+                            <div class="order-item">
+                                <div class="item-details">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-quantity">Qty: ${item.quantity}</div>
+                                </div>
+                                <div class="item-price">£${itemTotal.toFixed(2)}</div>
+                            </div>
+                        `;
+                    });
+
+                    orderItems.innerHTML = itemsHtml;
+                    subtotal.textContent = `£${total.toFixed(2)}`;
+                    
+                    const deliveryFee = 2.50;
+                    const finalTotal = total + deliveryFee;
+                    orderTotal.textContent = `£${finalTotal.toFixed(2)}`;
+                } else {
+                    orderItems.innerHTML = '<div class="empty-order">No items in cart</div>';
+                }
+            }
+
+            handleUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const authParam = urlParams.get('auth');
+                
+                if (authParam === 'register') {
+                    // Auto-select magic link for registration
+                    document.querySelector('[data-method="magic-link"]').click();
+                }
+            }
+
+            showStatus(message, type = 'info') {
+                const statusDiv = document.getElementById('authStatus');
+                statusDiv.className = `auth-status ${type}`;
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                
+                if (type === 'success') {
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Global functions for auth methods
+        async function sendMagicLink() {
+            const email = document.getElementById('magicLinkEmail').value;
+            const btn = document.querySelector('.magic-link-btn');
+            
+            if (!email) {
+                checkout.showStatus('Please enter your email address', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            document.getElementById('magicLinkText').textContent = 'Sending...';
+
+            try {
+                const result = await modernAuth.signInWithMagicLink(email);
+                
+                if (result.success) {
+                    checkout.showStatus(result.message, 'success');
+                    document.getElementById('magicLinkText').textContent = 'Sent! Check Email';
+                } else {
+                    checkout.showStatus(result.message, 'error');
+                    document.getElementById('magicLinkText').textContent = 'Send Magic Link';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                checkout.showStatus('Failed to send magic link', 'error');
+                document.getElementById('magicLinkText').textContent = 'Send Magic Link';
+                btn.disabled = false;
+            }
+        }
+
+        async function signInWithGoogle() {
+            try {
+                const result = await modernAuth.signInWithGoogle();
+                if (result.success) {
+                    checkout.showStatus('Redirecting to Google...', 'info');
+                } else {
+                    checkout.showStatus('Google sign-in failed', 'error');
+                }
+            } catch (error) {
+                checkout.showStatus('Google sign-in error', 'error');
+            }
+        }
+
+        async function signInWithApple() {
+            try {
+                const result = await modernAuth.signInWithApple();
+                if (result.success) {
+                    checkout.showStatus('Redirecting to Apple...', 'info');
+                } else {
+                    checkout.showStatus('Apple sign-in failed', 'error');
+                }
+            } catch (error) {
+                checkout.showStatus('Apple sign-in error', 'error');
+            }
+        }
+
+        async function signInWithPasskey() {
+            try {
+                const result = await modernAuth.signInWithPasskey();
+                if (result.success) {
+                    checkout.showStatus(result.message, 'success');
+                    checkout.showGuestCheckout();
+                } else {
+                    checkout.showStatus(result.message, 'error');
+                }
+            } catch (error) {
+                checkout.showStatus('Passkey authentication failed', 'error');
+            }
+        }
+
+        // Initialize checkout
+        const checkout = new ModernCheckout();
+
+        // Handle auth state changes
+        if (typeof modernAuth !== 'undefined') {
+            modernAuth.supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    checkout.showStatus('Successfully signed in!', 'success');
+                    setTimeout(() => {
+                        checkout.showGuestCheckout();
+                    }, 1000);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

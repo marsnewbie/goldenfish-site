@@ -286,8 +286,12 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-auth.js"></script>
+    
     <script>
-        class AuthManager {
+        class LegacyAuthManager {
             constructor() {
                 this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
                 this.init();
@@ -435,9 +439,17 @@
             alert(`Password reset instructions will be sent to ${email}.\n\nNote: This feature is coming soon! For now, please contact support at orders@goldenfish.co.uk if you need help accessing your account.`);
         }
 
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            new AuthManager();
+        // Initialize when DOM is loaded  
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for modern auth to be ready
+            if (window.modernAuth) {
+                await window.modernAuth.initPromise;
+                console.log('🔄 Redirecting to modern authentication...');
+                window.location.href = 'modern-checkout.html?auth=signin';
+            } else {
+                // Fallback to legacy auth
+                new LegacyAuthManager();
+            }
         });
     </script>
     <script src="global-auth.js"></script>
