@@ -164,74 +164,37 @@ class SupabaseManager {
     }
 
     async ensureUserProfile(user) {
-        const { data: profile, error } = await this.client
-            .from('user_profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-        if (error && error.code === 'PGRST116') {
-            // Profile doesn't exist, create it
-            const { data: newProfile, error: createError } = await this.client
-                .from('user_profiles')
-                .insert({
-                    id: user.id,
-                    first_name: user.user_metadata?.first_name,
-                    last_name: user.user_metadata?.last_name,
-                    auth_method: this.getAuthMethod(user),
-                    last_sign_in_at: new Date().toISOString(),
-                    sign_in_count: 1
-                })
-                .select()
-                .single();
-
-            if (createError) {
-                console.error('❌ Error creating user profile:', createError);
-            } else {
-                console.log('✅ User profile created:', newProfile);
-            }
-        } else if (!error) {
-            // Update existing profile
-            await this.client
-                .from('user_profiles')
-                .update({
-                    last_sign_in_at: new Date().toISOString(),
-                    sign_in_count: profile.sign_in_count + 1
-                })
-                .eq('id', user.id);
-        }
+        // Simplified profile handling - just log the user info
+        // Database table creation will be handled by backend API
+        console.log('✅ User signed in:', {
+            id: user.id,
+            email: user.email,
+            auth_method: this.getAuthMethod(user)
+        });
+        
+        // Store user info in localStorage for frontend use
+        localStorage.setItem('auth_user', JSON.stringify({
+            id: user.id,
+            email: user.email,
+            auth_method: this.getAuthMethod(user),
+            signed_in_at: new Date().toISOString()
+        }));
     }
 
     async loadUserTenants(userId) {
-        const { data: userTenants, error } = await this.client
-            .from('user_tenants')
-            .select(`
-                tenant_id,
-                role,
-                tenants (
-                    id,
-                    name,
-                    slug,
-                    type,
-                    settings
-                )
-            `)
-            .eq('user_id', userId)
-            .eq('status', 'active');
-
-        if (error) {
-            console.error('❌ Error loading user tenants:', error);
-            return;
-        }
-
-        if (userTenants && userTenants.length > 0) {
-            // Set default tenant (first one or from localStorage)
-            const savedTenantId = localStorage.getItem('current_tenant_id');
-            const defaultTenant = userTenants.find(ut => ut.tenant_id === savedTenantId) || userTenants[0];
-            
-            this.currentTenant = defaultTenant.tenants;
-            console.log('🏢 Current tenant:', this.currentTenant.name);
-        }
+        // Simplified tenant loading - use default Golden Fish tenant
+        console.log('🏢 Setting default tenant for user:', userId);
+        
+        // Set default Golden Fish tenant for single restaurant
+        this.currentTenant = {
+            id: 'golden-fish-default',
+            name: 'Golden Fish',
+            slug: 'golden-fish',
+            type: 'restaurant'
+        };
+        
+        localStorage.setItem('current_tenant_id', this.currentTenant.id);
+        console.log('✅ Default tenant set:', this.currentTenant.name);
     }
 
     getAuthMethod(user) {

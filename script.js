@@ -1718,7 +1718,7 @@ function handleCheckout() {
       }
     });
   } else {
-    window.location.href = 'simple-checkout.html';
+    window.location.href = 'modern-checkout.html';
   }
 }
 
