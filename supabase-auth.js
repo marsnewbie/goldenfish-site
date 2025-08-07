@@ -253,32 +253,30 @@ class ModernAuthSystem {
     }
 
     /**
-     * MULTI-TENANT SUPPORT
-     * Restaurant chain/franchise management
+     * USER DATA MANAGEMENT
+     * Load user profile from backend API
      */
     async loadUserTenant() {
         if (!this.currentUser) return;
 
         try {
-            const { data: userTenants, error } = await this.supabase
-                .from('user_tenants')
-                .select(`
-                    tenant_id,
-                    role,
-                    tenants (
-                        id,
-                        name,
-                        type,
-                        settings
-                    )
-                `)
-                .eq('user_id', this.currentUser.id)
-                .eq('active', true);
+            // Get user token for API calls
+            const { data: { session } } = await this.supabase.auth.getSession();
+            if (!session) return null;
 
-            if (error) throw error;
+            // Call backend API to get user tenant info
+            const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/auth/profile', {
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            this.currentTenant = userTenants?.[0]?.tenants || null;
-            return this.currentTenant;
+            if (response.ok) {
+                const data = await response.json();
+                this.currentTenant = data.tenant || null;
+                return this.currentTenant;
+            }
         } catch (error) {
             console.error('Error loading user tenant:', error);
             return null;

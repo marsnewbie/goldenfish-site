@@ -629,27 +629,38 @@
             const btn = document.querySelector('.magic-link-btn');
             
             if (!email) {
-                checkout.showStatus('Please enter your email address', 'error');
+                checkout.showStatus('请输入邮箱地址', 'error');
                 return;
             }
 
             btn.disabled = true;
-            document.getElementById('magicLinkText').textContent = 'Sending...';
+            document.getElementById('magicLinkText').textContent = '发送中...';
 
             try {
-                const result = await modernAuth.signInWithMagicLink(email);
+                // Wait for modern auth to be ready
+                if (modernAuth && modernAuth.initPromise) {
+                    await modernAuth.initPromise;
+                }
+
+                const result = await modernAuth.signInWithMagicLink(email, window.location.href);
                 
                 if (result.success) {
                     checkout.showStatus(result.message, 'success');
-                    document.getElementById('magicLinkText').textContent = 'Sent! Check Email';
+                    document.getElementById('magicLinkText').textContent = '已发送！查看邮箱';
+                    
+                    // Show additional instructions
+                    setTimeout(() => {
+                        checkout.showStatus('魔法链接已发送到您的邮箱，点击链接完成登录。如果没收到，请检查垃圾邮件文件夹。', 'info');
+                    }, 2000);
                 } else {
                     checkout.showStatus(result.message, 'error');
-                    document.getElementById('magicLinkText').textContent = 'Send Magic Link';
+                    document.getElementById('magicLinkText').textContent = '发送魔法链接';
                     btn.disabled = false;
                 }
             } catch (error) {
-                checkout.showStatus('Failed to send magic link', 'error');
-                document.getElementById('magicLinkText').textContent = 'Send Magic Link';
+                console.error('Magic link error:', error);
+                checkout.showStatus('发送失败，请稍后重试', 'error');
+                document.getElementById('magicLinkText').textContent = '发送魔法链接';
                 btn.disabled = false;
             }
         }

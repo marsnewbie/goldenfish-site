@@ -8,47 +8,14 @@
 // ================================
 
 /*
-STEP 1: Create Supabase Project
-1. Go to https://supabase.com/dashboard
-2. Click "New Project"
-3. Choose organization: Create new or select existing
-4. Project name: "Golden Fish Ordering System"
-5. Database password: Generate strong password
-6. Region: Choose closest to your users (e.g., "West Europe")
-7. Pricing plan: Start with Free tier (100K MAU included)
+FRONTEND CONFIGURATION ONLY
+This handles user authentication UI and tokens.
+All business logic is handled by the backend API.
 
-STEP 2: Configure Authentication
-1. Go to Authentication > Settings
-2. Enable "Email" provider (for magic links)
-3. Configure "Site URL": https://test-ordering-page.vercel.app
-4. Add "Redirect URLs":
-   - https://test-ordering-page.vercel.app/
-   - https://test-ordering-page.vercel.app/checkout.html
-   - https://test-ordering-page.vercel.app/menu.html
-   - http://localhost:3000 (for development)
-
-STEP 3: Enable Social OAuth (Optional)
-1. Go to Authentication > Providers
-2. Enable "Google":
-   - Get credentials from Google Cloud Console
-   - Add authorized origins: https://test-ordering-page.vercel.app
-3. Enable "Apple" (if needed):
-   - Configure Apple Developer account credentials
-
-STEP 4: Set Up Database Schema
-1. Go to SQL Editor
-2. Run the schema from supabase-schema.sql
-3. Verify all tables are created with proper RLS policies
-
-STEP 5: Configure Row Level Security
-1. Ensure RLS is enabled for all tables
-2. Test policies with different user roles
-3. Verify tenant isolation works correctly
-
-STEP 6: Get Project Credentials
-1. Go to Settings > API
-2. Copy "Project URL" and "anon public" key
-3. Update the configuration below
+Architecture:
+- Frontend: Supabase Auth (UI only)
+- Backend: Railway API + Supabase Database
+- Data Flow: Frontend → Railway Backend → Supabase DB
 */
 
 // ================================
