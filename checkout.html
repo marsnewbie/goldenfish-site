@@ -6,7 +6,7 @@
   <title>Checkout - Golden Fish</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Uber Eats Style Checkout - Single Page Design */
+    /* Industry-Standard Authentication System Styles */
     .checkout-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -61,6 +61,68 @@
       background-color: #f0f0f0;
     }
 
+    /* Authentication Status in Header */
+    .auth-status {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-info {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f8f9fa;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+
+    .user-info.active {
+      display: flex;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #007bff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .user-email {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .sign-out-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .sign-out-btn:hover {
+      background: #c82333;
+    }
+
     /* Main Content Area */
     .checkout-main {
       background: white;
@@ -70,7 +132,7 @@
       height: fit-content;
     }
 
-    /* Delivery Toggle - Uber Eats Style */
+    /* Delivery Toggle */
     .delivery-toggle-section {
       padding: 1.5rem;
       border-bottom: 1px solid #e0e0e0;
@@ -103,12 +165,8 @@
       color: #333;
     }
 
-    .delivery-option:hover {
-      color: #333;
-    }
-
-    /* Account Type Section */
-    .account-section {
+    /* Industry-Standard Authentication Section */
+    .auth-section {
       padding: 1.5rem;
       border-bottom: 1px solid #e0e0e0;
     }
@@ -120,56 +178,276 @@
       color: #333;
     }
 
-    .account-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
+    .auth-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    .account-option {
-      position: relative;
-    }
-
-    .account-option input[type="radio"] {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .account-option label {
+    /* Guest Checkout - Primary Option */
+    .guest-checkout {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: white;
+      gap: 1rem;
     }
 
-    .account-option input[type="radio"]:checked + label {
-      border-color: #00d084;
-      background: #f0fdf7;
+    .guest-checkout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
     }
 
-    .account-option .option-icon {
-      font-size: 1.2rem;
+    .guest-checkout .method-icon {
+      font-size: 1.5rem;
     }
 
-    .option-content {
+    .guest-checkout .method-content {
       flex: 1;
     }
 
-    .option-title {
+    .guest-checkout .method-title {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .guest-checkout .method-desc {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Sign In Options */
+    .signin-options {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .signin-method {
+      flex: 1;
+      background: white;
+      border: 2px solid #e0e0e0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .signin-method:hover {
+      border-color: #007bff;
+      background: #f8f9fa;
+    }
+
+    .signin-method.active {
+      border-color: #007bff;
+      background: #e7f3ff;
+    }
+
+    .signin-method .method-icon {
+      font-size: 1.2rem;
+    }
+
+    .signin-method .method-content {
+      flex: 1;
+    }
+
+    .signin-method .method-title {
       font-weight: 600;
-      margin-bottom: 2px;
+      margin-bottom: 0.25rem;
       color: #333;
     }
 
-    .option-desc {
-      font-size: 0.85rem;
+    .signin-method .method-desc {
+      font-size: 0.8rem;
       color: #666;
+    }
+
+    /* Progressive Authentication Form */
+    .auth-form {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .email-first-step {
+      display: block;
+    }
+
+    .auth-details-step {
+      display: none;
+    }
+
+    .auth-details-step.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .auth-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-btn.primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .auth-btn.primary:hover {
+      background: #0056b3;
+    }
+
+    .auth-btn.secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 1px solid #dee2e6;
+    }
+
+    .auth-btn.secondary:hover {
+      background: #e9ecef;
+    }
+
+    .auth-status-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .auth-status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .auth-status-message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    /* User Information Section (Auto-populated) */
+    .user-info-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      display: none;
+    }
+
+    .user-info-section.active {
+      display: block;
+    }
+
+    .user-info-card {
+      background: #e7f3ff;
+      border: 2px solid #007bff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-info-card .user-avatar-large {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #007bff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .user-info-card .user-details-large {
+      flex: 1;
+    }
+
+    .user-info-card .user-name-large {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+
+    .user-info-card .user-email-large {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .change-user-btn {
+      background: white;
+      color: #007bff;
+      border: 2px solid #007bff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .change-user-btn:hover {
+      background: #007bff;
+      color: white;
     }
 
     /* Contact Information Section */
@@ -185,20 +463,8 @@
       margin-bottom: 16px;
     }
 
-    .form-group {
-      position: relative;
-    }
-
     .form-group.full-width {
       grid-column: 1 / -1;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #333;
-      font-size: 0.9rem;
     }
 
     .form-group input,
@@ -216,117 +482,6 @@
     .form-group textarea:focus {
       outline: none;
       border-color: #00d084;
-    }
-
-    .form-group input:invalid {
-      border-color: #e74c3c;
-    }
-
-    .password-section {
-      margin-top: 16px;
-      display: none;
-    }
-
-    /* Sign In Section Styles */
-    .signin-section {
-      margin-top: 1rem;
-      padding: 1.5rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      background: #f8f9fa;
-    }
-
-    .signin-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1rem;
-    }
-
-    .signin-btn {
-      padding: 12px 24px;
-      background: #00d084;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .signin-btn:hover {
-      background: #00b571;
-    }
-
-    .signin-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .forgot-password {
-      color: #00d084;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-
-    .forgot-password:hover {
-      text-decoration: underline;
-    }
-
-    .signin-status {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .signin-status.error {
-      background: #fee;
-      border: 1px solid #fcc;
-      color: #c33;
-      display: block;
-    }
-
-    .signin-status.success {
-      background: #efe;
-      border: 1px solid #cfc;
-      color: #3c3;
-      display: block;
-    }
-
-    .signin-success {
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .welcome-message {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .success-icon {
-      font-size: 2rem;
-    }
-
-    .welcome-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 0.25rem;
-    }
-
-    .welcome-subtitle {
-      color: #666;
-      font-size: 0.95rem;
-    }
-
-    .field-help {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 4px;
     }
 
     /* Address Section */
@@ -399,13 +554,7 @@
       color: #666;
     }
 
-    /* Special Instructions */
-    .instructions-section {
-      padding: 1.5rem;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    /* Order Summary Sidebar - Uber Eats Style */
+    /* Order Summary Sidebar */
     .order-summary {
       background: white;
       border-radius: 12px;
@@ -439,7 +588,6 @@
       color: #00d084;
     }
 
-    /* Cart Items */
     .cart-items {
       padding: 1.5rem;
       border-bottom: 1px solid #e0e0e0;
@@ -481,11 +629,6 @@
       font-weight: 600;
     }
 
-    .free-item .item-price {
-      color: #00d084;
-    }
-
-    /* Order Totals */
     .order-totals {
       padding: 1.5rem;
       border-bottom: 1px solid #e0e0e0;
@@ -505,7 +648,6 @@
       border-top: 1px solid #e0e0e0;
     }
 
-    /* Place Order Button */
     .place-order-section {
       padding: 1.5rem;
     }
@@ -539,6 +681,17 @@
       color: #666;
     }
 
+    .empty-cart {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+
+    .empty-cart-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .checkout-container {
@@ -556,43 +709,23 @@
         grid-template-columns: 1fr;
       }
 
-      .account-options {
-        grid-template-columns: 1fr;
-        gap: 8px;
+      .signin-options {
+        flex-direction: column;
+      }
+
+      .auth-actions {
+        flex-direction: column;
       }
 
       .order-summary {
         position: static;
       }
     }
-
-    /* Error States */
-    .error-message {
-      color: #e74c3c;
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-
-    .form-group.error input {
-      border-color: #e74c3c;
-    }
-
-    /* Empty Cart State */
-    .empty-cart {
-      text-align: center;
-      padding: 2rem;
-      color: #666;
-    }
-
-    .empty-cart-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
   </style>
 </head>
 <body>
   <div class="checkout-container">
-    <!-- Header -->
+    <!-- Header with Auth Status -->
     <div class="checkout-header">
       <div class="header-content">
         <div class="logo-section">
@@ -600,7 +733,15 @@
           <img src="assets/fish_and_chips.jpg" alt="Golden Fish">
           <span style="font-weight: 600;">Golden Fish</span>
         </div>
-        <div>
+        <div class="auth-status">
+          <div class="user-info" id="headerUserInfo">
+            <div class="user-avatar" id="headerUserAvatar"></div>
+            <div class="user-details">
+              <div class="user-name" id="headerUserName"></div>
+              <div class="user-email" id="headerUserEmail"></div>
+            </div>
+            <button class="sign-out-btn" onclick="authManager.signOut()">Sign Out</button>
+          </div>
           <span style="color: #666;">Checkout</span>
         </div>
       </div>
@@ -624,42 +765,103 @@
         </div>
       </div>
 
-      <!-- Account Type -->
-      <div class="account-section">
+      <!-- Industry-Standard Authentication Section -->
+      <div class="auth-section" id="authSection">
         <div class="section-title">How would you like to checkout?</div>
-        <div class="account-options">
-          <div class="account-option">
-            <input type="radio" name="accountType" value="guest" id="guestCheckout" checked>
-            <label for="guestCheckout">
-              <div class="option-icon">👤</div>
-              <div class="option-content">
-                <div class="option-title">Guest</div>
-                <div class="option-desc">Quick checkout</div>
+        <div class="auth-methods">
+          <!-- Guest Checkout - Primary Option -->
+          <button class="guest-checkout" onclick="authManager.selectGuestCheckout()">
+            <div class="method-icon">🚀</div>
+            <div class="method-content">
+              <div class="method-title">Continue as Guest</div>
+              <div class="method-desc">Quick and easy checkout without creating an account</div>
+            </div>
+          </button>
+
+          <!-- Sign In Options -->
+          <div class="signin-options">
+            <button class="signin-method" onclick="authManager.selectSignInMethod('email')">
+              <div class="method-icon">📧</div>
+              <div class="method-content">
+                <div class="method-title">Sign In</div>
+                <div class="method-desc">Access your account</div>
               </div>
-            </label>
-          </div>
-          
-          <div class="account-option">
-            <input type="radio" name="accountType" value="signin" id="signinCheckout">
-            <label for="signinCheckout">
-              <div class="option-icon">🔑</div>
-              <div class="option-content">
-                <div class="option-title">Sign In</div>
-                <div class="option-desc">Access your account</div>
+            </button>
+            
+            <button class="signin-method" onclick="authManager.selectSignInMethod('register')">
+              <div class="method-icon">🔐</div>
+              <div class="method-content">
+                <div class="method-title">Create Account</div>
+                <div class="method-desc">Save for next time</div>
               </div>
-            </label>
+            </button>
           </div>
-          
-          <div class="account-option">
-            <input type="radio" name="accountType" value="register" id="registerCheckout">
-            <label for="registerCheckout">
-              <div class="option-icon">🔐</div>
-              <div class="option-content">
-                <div class="option-title">Create Account</div>
-                <div class="option-desc">Save for next time</div>
+        </div>
+
+        <!-- Progressive Authentication Form -->
+        <div class="auth-form" id="authForm">
+          <!-- Step 1: Email First -->
+          <div class="email-first-step" id="emailFirstStep">
+            <div class="form-group">
+              <label for="authEmail">Email Address</label>
+              <input type="email" id="authEmail" placeholder="Enter your email address" required>
+            </div>
+            <div class="auth-actions">
+              <button type="button" class="auth-btn primary" onclick="authManager.processEmail()">Continue</button>
+              <button type="button" class="auth-btn secondary" onclick="authManager.cancelAuth()">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Authentication Details -->
+          <div class="auth-details-step" id="authDetailsStep">
+            <div id="signinFields" style="display: none;">
+              <div class="form-group">
+                <label for="authPassword">Password</label>
+                <input type="password" id="authPassword" placeholder="Enter your password" required>
               </div>
-            </label>
+            </div>
+            
+            <div id="registerFields" style="display: none;">
+              <div class="form-group">
+                <label for="authFirstName">First Name</label>
+                <input type="text" id="authFirstName" placeholder="Enter your first name" required>
+              </div>
+              <div class="form-group">
+                <label for="authLastName">Last Name</label>
+                <input type="text" id="authLastName" placeholder="Enter your last name" required>
+              </div>
+              <div class="form-group">
+                <label for="authPhone">Phone Number</label>
+                <input type="tel" id="authPhone" placeholder="07123 456789" required>
+              </div>
+              <div class="form-group">
+                <label for="authNewPassword">Create Password</label>
+                <input type="password" id="authNewPassword" placeholder="At least 6 characters" minlength="6" required>
+              </div>
+            </div>
+
+            <div class="auth-actions">
+              <button type="button" class="auth-btn primary" onclick="authManager.submitAuth()">
+                <span id="authSubmitText">Sign In</span>
+              </button>
+              <button type="button" class="auth-btn secondary" onclick="authManager.goBackToEmail()">Back</button>
+            </div>
           </div>
+
+          <div class="auth-status-message" id="authStatusMessage"></div>
+        </div>
+      </div>
+
+      <!-- Signed-In User Information -->
+      <div class="user-info-section" id="userInfoSection">
+        <div class="section-title">Account Information</div>
+        <div class="user-info-card">
+          <div class="user-avatar-large" id="userAvatarLarge"></div>
+          <div class="user-details-large">
+            <div class="user-name-large" id="userNameLarge"></div>
+            <div class="user-email-large" id="userEmailLarge"></div>
+          </div>
+          <button class="change-user-btn" onclick="authManager.changeUser()">Change User</button>
         </div>
       </div>
 
@@ -685,45 +887,6 @@
           <div class="form-group">
             <label for="email">Email Address *</label>
             <input type="email" id="email" name="email" required>
-          </div>
-        </div>
-
-        <!-- Password for registered users -->
-        <div class="password-section" id="passwordSection">
-          <div class="form-group">
-            <label for="password">Create Password *</label>
-            <input type="password" id="password" name="password" minlength="6">
-            <div class="field-help">Minimum 6 characters</div>
-          </div>
-        </div>
-
-        <!-- Sign In section for existing users -->
-        <div class="signin-section" id="signinSection" style="display: none;">
-          <div class="signin-form">
-            <div class="form-group">
-              <label for="signinEmail">Email Address *</label>
-              <input type="email" id="signinEmail" name="signinEmail" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-              <label for="signinPassword">Password *</label>
-              <input type="password" id="signinPassword" name="signinPassword" placeholder="Enter your password">
-            </div>
-            <div class="signin-actions">
-              <button type="button" class="signin-btn" id="signinBtn">Sign In</button>
-              <a href="#" class="forgot-password">Forgot Password?</a>
-            </div>
-            <div class="signin-status" id="signinStatus"></div>
-          </div>
-          
-          <!-- Success state after signin -->
-          <div class="signin-success" id="signinSuccess" style="display: none;">
-            <div class="welcome-message">
-              <div class="success-icon">✅</div>
-              <div class="welcome-text">
-                <div class="welcome-title">Welcome back!</div>
-                <div class="welcome-subtitle" id="welcomeUserName"></div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -778,25 +941,6 @@
               </div>
             </label>
           </div>
-
-          <div class="payment-method">
-            <input type="radio" name="paymentMethod" value="paypal" id="paypalPayment">
-            <label for="paypalPayment">
-              <div class="payment-icon">🅿️</div>
-              <div class="payment-info">
-                <div class="payment-title">PayPal</div>
-                <div class="payment-desc">Pay with your PayPal account</div>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Special Instructions -->
-      <div class="instructions-section">
-        <div class="section-title">Special Instructions</div>
-        <div class="form-group">
-          <textarea id="specialInstructions" name="specialInstructions" placeholder="Any special requests for your order..." rows="3"></textarea>
         </div>
       </div>
     </div>
@@ -850,7 +994,418 @@
   </div>
 
   <script>
-    class UberEatsCheckout {
+    // Industry-Standard Authentication Manager
+    class AuthManager {
+      constructor() {
+        this.currentUser = null;
+        this.authMode = 'guest'; // guest, signin, register
+        this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
+        
+        this.init();
+      }
+
+      init() {
+        // Check for existing authentication on page load
+        this.checkExistingAuth();
+        
+        // Initialize from URL parameters
+        this.initializeFromURL();
+        
+        // Setup event listeners
+        this.setupEventListeners();
+      }
+
+      async checkExistingAuth() {
+        const token = localStorage.getItem('auth_token');
+        const userData = localStorage.getItem('user_data');
+        
+        if (token && userData) {
+          try {
+            // Verify token is still valid
+            const response = await fetch(`${this.apiBase}/auth/verify`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              this.currentUser = result.data;
+              this.showSignedInState();
+              console.log('✅ User already authenticated:', this.currentUser);
+            } else {
+              // Token expired, clear auth
+              this.clearAuth();
+            }
+          } catch (error) {
+            console.error('❌ Auth verification failed:', error);
+            this.clearAuth();
+          }
+        }
+      }
+
+      initializeFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const authParam = urlParams.get('auth');
+        
+        if (authParam === 'signin') {
+          this.selectSignInMethod('email');
+        } else if (authParam === 'register') {
+          this.selectSignInMethod('register');
+        }
+      }
+
+      setupEventListeners() {
+        // Email input enter key
+        document.getElementById('authEmail').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.processEmail();
+          }
+        });
+
+        // Password input enter key
+        document.getElementById('authPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.submitAuth();
+          }
+        });
+      }
+
+      selectGuestCheckout() {
+        this.authMode = 'guest';
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('userInfoSection').style.display = 'none';
+        this.clearAuth();
+        this.updateFormState();
+        console.log('🎯 Selected guest checkout');
+      }
+
+      selectSignInMethod(method) {
+        this.authMode = method;
+        const authForm = document.getElementById('authForm');
+        const authSection = document.getElementById('authSection');
+        
+        // Show auth form
+        authForm.classList.add('active');
+        
+        // Reset form
+        document.getElementById('emailFirstStep').style.display = 'block';
+        document.getElementById('authDetailsStep').style.display = 'none';
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authEmail').focus();
+        
+        // Clear any previous status
+        document.getElementById('authStatusMessage').style.display = 'none';
+        
+        console.log('🔑 Selected auth method:', method);
+      }
+
+      async processEmail() {
+        const email = document.getElementById('authEmail').value.trim();
+        
+        if (!email || !this.validateEmail(email)) {
+          this.showAuthStatus('Please enter a valid email address.', 'error');
+          return;
+        }
+
+        // Fallback: use selected method (progressive auth endpoint not yet implemented)
+        try {
+          // TODO: Implement /auth/check-email endpoint for progressive authentication
+          // For now, proceed with the selected method
+          this.showAuthDetails(this.authMode, email);
+        } catch (error) {
+          console.error('❌ Email check error:', error);
+          // Fallback to selected method
+          this.showAuthDetails(this.authMode, email);
+        }
+      }
+
+      showAuthDetails(mode, email) {
+        document.getElementById('emailFirstStep').style.display = 'none';
+        document.getElementById('authDetailsStep').style.display = 'block';
+        
+        const signinFields = document.getElementById('signinFields');
+        const registerFields = document.getElementById('registerFields');
+        const submitText = document.getElementById('authSubmitText');
+        
+        if (mode === 'signin') {
+          signinFields.style.display = 'block';
+          registerFields.style.display = 'none';
+          submitText.textContent = 'Sign In';
+          document.getElementById('authPassword').focus();
+        } else {
+          signinFields.style.display = 'none';
+          registerFields.style.display = 'block';
+          submitText.textContent = 'Create Account';
+          document.getElementById('authFirstName').focus();
+        }
+        
+        this.authMode = mode;
+        console.log(`📧 Email processed: ${email} → ${mode} mode`);
+      }
+
+      async submitAuth() {
+        const email = document.getElementById('authEmail').value.trim();
+        
+        if (this.authMode === 'signin') {
+          await this.handleSignIn(email);
+        } else {
+          await this.handleRegister(email);
+        }
+      }
+
+      async handleSignIn(email) {
+        const password = document.getElementById('authPassword').value;
+        
+        if (!password) {
+          this.showAuthStatus('Please enter your password.', 'error');
+          return;
+        }
+
+        const submitBtn = document.querySelector('#authDetailsStep .auth-btn.primary');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing In...';
+
+        try {
+          const response = await fetch(`${this.apiBase}/auth/signin`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Store auth data
+            localStorage.setItem('auth_token', result.data.token);
+            localStorage.setItem('user_data', JSON.stringify(result.data.user));
+            
+            this.currentUser = result.data.user;
+            this.showAuthStatus(`Welcome back, ${this.currentUser.firstName}!`, 'success');
+            
+            setTimeout(() => {
+              this.showSignedInState();
+            }, 1500);
+          } else {
+            this.showAuthStatus(result.message || 'Invalid email or password.', 'error');
+          }
+        } catch (error) {
+          console.error('❌ Sign in error:', error);
+          this.showAuthStatus('Connection error. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
+        }
+      }
+
+      async handleRegister(email) {
+        const firstName = document.getElementById('authFirstName').value.trim();
+        const lastName = document.getElementById('authLastName').value.trim();
+        const phone = document.getElementById('authPhone').value.trim();
+        const password = document.getElementById('authNewPassword').value;
+
+        if (!firstName || !lastName || !phone || !password) {
+          this.showAuthStatus('Please fill in all required fields.', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          this.showAuthStatus('Password must be at least 6 characters.', 'error');
+          return;
+        }
+
+        const submitBtn = document.querySelector('#authDetailsStep .auth-btn.primary');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating Account...';
+
+        try {
+          const response = await fetch(`${this.apiBase}/auth/signup`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              firstName,
+              lastName,
+              phone
+            })
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Store auth data
+            localStorage.setItem('auth_token', result.data.token);
+            localStorage.setItem('user_data', JSON.stringify(result.data.user));
+            
+            this.currentUser = result.data.user;
+            this.showAuthStatus(`Account created! Welcome, ${this.currentUser.firstName}!`, 'success');
+            
+            setTimeout(() => {
+              this.showSignedInState();
+            }, 1500);
+          } else {
+            this.showAuthStatus(result.message || 'Account creation failed.', 'error');
+          }
+        } catch (error) {
+          console.error('❌ Registration error:', error);
+          this.showAuthStatus('Connection error. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account';
+        }
+      }
+
+      showSignedInState() {
+        if (!this.currentUser) return;
+
+        // Hide authentication section
+        document.getElementById('authSection').style.display = 'none';
+        
+        // Show user info section
+        const userInfoSection = document.getElementById('userInfoSection');
+        userInfoSection.style.display = 'block';
+        
+        // Update user info display
+        const initials = `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`.toUpperCase();
+        
+        document.getElementById('userAvatarLarge').textContent = initials;
+        document.getElementById('userNameLarge').textContent = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+        document.getElementById('userEmailLarge').textContent = this.currentUser.email;
+
+        // Update header
+        const headerUserInfo = document.getElementById('headerUserInfo');
+        headerUserInfo.classList.add('active');
+        document.getElementById('headerUserAvatar').textContent = initials;
+        document.getElementById('headerUserName').textContent = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+        document.getElementById('headerUserEmail').textContent = this.currentUser.email;
+
+        // Auto-populate form fields
+        this.autoPopulateForm();
+        
+        console.log('✅ Signed-in state displayed for:', this.currentUser);
+      }
+
+      autoPopulateForm() {
+        if (!this.currentUser) return;
+
+        // Populate contact information
+        document.getElementById('firstName').value = this.currentUser.firstName || '';
+        document.getElementById('lastName').value = this.currentUser.lastName || '';
+        document.getElementById('phone').value = this.currentUser.phone || '';
+        document.getElementById('email').value = this.currentUser.email || '';
+
+        // Auto-populate delivery address if user has saved addresses
+        if (this.currentUser.savedAddresses && this.currentUser.savedAddresses.length > 0) {
+          const defaultAddress = this.currentUser.savedAddresses.find(addr => addr.isDefault) || this.currentUser.savedAddresses[0];
+          if (defaultAddress) {
+            document.getElementById('street').value = defaultAddress.street || '';
+            document.getElementById('city').value = defaultAddress.city || 'York';
+            document.getElementById('postcode').value = defaultAddress.postcode || '';
+            document.getElementById('deliveryNotes').value = defaultAddress.instructions || '';
+          }
+        }
+
+        console.log('📝 Form auto-populated for signed-in user');
+      }
+
+      changeUser() {
+        this.clearAuth();
+        document.getElementById('authSection').style.display = 'block';
+        document.getElementById('userInfoSection').style.display = 'none';
+        
+        // Reset form
+        this.resetForm();
+        
+        console.log('🔄 User changed, showing auth options');
+      }
+
+      signOut() {
+        this.clearAuth();
+        
+        // Show auth section again
+        document.getElementById('authSection').style.display = 'block';
+        document.getElementById('userInfoSection').style.display = 'none';
+        
+        // Reset form
+        this.resetForm();
+        
+        // Show success message
+        alert('You have been signed out successfully.');
+        
+        console.log('👋 User signed out');
+      }
+
+      clearAuth() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        this.currentUser = null;
+        
+        // Hide header user info
+        document.getElementById('headerUserInfo').classList.remove('active');
+      }
+
+      resetForm() {
+        // Clear form fields
+        document.getElementById('firstName').value = '';
+        document.getElementById('lastName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('street').value = '';
+        document.getElementById('city').value = 'York';
+        document.getElementById('postcode').value = '';
+        document.getElementById('deliveryNotes').value = '';
+      }
+
+      cancelAuth() {
+        document.getElementById('authForm').classList.remove('active');
+        console.log('❌ Authentication cancelled');
+      }
+
+      goBackToEmail() {
+        document.getElementById('emailFirstStep').style.display = 'block';
+        document.getElementById('authDetailsStep').style.display = 'none';
+        document.getElementById('authEmail').focus();
+      }
+
+      showAuthStatus(message, type) {
+        const statusDiv = document.getElementById('authStatusMessage');
+        statusDiv.textContent = message;
+        statusDiv.className = `auth-status-message ${type}`;
+        statusDiv.style.display = 'block';
+        
+        if (type === 'error') {
+          setTimeout(() => {
+            statusDiv.style.display = 'none';
+          }, 5000);
+        }
+      }
+
+      updateFormState() {
+        // Update form state based on authentication status
+        const contactSection = document.querySelector('.contact-section');
+        
+        if (this.currentUser) {
+          // User is signed in, auto-populate
+          this.autoPopulateForm();
+        } else {
+          // Guest checkout or not signed in
+          this.resetForm();
+        }
+      }
+
+      validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      }
+    }
+
+    // Checkout System Manager
+    class CheckoutManager {
       constructor() {
         this.orderData = {
           items: [],
@@ -873,69 +1428,26 @@
         this.init();
       }
 
-      // Initialize authentication mode from URL parameters
-      initializeAuthFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const authMode = urlParams.get('auth');
-        
-        console.log('🔗 URL auth parameter:', authMode);
-        
-        if (authMode && ['guest', 'signin', 'register'].includes(authMode)) {
-          // Select the appropriate radio button
-          const targetRadio = document.querySelector(`input[name="accountType"][value="${authMode}"]`);
-          if (targetRadio) {
-            // Uncheck all radio buttons first
-            document.querySelectorAll('input[name="accountType"]').forEach(radio => {
-              radio.checked = false;
-            });
-            // Check the target radio button
-            targetRadio.checked = true;
-            console.log(`✅ Pre-selected ${authMode} mode from URL`);
-          }
-        }
-      }
-
       init() {
         this.loadOrderData();
         this.setupEventHandlers();
         this.renderCart();
         this.updateDeliveryDisplay();
-        
-        // Initialize authentication sections
-        this.initializeAuthFromURL();
-        const defaultAccountType = document.querySelector('input[name="accountType"]:checked').value;
-        this.toggleAuthSections(defaultAccountType);
       }
 
       loadOrderData() {
-        // Load cart from localStorage
         try {
           const storedCart = localStorage.getItem('goldenfish_cart');
           if (storedCart) {
             this.orderData.items = JSON.parse(storedCart);
           }
 
-          // Load delivery type
           const deliveryType = localStorage.getItem('goldenfish_order_type');
           if (deliveryType) {
             this.orderData.deliveryType = deliveryType;
             this.updateDeliveryToggle();
           }
 
-          // Load applied promotions
-          const appliedPromotions = localStorage.getItem('goldenfish_applied_promotions');
-          if (appliedPromotions) {
-            try {
-              this.orderData.appliedPromotions = JSON.parse(appliedPromotions);
-            } catch (e) {
-              console.log('Error parsing applied promotions');
-              this.orderData.appliedPromotions = [];
-            }
-          } else {
-            this.orderData.appliedPromotions = [];
-          }
-
-          // Load postcode and delivery fee
           const postcode = localStorage.getItem('goldenfish_postcode');
           const deliveryFeeData = localStorage.getItem('goldenfish_delivery_fee');
           
@@ -967,45 +1479,12 @@
           });
         });
 
-        // Account type toggle
-        const accountTypes = document.querySelectorAll('input[name="accountType"]');
-        accountTypes.forEach(radio => {
-          radio.addEventListener('change', (e) => {
-            this.toggleAuthSections(e.target.value);
-          });
-        });
-
-        // Sign In button
-        const signinBtn = document.getElementById('signinBtn');
-        signinBtn.addEventListener('click', () => this.handleSignIn());
-
-        // Form validation
-        const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
-        requiredInputs.forEach(input => {
-          input.addEventListener('blur', () => this.validateField(input));
-          input.addEventListener('input', () => this.validateField(input));
-        });
-
-        // Phone number formatting
-        const phoneInput = document.getElementById('phone');
-        phoneInput.addEventListener('input', (e) => {
-          this.formatPhoneNumber(e.target);
-        });
-
-        // Postcode validation
-        const postcodeInput = document.getElementById('postcode');
-        postcodeInput.addEventListener('blur', () => {
-          if (postcodeInput.value.trim()) {
-            this.validatePostcode(postcodeInput.value.trim());
-          }
-        });
-
         // Place order button
         document.getElementById('placeOrderBtn').addEventListener('click', () => {
           this.placeOrder();
         });
 
-        // Form change listener for validation
+        // Form change listener
         document.addEventListener('input', () => {
           this.updatePlaceOrderButton();
         });
@@ -1033,292 +1512,21 @@
       }
 
       updateDeliveryToggle() {
-        // Set active button
         document.querySelectorAll('.delivery-option').forEach(btn => {
           btn.classList.remove('active');
         });
         document.querySelector(`[data-type="${this.orderData.deliveryType}"]`).classList.add('active');
         
-        // Show/hide address section
         const addressSection = document.getElementById('addressSection');
         addressSection.style.display = this.orderData.deliveryType === 'delivery' ? 'block' : 'none';
       }
 
-      toggleAuthSections(accountType) {
-        console.log('🔄 toggleAuthSections called with:', accountType);
-        
-        const passwordSection = document.getElementById('passwordSection');
-        const signinSection = document.getElementById('signinSection');
-        const contactSection = document.querySelector('.contact-section');
-        const passwordInput = document.getElementById('password');
-        
-        console.log('📋 Elements found:', {
-          passwordSection: !!passwordSection,
-          signinSection: !!signinSection, 
-          contactSection: !!contactSection,
-          passwordInput: !!passwordInput
-        });
-        
-        // Hide all auth-specific sections first
-        passwordSection.style.display = 'none';
-        signinSection.style.display = 'none';
-        passwordInput.removeAttribute('required');
-        
-        // Show contact form for guest and register
-        contactSection.style.display = (accountType === 'signin') ? 'none' : 'block';
-        
-        switch(accountType) {
-          case 'guest':
-            console.log('✅ Showing guest mode (contact form only)');
-            // Guest: Only show contact form (already visible)
-            break;
-            
-          case 'register':
-            console.log('✅ Showing register mode (contact form + password)');
-            // Register: Show contact form + password section
-            passwordSection.style.display = 'block';
-            passwordInput.setAttribute('required', '');
-            break;
-            
-          case 'signin':
-            console.log('✅ Showing signin mode (signin form only)');
-            // Sign In: Show sign in form, hide contact form
-            signinSection.style.display = 'block';
-            signinSection.style.visibility = 'visible';
-            signinSection.style.opacity = '1';
-            signinSection.style.backgroundColor = '#ff0000'; // Debug: red background
-            signinSection.style.border = '5px solid #00ff00'; // Debug: green border
-            signinSection.style.minHeight = '200px'; // Debug: ensure height
-            signinSection.style.zIndex = '9999'; // Debug: bring to front
-            signinSection.style.position = 'relative'; // Debug: ensure positioning
-            signinSection.innerHTML = '<h1 style="color: white; font-size: 24px;">DEBUG SIGNIN SECTION IS HERE</h1>' + signinSection.innerHTML; // Debug: add visible content
-            console.log('🔧 Applied signin section styles:', {
-              display: signinSection.style.display,
-              visibility: signinSection.style.visibility,
-              opacity: signinSection.style.opacity,
-              backgroundColor: signinSection.style.backgroundColor,
-              position: signinSection.getBoundingClientRect(),
-              innerHTML: signinSection.innerHTML.length,
-              offsetHeight: signinSection.offsetHeight,
-              offsetWidth: signinSection.offsetWidth
-            });
-            break;
-        }
-      }
-
-      async handleSignIn() {
-        const email = document.getElementById('signinEmail').value.trim();
-        const password = document.getElementById('signinPassword').value;
-        const signinBtn = document.getElementById('signinBtn');
-        const signinStatus = document.getElementById('signinStatus');
-        
-        // Basic validation
-        if (!email || !password) {
-          this.showSignInStatus('Please enter both email and password.', 'error');
-          return;
-        }
-        
-        // Show loading state
-        signinBtn.disabled = true;
-        signinBtn.textContent = 'Signing In...';
-        signinStatus.className = 'signin-status';
-        signinStatus.style.display = 'none';
-        
-        try {
-          // Call backend API for authentication
-          console.log('🔐 Attempting sign in for:', email);
-          
-          const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/auth/signin', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            console.log('✅ Sign in successful:', result);
-            
-            // Show success and populate user data
-            this.handleSignInSuccess(result.user);
-            
-          } else {
-            const error = await response.json().catch(() => ({ message: 'Sign in failed' }));
-            this.showSignInStatus(error.message || 'Invalid email or password.', 'error');
-          }
-          
-        } catch (error) {
-          console.error('❌ Sign in error:', error);
-          this.showSignInStatus('Unable to connect to authentication service. Please try again.', 'error');
-        } finally {
-          // Reset button state
-          signinBtn.disabled = false;
-          signinBtn.textContent = 'Sign In';
-        }
-      }
-      
-      showSignInStatus(message, type) {
-        const signinStatus = document.getElementById('signinStatus');
-        signinStatus.textContent = message;
-        signinStatus.className = `signin-status ${type}`;
-        signinStatus.style.display = 'block';
-      }
-      
-      handleSignInSuccess(user) {
-        // Hide sign in form, show success message
-        const signinForm = document.querySelector('.signin-form');
-        const signinSuccess = document.getElementById('signinSuccess');
-        const welcomeUserName = document.getElementById('welcomeUserName');
-        
-        signinForm.style.display = 'none';
-        welcomeUserName.textContent = `${user.firstName} ${user.lastName} • ${user.email}`;
-        signinSuccess.style.display = 'block';
-        
-        // Store user session data
-        this.orderData.user = user;
-        this.orderData.contact = {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phone: user.phone,
-          accountType: 'signin'
-        };
-        
-        // Auto-populate delivery address if user has a saved address
-        if (user.savedAddresses && user.savedAddresses.length > 0) {
-          const defaultAddress = user.savedAddresses.find(addr => addr.isDefault) || user.savedAddresses[0];
-          if (defaultAddress) {
-            document.getElementById('street').value = defaultAddress.street;
-            document.getElementById('city').value = defaultAddress.city;
-            document.getElementById('postcode').value = defaultAddress.postcode;
-          }
-        }
-        
-        console.log('✅ User signed in successfully:', user.firstName, user.lastName);
-      }
-
-      formatPhoneNumber(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.startsWith('44')) {
-          value = '+' + value;
-        } else if (value.startsWith('0')) {
-          // UK format
-        } else if (value.length === 10) {
-          value = '0' + value;
-        }
-        input.value = value;
-      }
-
-      async validatePostcode(postcode) {
-        const normalizedPostcode = this.normalizePostcode(postcode);
-        if (!normalizedPostcode) return false;
-
-        try {
-          const response = await fetch(`https://api.postcodes.io/postcodes/${normalizedPostcode}`);
-          const data = await response.json();
-          
-          if (data.status === 200) {
-            // Valid postcode, calculate delivery fee
-            await this.calculateDeliveryFee(normalizedPostcode);
-            return true;
-          }
-        } catch (error) {
-          console.log('Postcode validation error:', error);
-        }
-        return false;
-      }
-
-      normalizePostcode(postcode) {
-        const cleaned = postcode.trim().toUpperCase().replace(/\s/g, '');
-        if (cleaned.length < 5) return null;
-        return cleaned.slice(0, -3) + ' ' + cleaned.slice(-3);
-      }
-
-      async calculateDeliveryFee(postcode) {
-        // Mock delivery fee calculation based on postcode
-        const postcodePrefix = postcode.split(' ')[0];
-        let fee = 2.50; // Default fee
-
-        // Example pricing zones
-        if (postcodePrefix === 'YO10') {
-          fee = 2.50;
-        } else if (postcodePrefix === 'YO11') {
-          fee = 3.00;
-        } else if (postcodePrefix === 'YO12') {
-          fee = 3.50;
-        }
-
-        this.orderData.deliveryFee = {
-          valid: true,
-          fee: fee,
-          zone: postcodePrefix
-        };
-
-        this.calculateTotals();
-      }
-
-      validateField(field) {
-        const value = field.value.trim();
-        const fieldGroup = field.closest('.form-group');
-        
-        // Remove existing error states
-        fieldGroup.classList.remove('error');
-        const existingError = fieldGroup.querySelector('.error-message');
-        if (existingError) existingError.remove();
-
-        let isValid = true;
-        let errorMessage = '';
-
-        // Required field validation
-        if (field.hasAttribute('required') && !value) {
-          isValid = false;
-          errorMessage = 'This field is required';
-        }
-
-        // Email validation
-        if (field.type === 'email' && value) {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) {
-            isValid = false;
-            errorMessage = 'Please enter a valid email address';
-          }
-        }
-
-        // Phone validation (UK)
-        if (field.name === 'phone' && value) {
-          const ukPhoneRegex = /^(\+44\s?|0)([1-9]\d{8,9})$/;
-          if (!ukPhoneRegex.test(value.replace(/\s/g, ''))) {
-            isValid = false;
-            errorMessage = 'Please enter a valid UK phone number';
-          }
-        }
-
-        // Password validation
-        if (field.type === 'password' && value && value.length < 6) {
-          isValid = false;
-          errorMessage = 'Password must be at least 6 characters';
-        }
-
-        if (!isValid) {
-          fieldGroup.classList.add('error');
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error-message';
-          errorDiv.textContent = errorMessage;
-          fieldGroup.appendChild(errorDiv);
-        }
-
-        return isValid;
-      }
-
       calculateTotals() {
         let subtotal = 0;
-        let totalDiscount = 0;
 
         this.orderData.items.forEach(item => {
           let itemPrice = item.price;
           
-          // Add options pricing
           if (item.selectedOptions) {
             Object.values(item.selectedOptions).forEach(option => {
               if (Array.isArray(option)) {
@@ -1330,21 +1538,8 @@
           }
 
           const lineTotal = itemPrice * item.qty;
-          
-          if (item.isFreeItem) {
-            totalDiscount += lineTotal;
-          } else {
-            subtotal += lineTotal;
-          }
+          subtotal += lineTotal;
         });
-
-        // Apply promotions from localStorage
-        let totalPromotionDiscount = 0;
-        if (this.orderData.appliedPromotions && this.orderData.appliedPromotions.length > 0) {
-          this.orderData.appliedPromotions.forEach(promotion => {
-            totalPromotionDiscount += promotion.discountAmount || 0;
-          });
-        }
 
         let deliveryFee = 0;
         if (this.orderData.deliveryType === 'delivery' && this.orderData.deliveryFee?.valid) {
@@ -1353,9 +1548,9 @@
 
         this.orderData.totals = {
           subtotal: subtotal,
-          discount: totalDiscount + totalPromotionDiscount,
+          discount: 0,
           deliveryFee: deliveryFee,
-          total: Math.max(0, subtotal - totalDiscount - totalPromotionDiscount + deliveryFee)
+          total: subtotal + deliveryFee
         };
 
         this.updateTotalsDisplay();
@@ -1404,9 +1599,9 @@
           const lineTotal = itemPrice * item.qty;
 
           html += `
-            <div class="cart-item ${item.isFreeItem ? 'free-item' : ''}">
+            <div class="cart-item">
               <div class="item-details">
-                <div class="item-name">${item.name} ${item.isFreeItem ? '(FREE)' : ''}</div>
+                <div class="item-name">${item.name}</div>
                 ${optionsText ? `<div class="item-options">${optionsText}</div>` : ''}
                 <div class="item-quantity">Qty: ${item.qty}</div>
               </div>
@@ -1429,14 +1624,6 @@
           document.getElementById('deliveryFee').textContent = `£${this.orderData.totals.deliveryFee.toFixed(2)}`;
         } else {
           deliveryRow.style.display = 'none';
-        }
-
-        const discountRow = document.getElementById('discountRow');
-        if (this.orderData.totals.discount > 0) {
-          discountRow.style.display = 'flex';
-          document.getElementById('discount').textContent = `-£${this.orderData.totals.discount.toFixed(2)}`;
-        } else {
-          discountRow.style.display = 'none';
         }
 
         document.getElementById('total').textContent = `£${this.orderData.totals.total.toFixed(2)}`;
@@ -1495,14 +1682,7 @@
           addressValid = street && city && postcode;
         }
 
-        const accountType = document.querySelector('input[name="accountType"]:checked').value;
-        let passwordValid = true;
-        if (accountType === 'register') {
-          const password = document.getElementById('password').value;
-          passwordValid = password && password.length >= 6;
-        }
-
-        if (firstName && lastName && phone && email && addressValid && passwordValid) {
+        if (firstName && lastName && phone && email && addressValid) {
           btn.disabled = false;
           btn.textContent = `Place order • £${this.orderData.totals.total.toFixed(2)}`;
         } else {
@@ -1512,22 +1692,14 @@
       }
 
       async placeOrder() {
-        // Validate all fields
-        if (!this.validateAllFields()) {
-          alert('Please complete all required fields correctly.');
-          return;
-        }
-
         // Collect order data
         this.collectOrderData();
 
         try {
-          // Show loading state
           const btn = document.getElementById('placeOrderBtn');
           btn.disabled = true;
           btn.textContent = 'Placing your order...';
 
-          // Submit order to backend API
           await this.submitOrderToAPI();
           
           // Clear cart and redirect
@@ -1542,47 +1714,20 @@
           console.error('Order placement error:', error);
           alert('There was an error placing your order. Please try again.');
           
-          // Reset button
           const btn = document.getElementById('placeOrderBtn');
           btn.disabled = false;
           btn.textContent = `Place order • £${this.orderData.totals.total.toFixed(2)}`;
         }
       }
 
-      validateAllFields() {
-        const requiredFields = document.querySelectorAll('input[required], textarea[required]');
-        let allValid = true;
-
-        requiredFields.forEach(field => {
-          if (!this.validateField(field)) {
-            allValid = false;
-          }
-        });
-
-        return allValid;
-      }
-
       collectOrderData() {
-        const accountType = document.querySelector('input[name="accountType"]:checked').value;
-        
-        if (accountType === 'signin' && this.orderData.contact) {
-          // User is signed in, use stored contact data
-          console.log('🔑 Using signed-in user data');
-        } else {
-          // Guest or register - collect from form
-          this.orderData.contact = {
-            firstName: document.getElementById('firstName').value.trim(),
-            lastName: document.getElementById('lastName').value.trim(),
-            phone: document.getElementById('phone').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            accountType: accountType
-          };
-        }
-        
-        // Add password for registration
-        if (accountType === 'register') {
-          this.orderData.contact.password = document.getElementById('password').value;
-        }
+        this.orderData.contact = {
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          accountType: authManager.currentUser ? 'signin' : 'guest'
+        };
 
         if (this.orderData.deliveryType === 'delivery') {
           this.orderData.deliveryAddress = {
@@ -1594,101 +1739,27 @@
         }
 
         this.orderData.paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-        this.orderData.specialInstructions = document.getElementById('specialInstructions').value.trim();
 
         console.log('Order data:', this.orderData);
       }
 
-      generateOrderNumber() {
-        // Option 1: Date-based with daily counter (YYMMDD-XXX)
-        // Option 2: Long random ID for security
-        
-        const useRandomId = false; // Set to true for long random IDs
-        
-        if (useRandomId) {
-          // Generate long random order ID (16 chars)
-          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-          let result = 'GF-';
-          for (let i = 0; i < 12; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-          }
-          return result;
-        } else {
-          // Date-based with daily counter
-          const now = new Date();
-          const dateStr = now.getFullYear().toString().slice(-2) + 
-                         (now.getMonth() + 1).toString().padStart(2, '0') + 
-                         now.getDate().toString().padStart(2, '0');
-          
-          // Get or create daily counter
-          const counterKey = `gf_daily_counter_${dateStr}`;
-          let dailyCounter = parseInt(localStorage.getItem(counterKey) || '0');
-          dailyCounter += 1;
-          
-          // Store updated counter
-          localStorage.setItem(counterKey, dailyCounter.toString());
-          
-          // Clean up old counters (keep only last 30 days)
-          this.cleanupOldCounters();
-          
-          return `GF${dateStr}-${dailyCounter.toString().padStart(3, '0')}`;
-        }
-      }
-
-      cleanupOldCounters() {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        // Check localStorage for old counters and remove them
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('gf_daily_counter_')) {
-            const dateStr = key.replace('gf_daily_counter_', '');
-            if (dateStr.length === 6) {
-              const year = 2000 + parseInt(dateStr.slice(0, 2));
-              const month = parseInt(dateStr.slice(2, 4)) - 1;
-              const day = parseInt(dateStr.slice(4, 6));
-              const counterDate = new Date(year, month, day);
-              
-              if (counterDate < thirtyDaysAgo) {
-                localStorage.removeItem(key);
-              }
-            }
-          }
-        });
-      }
-
       async submitOrderToAPI() {
-        const customerName = `${this.orderData.contact.firstName} ${this.orderData.contact.lastName}`;
-        
-        console.log('🚀 Submitting order to backend API...');
-        
-        // Prepare order data for API (format for backend compatibility)
         const orderData = {
           customerInfo: {
             firstName: this.orderData.contact.firstName,
             lastName: this.orderData.contact.lastName,
             email: this.orderData.contact.email,
             phone: this.orderData.contact.phone,
-            accountType: this.orderData.contact.accountType || 'guest',
-            password: this.orderData.contact.password
+            accountType: this.orderData.contact.accountType || 'guest'
           },
-          // Convert items array - change 'quantity' to 'qty' for backend compatibility
           items: this.orderData.items.map(item => ({
             name: item.name,
             price: item.price,
-            qty: item.quantity || item.qty, // Support both formats
-            selectedOptions: item.selectedOptions,
-            isFreeItem: item.isFreeItem || false
+            qty: item.quantity || item.qty,
+            selectedOptions: item.selectedOptions
           })),
           deliveryType: this.orderData.deliveryType,
-          // Format delivery address for backend compatibility
-          deliveryAddress: this.orderData.deliveryType === 'delivery' ? {
-            street: this.orderData.deliveryAddress?.address || document.getElementById('address').value,
-            city: 'York', // Default city for now
-            postcode: this.orderData.postcode || document.getElementById('postcode').value,
-            instructions: this.orderData.deliveryAddress?.instructions || document.getElementById('deliveryInstructions')?.value || ''
-          } : undefined,
-          specialInstructions: this.orderData.specialInstructions || undefined, // Don't send empty string
+          deliveryAddress: this.orderData.deliveryType === 'delivery' ? this.orderData.deliveryAddress : undefined,
           paymentMethod: this.orderData.paymentMethod || 'card',
           totals: this.orderData.totals
         };
@@ -1696,91 +1767,45 @@
         console.log('📤 Order data:', orderData);
 
         try {
-          // Use Railway production API only (localhost fallback removed for production)
-          const apiUrls = [
-            'https://goldenfish-backend-production.up.railway.app/api/orders' // Railway production
-          ];
+          const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+          });
           
-          let response;
-          let lastError;
-          
-          for (const apiUrl of apiUrls) {
-            try {
-              console.log(`🔄 Trying API endpoint: ${apiUrl}`);
-              console.log(`📤 Request payload:`, JSON.stringify(orderData, null, 2));
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Order submitted successfully:', result);
+
+            if (result.success && result.data) {
+              const emailStatus = result.data.emailSent ? 
+                `\n✅ Confirmation email sent to: ${this.orderData.contact.email}` :
+                `\n⚠️ Order confirmed but email delivery failed.`;
               
-              response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData)
-              });
+              alert(`🎉 Order placed successfully!\n\nOrder Number: ${result.data.orderNumber}\nEstimated Time: ${result.data.estimatedTime} minutes${emailStatus}`);
               
-              console.log(`📥 Response status: ${response.status} ${response.statusText}`);
-              
-              if (response.ok) {
-                // Success! Break out of the loop to continue with success handling
-                break;
-              } else {
-                const errorText = await response.text();
-                console.error(`❌ Failed with ${apiUrl}:`, errorText);
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-              }
-            } catch (error) {
-              console.error(`❌ Failed with ${apiUrl}:`, error.message);
-              lastError = error;
-              response = null;
+              return result.data;
             }
-          }
-          
-          if (!response || !response.ok) {
-            throw lastError || new Error('All API endpoints failed');
-          }
-
-          const result = await response.json();
-          console.log('✅ Order submitted successfully:', result);
-
-          if (result.success && result.data) {
-            // Store order details
-            this.orderData.orderNumber = result.data.orderNumber;
-            
-            // Show success message
-            const emailStatus = result.data.emailSent ? 
-              `\n✅ Confirmation email sent to: ${this.orderData.contact.email}` :
-              `\n⚠️ Order confirmed but email delivery failed.`;
-            
-            alert(`🎉 Order placed successfully!\n\nOrder Number: ${result.data.orderNumber}\nEstimated Time: ${result.data.estimatedTime} minutes${emailStatus}`);
-            
-            return result.data;
           } else {
-            throw new Error(result.message || 'Invalid API response');
+            throw new Error(`HTTP ${response.status}`);
           }
-
         } catch (error) {
           console.error('❌ Order submission failed:', error);
-          
-          // Fallback: Generate local order number and continue
-          const fallbackOrderNumber = this.generateOrderNumber();
-          
-          alert(`❌ Unable to connect to our ordering system.\n\nYour order details have been saved locally:\nOrder Number: ${fallbackOrderNumber}\n\nPlease call us at 01904 123456 to complete your order.\n\nWe apologize for the inconvenience!`);
-          
-          // Store fallback order number
-          this.orderData.orderNumber = fallbackOrderNumber;
-          
-          return {
-            orderNumber: fallbackOrderNumber,
-            emailSent: false,
-            estimatedTime: this.orderData.deliveryType === 'delivery' ? 30 : 20
-          };
+          alert('❌ Unable to connect to our ordering system. Please try again or call 01904 123456.');
+          throw error;
         }
       }
     }
 
-    // Initialize checkout
-    let checkout;
+    // Initialize managers
+    let authManager;
+    let checkoutManager;
+    
     document.addEventListener('DOMContentLoaded', () => {
-      checkout = new UberEatsCheckout();
+      authManager = new AuthManager();
+      checkoutManager = new CheckoutManager();
     });
 
     // Helper functions
@@ -1788,5 +1813,6 @@
       window.location.href = 'menu.html';
     }
   </script>
+  <script src="global-auth.js"></script>
 </body>
 </html>
