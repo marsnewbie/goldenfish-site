@@ -1714,11 +1714,11 @@ function handleCheckout() {
   if (isAdvanceOrder && config.advanceOrdering.showWarningMessage) {
     showAdvanceOrderWarning().then(confirmed => {
       if (confirmed) {
-        window.location.href = 'modern-checkout.html';
+        window.location.href = 'checkout.html';
       }
     });
   } else {
-    window.location.href = 'modern-checkout.html';
+    window.location.href = 'checkout.html';
   }
 }
 

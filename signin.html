@@ -180,22 +180,35 @@
             btnText.textContent = 'Sending...';
 
             try {
-                if (modernAuth && modernAuth.initPromise) {
-                    await modernAuth.initPromise;
+                // Simplified magic link using direct Supabase client
+                if (!window.supabase) {
+                    throw new Error('Supabase client not loaded');
                 }
 
-                const result = await modernAuth.signInWithMagicLink(email, window.location.href);
-                
-                if (result.success) {
-                    showStatus('Magic link sent! Check your email.', 'success');
-                    btnText.textContent = 'Check Email';
-                } else {
-                    showStatus(result.message, 'error');
-                    btnText.textContent = 'Send Magic Link';
-                    btn.disabled = false;
+                // Create Supabase client directly without complex setup
+                const supabaseClient = window.supabase.createClient(
+                    'https://cyitrtjkoqxkolvtsydx.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5aXRydGprb3F4a29sdnRzeWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzMxMDIsImV4cCI6MjA3MDEwOTEwMn0.3t6mSgDMEj70C40mXuL4C0OxPvntbf-pPAcav9aLU6M'
+                );
+
+                const { data, error } = await supabaseClient.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin,
+                        shouldCreateUser: true
+                    }
+                });
+
+                if (error) {
+                    throw error;
                 }
+                
+                showStatus('Magic link sent! Check your email.', 'success');
+                btnText.textContent = 'Check Email';
+                
             } catch (error) {
-                showStatus('Failed to send magic link', 'error');
+                console.error('Magic link error:', error);
+                showStatus(error.message || 'Failed to send magic link', 'error');
                 btnText.textContent = 'Send Magic Link';
                 btn.disabled = false;
             }
