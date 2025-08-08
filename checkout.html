@@ -711,68 +711,7 @@
       }
     }
 
-    /* Magic Link Specific Styles */
-    .magic-link-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: linear-gradient(135deg, #f8f9ff, #e7f3ff);
-      border: 2px solid #007bff;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    .magic-link-icon {
-      font-size: 2rem;
-      animation: sparkle 2s infinite;
-    }
-
-    @keyframes sparkle {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-
-    .magic-link-info h3 {
-      margin: 0 0 0.5rem 0;
-      color: #007bff;
-      font-size: 1.2rem;
-    }
-
-    .magic-link-info p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .magic-link-help {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #28a745;
-    }
-
-    .magic-link-help p {
-      margin: 0 0 0.5rem 0;
-      font-weight: 600;
-      color: #28a745;
-    }
-
-    .magic-link-help ol {
-      margin: 0;
-      padding-left: 1.2rem;
-      color: #666;
-    }
-
-    .magic-link-help li {
-      margin-bottom: 0.25rem;
-      font-size: 0.9rem;
-    }
-
-    #magicLinkBtnText {
-      transition: all 0.3s ease;
-    }
+    /* Traditional Auth Styles */
   </style>
 </head>
 <body>
@@ -846,31 +785,20 @@
           </div>
         </div>
 
-        <!-- Magic Link Sign In Form - Modern Passwordless Authentication -->
+        <!-- Traditional Sign In Form -->
         <div class="auth-form signin-form" id="signinForm" style="display: none;">
-          <div class="magic-link-info">
-            <div class="magic-link-icon">✨</div>
-            <div>
-              <h3>Sign In with Magic Link</h3>
-              <p>No password needed! We'll send a secure link to your email for instant sign-in.</p>
-            </div>
-          </div>
           <div class="form-group">
             <label for="signinEmail">Email Address</label>
             <input type="email" id="signinEmail" placeholder="Enter your email address" required>
           </div>
-          <div class="auth-actions">
-            <button type="button" class="auth-btn primary" onclick="authManager.handleMagicLinkSignIn()">
-              <span id="magicLinkBtnText">Send Magic Link</span>
-            </button>
+          <div class="form-group">
+            <label for="signinPassword">Password</label>
+            <input type="password" id="signinPassword" placeholder="Enter your password" required>
           </div>
-          <div class="magic-link-help">
-            <p><strong>How it works:</strong></p>
-            <ol>
-              <li>Enter your email address</li>
-              <li>Check your email for a magic link</li>
-              <li>Click the link to sign in instantly</li>
-            </ol>
+          <div class="auth-actions">
+            <button type="button" class="auth-btn primary" onclick="authManager.handleTraditionalSignIn()">
+              Sign In
+            </button>
           </div>
           <div class="auth-status-message" id="signinStatusMessage"></div>
         </div>
@@ -1073,32 +1001,17 @@
           });
         });
 
-        // Enter key handler for Magic Link email
+        // Enter key handler for traditional sign in
         document.getElementById('signinEmail').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') this.handleMagicLinkSignIn();
+          if (e.key === 'Enter') this.handleTraditionalSignIn();
+        });
+        
+        document.getElementById('signinPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleTraditionalSignIn();
         });
 
-        // Check for Magic Link authentication state changes
-        if (typeof modernAuth !== 'undefined') {
-          modernAuth.supabase?.auth?.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-              console.log('✅ Magic Link authentication successful');
-              this.currentUser = {
-                id: session.user.id,
-                email: session.user.email,
-                firstName: session.user.user_metadata?.first_name || '',
-                lastName: session.user.user_metadata?.last_name || ''
-              };
-              
-              const statusDiv = document.getElementById('signinStatusMessage');
-              this.showStatusMessage(statusDiv, `Welcome, ${this.currentUser.email}!`, 'success');
-              
-              setTimeout(() => {
-                this.showSignedInState();
-              }, 1500);
-            }
-          });
-        }
+        // Traditional authentication state management
+        this.checkExistingAuth();
       }
 
       initializeFromURL() {
@@ -1137,15 +1050,15 @@
         console.log('🔄 Auth option changed to:', selectedOption);
       }
 
-      // New Magic Link Authentication Handler with retry mechanism
-      async handleMagicLinkSignIn(retryCount = 0) {
+      // Traditional email/password authentication
+      async handleTraditionalSignIn() {
         const email = document.getElementById('signinEmail').value.trim();
+        const password = document.getElementById('signinPassword').value.trim();
         const statusDiv = document.getElementById('signinStatusMessage');
         const submitBtn = document.querySelector('#signinForm .auth-btn');
-        const btnText = document.getElementById('magicLinkBtnText');
 
-        if (!email) {
-          this.showStatusMessage(statusDiv, 'Please enter your email address.', 'error');
+        if (!email || !password) {
+          this.showStatusMessage(statusDiv, 'Please enter both email and password.', 'error');
           return;
         }
 
@@ -1155,117 +1068,45 @@
         }
 
         submitBtn.disabled = true;
-        if (retryCount === 0) {
-          btnText.textContent = 'Sending Magic Link...';
-        } else {
-          btnText.textContent = `Retrying... (${retryCount}/3)`;
-          this.showStatusMessage(statusDiv, `Attempting to retry... (${retryCount}/3)`, 'info');
-        }
+        submitBtn.textContent = 'Signing In...';
 
         try {
-          // Wait for modern auth to be ready
-          if (typeof modernAuth !== 'undefined' && modernAuth.initPromise) {
-            await modernAuth.initPromise;
-          }
-
-          // Use global Supabase client from supabase-config.js
-          let supabaseClient = null;
-          
-          // Try to use existing global client first
-          if (window.supabaseManager && window.supabaseManager.client) {
-            supabaseClient = window.supabaseManager.client;
-          } else if (window.supabase) {
-            // Create single global client if none exists
-            if (!window.globalSupabaseClient) {
-              window.globalSupabaseClient = window.supabase.createClient(
-                'https://cyitrtjkoqxkolvtsydx.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5aXRydGprb3F4a29sdnRzeWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzMxMDIsImV4cCI6MjA3MDEwOTEwMn0.3t6mSgDMEj70C40mXuL4C0OxPvntbf-pPAcav9aLU6M'
-              );
-            }
-            supabaseClient = window.globalSupabaseClient;
-          } else {
-            throw new Error('Supabase client not available');
-          }
-
-          const { data, error } = await supabaseClient.auth.signInWithOtp({
-            email: email,
-            options: {
-              emailRedirectTo: window.location.origin,
-              shouldCreateUser: true
-            }
+          // Call backend authentication API
+          const response = await fetch(`${this.apiBase}/auth/signin`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
           });
 
-          if (error) {
-            throw error;
-          }
-          
-          const result = {
-            success: true,
-            message: 'Magic link sent! Check your email.'
-          };
-          
+          const result = await response.json();
+
           if (result.success) {
-            this.showStatusMessage(statusDiv, result.message, 'success');
-            btnText.textContent = 'Magic Link Sent! Check Email';
+            this.currentUser = result.data.user;
+            localStorage.setItem('auth_token', result.data.token);
+            localStorage.setItem('user_data', JSON.stringify(this.currentUser));
             
-            // Show additional instructions
+            this.showStatusMessage(statusDiv, `Welcome back, ${this.currentUser.firstName}!`, 'success');
+            
             setTimeout(() => {
-              this.showStatusMessage(statusDiv, 
-                'Magic link sent to your email! Click the link to sign in instantly. ' +
-                'If you don\'t see it, check your spam folder. New users will be automatically registered.',
-                'info'
-              );
-            }, 2000);
+              this.showSignedInState();
+            }, 1500);
           } else {
-            this.showStatusMessage(statusDiv, result.message || 'Failed to send magic link', 'error');
-            btnText.textContent = 'Send Magic Link';
-            submitBtn.disabled = false;
+            this.showStatusMessage(statusDiv, result.message || 'Invalid email or password', 'error');
           }
         } catch (error) {
-          console.error('❌ Magic link error:', error);
-          
-          // Provide specific error messages based on error type
-          let errorMessage = 'Unable to send magic link. Please try again later.';
-          
-          // Check if this is a retryable error and we haven't exceeded retry limit
-          const isRetryableError = error.message?.includes('Database error') || 
-                                   error.message?.includes('network') || 
-                                   error.message?.includes('fetch') || 
-                                   error.message?.includes('timeout');
-          
-          if (isRetryableError && retryCount < 3) {
-            console.log(`🔄 Retrying magic link (attempt ${retryCount + 1}/3)...`);
-            // Wait 2 seconds before retrying
-            setTimeout(() => {
-              this.handleMagicLinkSignIn(retryCount + 1);
-            }, 2000);
-            return;
-          }
-          
-          // If not retryable or exceeded retry limit, show appropriate error
-          if (error.message?.includes('Database error')) {
-            errorMessage = retryCount >= 3 
-              ? 'Authentication service is currently unavailable. Please try again later or contact support.'
-              : 'Authentication service is currently being updated. Please try again in a few minutes.';
-          } else if (error.message?.includes('Invalid email')) {
-            errorMessage = 'Please enter a valid email address.';
-          } else if (error.message?.includes('rate limit')) {
-            errorMessage = 'Too many requests. Please wait a moment before trying again.';
-          } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
-            errorMessage = retryCount >= 3 
-              ? 'Connection failed after multiple attempts. Please check your internet connection.'
-              : 'Network connection issue. Please check your internet connection and try again.';
-          }
-          
-          this.showStatusMessage(statusDiv, errorMessage, 'error');
-          btnText.textContent = 'Send Magic Link';
+          console.error('❌ Sign in error:', error);
+          this.showStatusMessage(statusDiv, 'Unable to sign in. Please try again later.', 'error');
+        } finally {
           submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
         }
       }
 
-      // Keep legacy function for backward compatibility but redirect to Magic Link
+      // Traditional sign in method
       async handleSignIn() {
-        return this.handleMagicLinkSignIn();
+        return this.handleTraditionalSignIn();
       }
 
       async handleRegister() {

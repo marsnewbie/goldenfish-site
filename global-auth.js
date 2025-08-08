@@ -123,7 +123,7 @@ class GlobalAuthManager {
     const navAuth = document.querySelector('.nav-auth');
     if (navAuth) {
       navAuth.innerHTML = `
-        <button class="auth-btn login-btn" onclick="window.location.href='signin.html?return=' + encodeURIComponent(window.location.pathname)">Sign In</button>
+        <button class="auth-btn login-btn" onclick="window.location.href='traditional-checkout.html?return=' + encodeURIComponent(window.location.pathname)">Sign In</button>
         <button class="auth-btn register-btn" onclick="window.location.href='checkout.html?auth=register'" style="margin-left: 8px;">Register</button>
       `;
     }
@@ -131,7 +131,7 @@ class GlobalAuthManager {
     const authLinks = document.querySelector('.auth-links');
     if (authLinks) {
       authLinks.innerHTML = `
-        <a href="signin.html?return=menu.html" class="login">Login</a>
+        <a href="traditional-checkout.html?return=menu.html" class="login">Login</a>
         <span class="separator">/</span>
         <a href="checkout.html?auth=register" class="register">Register</a>
       `;

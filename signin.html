@@ -36,27 +36,6 @@
             margin-bottom: 1rem;
         }
 
-        .magic-link-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-            border: 2px solid #007bff;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .magic-link-icon {
-            font-size: 2rem;
-            animation: sparkle 2s infinite;
-        }
-
-        @keyframes sparkle {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -83,7 +62,7 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
-        .magic-link-btn {
+        .signin-btn {
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border: none;
@@ -93,6 +72,30 @@
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .signin-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+        }
+
+        .signin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .register-link {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .status-message {
@@ -137,89 +140,91 @@
             </div>
 
             <div id="statusMessage" class="status-message"></div>
-
-            <div class="magic-link-info">
-                <div class="magic-link-icon">✨</div>
-                <div>
-                    <h3>Magic Link Sign In</h3>
-                    <p>No password needed!</p>
-                </div>
-            </div>
             
             <div class="form-group">
-                <label for="magicLinkEmail">Email Address</label>
-                <input type="email" id="magicLinkEmail" placeholder="Enter your email address" required>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
             </div>
             
-            <button class="magic-link-btn" onclick="sendMagicLink()">
-                <span id="magicLinkBtnText">Send Magic Link</span>
+            <button class="signin-btn" onclick="handleSignIn()">
+                <span id="signinBtnText">Sign In</span>
             </button>
+
+            <div class="register-link">
+                <p>Don't have an account? <a href="traditional-checkout.html?auth=register">Create Account</a></p>
+            </div>
 
             <div class="back-link">
                 <a href="index.html">← Back to Homepage</a>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="supabase-auth.js"></script>
     
     <script>
-        async function sendMagicLink() {
-            const email = document.getElementById('magicLinkEmail').value.trim();
-            const btn = document.querySelector('.magic-link-btn');
-            const btnText = document.getElementById('magicLinkBtnText');
+        const apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
+
+        async function handleSignIn() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.querySelector('.signin-btn');
+            const btnText = document.getElementById('signinBtnText');
             
-            if (!email) {
-                showStatus('Please enter your email address', 'error');
+            if (!email || !password) {
+                showStatus('Please enter both email and password', 'error');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                showStatus('Please enter a valid email address', 'error');
                 return;
             }
 
             btn.disabled = true;
-            btnText.textContent = 'Sending...';
+            btnText.textContent = 'Signing In...';
 
             try {
-                // Use global Supabase client to avoid multiple instances
-                let supabaseClient = null;
-                
-                // Try to use existing global client first
-                if (window.supabaseManager && window.supabaseManager.client) {
-                    supabaseClient = window.supabaseManager.client;
-                } else if (window.supabase) {
-                    // Create single global client if none exists
-                    if (!window.globalSupabaseClient) {
-                        window.globalSupabaseClient = window.supabase.createClient(
-                            'https://cyitrtjkoqxkolvtsydx.supabase.co',
-                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5aXRydGprb3F4a29sdnRzeWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzMxMDIsImV4cCI6MjA3MDEwOTEwMn0.3t6mSgDMEj70C40mXuL4C0OxPvntbf-pPAcav9aLU6M'
-                        );
-                    }
-                    supabaseClient = window.globalSupabaseClient;
-                } else {
-                    throw new Error('Supabase client not available');
-                }
-
-                const { data, error } = await supabaseClient.auth.signInWithOtp({
-                    email: email,
-                    options: {
-                        emailRedirectTo: window.location.origin,
-                        shouldCreateUser: true
-                    }
+                const response = await fetch(`${apiBase}/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
                 });
 
-                if (error) {
-                    throw error;
+                const result = await response.json();
+
+                if (result.success) {
+                    // Store authentication data
+                    localStorage.setItem('auth_token', result.data.token);
+                    localStorage.setItem('user_data', JSON.stringify(result.data.user));
+                    
+                    showStatus(`Welcome back, ${result.data.user.firstName}!`, 'success');
+                    
+                    // Redirect after successful sign in
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('return') || 'menu.html';
+                        window.location.href = returnUrl;
+                    }, 1500);
+                } else {
+                    showStatus(result.message || 'Invalid email or password', 'error');
                 }
-                
-                showStatus('Magic link sent! Check your email.', 'success');
-                btnText.textContent = 'Check Email';
-                
             } catch (error) {
-                console.error('Magic link error:', error);
-                showStatus(error.message || 'Failed to send magic link', 'error');
-                btnText.textContent = 'Send Magic Link';
+                console.error('Sign in error:', error);
+                showStatus('Unable to sign in. Please try again later.', 'error');
+            } finally {
                 btn.disabled = false;
+                btnText.textContent = 'Sign In';
             }
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
 
         function showStatus(message, type) {
@@ -227,6 +232,17 @@
             statusDiv.className = `status-message ${type}`;
             statusDiv.textContent = message;
         }
+
+        // Handle enter key
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') handleSignIn();
+            });
+            
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') handleSignIn();
+            });
+        });
     </script>
 </body>
 </html>
