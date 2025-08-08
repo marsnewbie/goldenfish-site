@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Golden Fish Restaurant</title>
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+
+        .checkout-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .step.active {
+            background: #22c55e;
+            color: white;
+        }
+
+        .step.completed {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .step.upcoming {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        .checkout-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Step 1: Account Choice */
+        .account-options {
+            display: grid;
+            gap: 16px;
+        }
+
+        .account-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .account-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .account-option.selected {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .option-radio {
+            margin-top: 2px;
+        }
+
+        .option-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .option-content p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Step 2: User Information */
+        .user-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .required-asterisk {
+            color: #ef4444;
+        }
+
+        /* Magic Link Form */
+        .magic-link-section {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .magic-link-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .magic-link-icon {
+            font-size: 24px;
+        }
+
+        .magic-link-steps {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
+        .magic-link-steps ol {
+            margin-left: 20px;
+        }
+
+        .magic-link-steps li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        /* Logged in user display */
+        .logged-in-user {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .user-details h3 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-details p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #16a34a;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d1d5db;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Status messages */
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status-info {
+            background: #f0f9ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .summary-total {
+            font-weight: 600;
+            font-size: 18px;
+            color: #1f2937;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        /* Hide/show sections */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Saved addresses */
+        .saved-addresses {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
+        .address-item {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .address-item:hover {
+            background: #f9fafb;
+        }
+
+        .address-item:last-child {
+            border-bottom: none;
+        }
+
+        .address-item.selected {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+
+        .address-label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .address-details {
+            font-size: 14px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <!-- Header -->
+        <div class="checkout-header">
+            <h1>Complete Your Order</h1>
+            
+            <!-- Progress Steps -->
+            <div class="checkout-steps">
+                <div class="step active" id="step1">
+                    <span>1</span>
+                    <span>Account</span>
+                </div>
+                <div class="step upcoming" id="step2">
+                    <span>2</span>
+                    <span>Details</span>
+                </div>
+                <div class="step upcoming" id="step3">
+                    <span>3</span>
+                    <span>Delivery</span>
+                </div>
+                <div class="step upcoming" id="step4">
+                    <span>4</span>
+                    <span>Payment</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Account Choice -->
+        <div class="checkout-section" id="accountSection">
+            <div class="section-title">
+                <span>👤</span>
+                Choose Your Checkout Method
+            </div>
+            
+            <div class="account-options">
+                <!-- Guest Checkout -->
+                <div class="account-option selected" data-type="guest">
+                    <input type="radio" name="accountType" value="guest" class="option-radio" checked>
+                    <div class="option-content">
+                        <h3>🚀 Continue as Guest</h3>
+                        <p>Quick checkout - just enter your details and order. No account needed.</p>
+                    </div>
+                </div>
+
+                <!-- Magic Link Login -->
+                <div class="account-option" data-type="magic-link">
+                    <input type="radio" name="accountType" value="magic-link" class="option-radio">
+                    <div class="option-content">
+                        <h3>✨ Sign In / Register with Magic Link</h3>
+                        <p>Get a secure link via email. Save your info, view order history, and faster future orders.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Magic Link Form (Hidden by default) -->
+            <div class="magic-link-section hidden" id="magicLinkSection">
+                <div class="magic-link-header">
+                    <span class="magic-link-icon">✨</span>
+                    <div>
+                        <h3>Sign In or Register with Magic Link</h3>
+                        <p>No password needed! We'll send you a secure link via email.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="magicEmail">Email Address <span class="required-asterisk">*</span></label>
+                    <input type="email" id="magicEmail" placeholder="Enter your email address" required>
+                </div>
+
+                <button class="btn btn-primary" id="sendMagicLinkBtn">
+                    <span id="magicLinkText">Send Magic Link</span>
+                </button>
+
+                <div class="magic-link-steps">
+                    <h4>How it works:</h4>
+                    <ol>
+                        <li>Enter your email and click "Send Magic Link"</li>
+                        <li>Check your email for a secure sign-in link</li>
+                        <li>Click the link to instantly sign in or register</li>
+                        <li>Complete your order with saved information</li>
+                    </ol>
+                </div>
+
+                <div id="magicLinkStatus"></div>
+            </div>
+
+            <!-- Logged In User Display -->
+            <div class="logged-in-user hidden" id="loggedInUserSection">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h3 id="userName">Loading...</h3>
+                    <p id="userEmail">user@example.com</p>
+                    <p><span id="userOrderCount">0</span> previous orders</p>
+                </div>
+                <button class="btn btn-secondary" id="changeAccountBtn">Change Account</button>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success" id="continueToDetailsBtn">Continue to Details</button>
+            </div>
+        </div>
+
+        <!-- Step 2: User Information -->
+        <div class="checkout-section hidden" id="detailsSection">
+            <div class="section-title">
+                <span>📝</span>
+                Your Information
+            </div>
+
+            <form id="userDetailsForm" class="user-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name <span class="required-asterisk">*</span></label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name <span class="required-asterisk">*</span></label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email <span class="required-asterisk">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required-asterisk">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="07xxx xxx xxx" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialInstructions">Special Instructions (Optional)</label>
+                    <textarea id="specialInstructions" name="specialInstructions" rows="3" placeholder="Any special requests for your order..."></textarea>
+                </div>
+            </form>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="backToAccountBtn">Back</button>
+                <button class="btn btn-success" id="continueToDeliveryBtn">Continue to Delivery</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Delivery Information -->
+        <div class="checkout-section hidden" id="deliverySection">
+            <div class="section-title">
+                <span>🚚</span>
+                Delivery Details
+            </div>
+
+            <!-- Delivery Method -->
+            <div class="form-group">
+                <label>Delivery Method <span class="required-asterisk">*</span></label>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <div class="account-option" style="flex: 1;" data-delivery="delivery">
+                        <input type="radio" name="deliveryMethod" value="delivery" checked>
+                        <div class="option-content">
+                            <h3>🚚 Delivery</h3>
+                            <p>25-35 minutes</p>
+                        </div>
+                    </div>
+                    <div class="account-option" style="flex: 1;" data-delivery="pickup">
+                        <input type="radio" name="deliveryMethod" value="pickup">
+                        <div class="option-content">
+                            <h3>📦 Pickup</h3>
+                            <p>15-20 minutes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Addresses (for registered users) -->
+            <div class="hidden" id="savedAddressesSection">
+                <label>Your Saved Addresses</label>
+                <div class="saved-addresses" id="savedAddressesList">
+                    <!-- Addresses loaded dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary" style="margin-top: 8px;" id="addNewAddressBtn">Add New Address</button>
+            </div>
+
+            <!-- Address Form -->
+            <div id="addressForm">
+                <div class="form-group">
+                    <label for="address">Address Line 1 <span class="required-asterisk">*</span></label>
+                    <input type="text" id="address" name="address" placeholder="Street address" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City <span class="required-asterisk">*</span></label>
+                        <input type="text" id="city" name="city" placeholder="City" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postcode">Postcode <span class="required-asterisk">*</span></label>
+                        <input type="text" id="postcode" name="postcode" placeholder="YO10 3BP" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryInstructions">Delivery Instructions (Optional)</label>
+                    <textarea id="deliveryInstructions" name="deliveryInstructions" rows="2" placeholder="Leave by the door, Ring bell twice, etc."></textarea>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="backToDetailsBtn">Back</button>
+                <button class="btn btn-success" id="continueToPaymentBtn">Continue to Payment</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Payment & Confirmation -->
+        <div class="checkout-section hidden" id="paymentSection">
+            <div class="section-title">
+                <span>💳</span>
+                Payment & Confirmation
+            </div>
+
+            <!-- Order Summary -->
+            <div class="checkout-section">
+                <h3>Order Summary</h3>
+                <div id="orderSummary">
+                    <!-- Order items loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-group">
+                <label>Payment Method <span class="required-asterisk">*</span></label>
+                <div class="account-options">
+                    <div class="account-option selected" data-payment="cash">
+                        <input type="radio" name="paymentMethod" value="cash" checked>
+                        <div class="option-content">
+                            <h3>💷 Cash on Delivery</h3>
+                            <p>Pay when your order arrives</p>
+                        </div>
+                    </div>
+                    <div class="account-option" data-payment="card">
+                        <input type="radio" name="paymentMethod" value="card">
+                        <div class="option-content">
+                            <h3>💳 Pay Online</h3>
+                            <p>Secure payment with card (Coming Soon)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="backToDeliveryBtn">Back</button>
+                <button class="btn btn-success" id="placeOrderBtn">
+                    <span id="placeOrderText">Place Order</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Include configurations -->
+    <script src="supabase-config.js"></script>
+    
+    <script>
+        class ModernCheckoutManager {
+            constructor() {
+                this.currentStep = 1;
+                this.maxStep = 1;
+                this.accountType = 'guest';
+                this.isLoggedIn = false;
+                this.userData = {};
+                this.orderData = this.loadOrderData();
+                
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Initializing Modern Checkout Manager...');
+                
+                // Setup event listeners
+                this.setupAccountTypeListeners();
+                this.setupMagicLinkFlow();
+                this.setupNavigationButtons();
+                this.setupDeliveryMethod();
+                this.setupPaymentMethod();
+                this.setupFormValidation();
+                
+                // Check for existing authentication
+                this.checkExistingAuth();
+                
+                // Load order data
+                this.displayOrderSummary();
+                
+                console.log('✅ Modern Checkout Manager initialized');
+            }
+
+            loadOrderData() {
+                // Load cart data from localStorage
+                const cart = JSON.parse(localStorage.getItem('goldenfish_cart') || '[]');
+                const promotions = JSON.parse(localStorage.getItem('goldenfish_applied_promotions') || '[]');
+                
+                return {
+                    items: cart,
+                    promotions: promotions,
+                    subtotal: this.calculateSubtotal(cart),
+                    deliveryFee: 0,
+                    total: 0
+                };
+            }
+
+            calculateSubtotal(items) {
+                return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            }
+
+            setupAccountTypeListeners() {
+                document.querySelectorAll('.account-option[data-type]').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const type = e.currentTarget.dataset.type;
+                        this.selectAccountType(type);
+                    });
+                });
+            }
+
+            selectAccountType(type) {
+                // Update UI
+                document.querySelectorAll('.account-option[data-type]').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.querySelector('input[type="radio"]').checked = false;
+                });
+                
+                const selectedOption = document.querySelector(`.account-option[data-type="${type}"]`);
+                selectedOption.classList.add('selected');
+                selectedOption.querySelector('input[type="radio"]').checked = true;
+                
+                // Show/hide magic link section
+                const magicLinkSection = document.getElementById('magicLinkSection');
+                if (type === 'magic-link') {
+                    magicLinkSection.classList.remove('hidden');
+                } else {
+                    magicLinkSection.classList.add('hidden');
+                }
+                
+                this.accountType = type;
+                console.log('Account type selected:', type);
+            }
+
+            setupMagicLinkFlow() {
+                const sendBtn = document.getElementById('sendMagicLinkBtn');
+                const emailInput = document.getElementById('magicEmail');
+                
+                sendBtn.addEventListener('click', async () => {
+                    const email = emailInput.value.trim();
+                    if (!email || !this.validateEmail(email)) {
+                        this.showStatus('magicLinkStatus', 'Please enter a valid email address', 'error');
+                        return;
+                    }
+                    
+                    await this.sendMagicLink(email);
+                });
+            }
+
+            async sendMagicLink(email) {
+                const btn = document.getElementById('sendMagicLinkBtn');
+                const statusDiv = document.getElementById('magicLinkStatus');
+                
+                btn.disabled = true;
+                document.getElementById('magicLinkText').textContent = 'Sending...';
+                
+                try {
+                    // Get Supabase client
+                    const client = window.supabaseManager?.client;
+                    if (!client) {
+                        throw new Error('Authentication service not available');
+                    }
+                    
+                    const { data, error } = await client.auth.signInWithOtp({
+                        email: email,
+                        options: {
+                            emailRedirectTo: `${window.location.origin}/modern-checkout-redesigned.html`,
+                            shouldCreateUser: true
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    this.showStatus('magicLinkStatus', '📧 Magic link sent! Check your email and click the link to continue.', 'success');
+                    
+                    // Poll for authentication
+                    this.pollForAuth();
+                    
+                } catch (error) {
+                    console.error('Magic link error:', error);
+                    this.showStatus('magicLinkStatus', `Failed to send magic link: ${error.message}`, 'error');
+                } finally {
+                    btn.disabled = false;
+                    document.getElementById('magicLinkText').textContent = 'Send Magic Link';
+                }
+            }
+
+            pollForAuth() {
+                const checkAuth = async () => {
+                    const client = window.supabaseManager?.client;
+                    if (!client) return;
+                    
+                    const { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        await this.handleSuccessfulAuth(session);
+                        return;
+                    }
+                    
+                    // Continue polling for 5 minutes
+                    setTimeout(checkAuth, 2000);
+                };
+                
+                setTimeout(checkAuth, 1000);
+            }
+
+            async handleSuccessfulAuth(session) {
+                const user = session.user;
+                console.log('✅ User authenticated:', user.email);
+                
+                this.isLoggedIn = true;
+                this.userData = {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.user_metadata?.first_name || '',
+                    lastName: user.user_metadata?.last_name || ''
+                };
+                
+                // Load user profile from backend
+                await this.loadUserProfile(session.access_token);
+                
+                // Update UI
+                this.showLoggedInUser();
+                this.showStatus('magicLinkStatus', '✅ Successfully signed in! Continue with your order.', 'success');
+                
+                // Auto-advance to next step
+                setTimeout(() => {
+                    this.goToStep(2);
+                }, 2000);
+            }
+
+            async loadUserProfile(token) {
+                try {
+                    const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/auth/profile', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            // Merge backend data with user data
+                            this.userData = {
+                                ...this.userData,
+                                ...data.data.user,
+                                orderCount: data.data.orderCount || 0,
+                                savedAddresses: data.data.addresses || []
+                            };
+                            
+                            console.log('✅ User profile loaded:', this.userData);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Failed to load user profile:', error);
+                }
+            }
+
+            showLoggedInUser() {
+                // Hide magic link form
+                document.getElementById('magicLinkSection').classList.add('hidden');
+                
+                // Show logged in user section
+                const userSection = document.getElementById('loggedInUserSection');
+                userSection.classList.remove('hidden');
+                
+                // Update user display
+                const avatar = document.getElementById('userAvatar');
+                const name = document.getElementById('userName');
+                const email = document.getElementById('userEmail');
+                const orderCount = document.getElementById('userOrderCount');
+                
+                const initials = `${this.userData.firstName?.[0] || ''}${this.userData.lastName?.[0] || ''}`.toUpperCase() || 'U';
+                avatar.textContent = initials;
+                
+                name.textContent = `${this.userData.firstName || ''} ${this.userData.lastName || ''}`.trim() || 'User';
+                email.textContent = this.userData.email;
+                orderCount.textContent = this.userData.orderCount || 0;
+            }
+
+            setupNavigationButtons() {
+                // Step navigation
+                document.getElementById('continueToDetailsBtn').addEventListener('click', () => {
+                    if (this.accountType === 'magic-link' && !this.isLoggedIn) {
+                        this.showStatus('magicLinkStatus', 'Please complete the magic link sign-in first.', 'error');
+                        return;
+                    }
+                    this.goToStep(2);
+                });
+                
+                document.getElementById('backToAccountBtn').addEventListener('click', () => this.goToStep(1));
+                document.getElementById('continueToDeliveryBtn').addEventListener('click', () => {
+                    if (this.validateDetailsForm()) {
+                        this.goToStep(3);
+                    }
+                });
+                
+                document.getElementById('backToDetailsBtn').addEventListener('click', () => this.goToStep(2));
+                document.getElementById('continueToPaymentBtn').addEventListener('click', () => {
+                    if (this.validateDeliveryForm()) {
+                        this.goToStep(4);
+                    }
+                });
+                
+                document.getElementById('backToDeliveryBtn').addEventListener('click', () => this.goToStep(3));
+                document.getElementById('placeOrderBtn').addEventListener('click', () => this.placeOrder());
+                
+                // Change account button
+                document.getElementById('changeAccountBtn').addEventListener('click', () => this.signOut());
+            }
+
+            goToStep(step) {
+                if (step < 1 || step > 4) return;
+                
+                // Hide all sections
+                document.querySelectorAll('.checkout-section').forEach(section => {
+                    if (!section.id.includes('Summary')) {
+                        section.classList.add('hidden');
+                    }
+                });
+                
+                // Show target section
+                const sections = ['accountSection', 'detailsSection', 'deliverySection', 'paymentSection'];
+                document.getElementById(sections[step - 1]).classList.remove('hidden');
+                
+                // Update progress
+                this.updateStepProgress(step);
+                
+                // Pre-fill forms if logged in
+                if (step === 2 && this.isLoggedIn) {
+                    this.prefillUserDetails();
+                }
+                
+                if (step === 3 && this.isLoggedIn) {
+                    this.loadSavedAddresses();
+                }
+                
+                this.currentStep = step;
+                this.maxStep = Math.max(this.maxStep, step);
+            }
+
+            updateStepProgress(currentStep) {
+                for (let i = 1; i <= 4; i++) {
+                    const stepEl = document.getElementById(`step${i}`);
+                    stepEl.className = 'step';
+                    
+                    if (i < currentStep) {
+                        stepEl.classList.add('completed');
+                    } else if (i === currentStep) {
+                        stepEl.classList.add('active');
+                    } else {
+                        stepEl.classList.add('upcoming');
+                    }
+                }
+            }
+
+            prefillUserDetails() {
+                if (!this.isLoggedIn) return;
+                
+                document.getElementById('firstName').value = this.userData.firstName || '';
+                document.getElementById('lastName').value = this.userData.lastName || '';
+                document.getElementById('email').value = this.userData.email || '';
+                document.getElementById('phone').value = this.userData.phone || '';
+            }
+
+            async loadSavedAddresses() {
+                if (!this.isLoggedIn || !this.userData.savedAddresses?.length) {
+                    document.getElementById('savedAddressesSection').classList.add('hidden');
+                    return;
+                }
+                
+                const addressesList = document.getElementById('savedAddressesList');
+                addressesList.innerHTML = '';
+                
+                this.userData.savedAddresses.forEach((address, index) => {
+                    const addressEl = document.createElement('div');
+                    addressEl.className = 'address-item';
+                    addressEl.innerHTML = `
+                        <div class="address-label">${address.label || 'Home'}</div>
+                        <div class="address-details">
+                            ${address.address}, ${address.city}, ${address.postcode}
+                        </div>
+                    `;
+                    
+                    addressEl.addEventListener('click', () => {
+                        document.querySelectorAll('.address-item').forEach(el => el.classList.remove('selected'));
+                        addressEl.classList.add('selected');
+                        
+                        // Fill address form
+                        document.getElementById('address').value = address.address;
+                        document.getElementById('city').value = address.city;
+                        document.getElementById('postcode').value = address.postcode;
+                    });
+                    
+                    addressesList.appendChild(addressEl);
+                });
+                
+                document.getElementById('savedAddressesSection').classList.remove('hidden');
+            }
+
+            setupDeliveryMethod() {
+                document.querySelectorAll('[data-delivery]').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const method = e.currentTarget.dataset.delivery;
+                        document.querySelectorAll('[data-delivery]').forEach(opt => {
+                            opt.classList.remove('selected');
+                            opt.querySelector('input').checked = false;
+                        });
+                        e.currentTarget.classList.add('selected');
+                        e.currentTarget.querySelector('input').checked = true;
+                    });
+                });
+            }
+
+            setupPaymentMethod() {
+                document.querySelectorAll('[data-payment]').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const method = e.currentTarget.dataset.payment;
+                        document.querySelectorAll('[data-payment]').forEach(opt => {
+                            opt.classList.remove('selected');
+                            opt.querySelector('input').checked = false;
+                        });
+                        e.currentTarget.classList.add('selected');
+                        e.currentTarget.querySelector('input').checked = true;
+                    });
+                });
+            }
+
+            validateDetailsForm() {
+                const required = ['firstName', 'lastName', 'email', 'phone'];
+                let isValid = true;
+                
+                required.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (!input.value.trim()) {
+                        input.style.borderColor = '#ef4444';
+                        isValid = false;
+                    } else {
+                        input.style.borderColor = '#e5e7eb';
+                    }
+                });
+                
+                if (!isValid) {
+                    alert('Please fill in all required fields');
+                }
+                
+                return isValid;
+            }
+
+            validateDeliveryForm() {
+                const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+                
+                if (deliveryMethod === 'delivery') {
+                    const required = ['address', 'city', 'postcode'];
+                    let isValid = true;
+                    
+                    required.forEach(field => {
+                        const input = document.getElementById(field);
+                        if (!input.value.trim()) {
+                            input.style.borderColor = '#ef4444';
+                            isValid = false;
+                        } else {
+                            input.style.borderColor = '#e5e7eb';
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        alert('Please fill in all required delivery fields');
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            async placeOrder() {
+                const btn = document.getElementById('placeOrderBtn');
+                const btnText = document.getElementById('placeOrderText');
+                
+                btn.disabled = true;
+                btnText.textContent = 'Placing Order...';
+                
+                try {
+                    // Collect all order data
+                    const orderData = {
+                        accountType: this.accountType,
+                        isLoggedIn: this.isLoggedIn,
+                        customer: {
+                            firstName: document.getElementById('firstName').value,
+                            lastName: document.getElementById('lastName').value,
+                            email: document.getElementById('email').value,
+                            phone: document.getElementById('phone').value
+                        },
+                        delivery: {
+                            method: document.querySelector('input[name="deliveryMethod"]:checked').value,
+                            address: document.getElementById('address').value,
+                            city: document.getElementById('city').value,
+                            postcode: document.getElementById('postcode').value,
+                            instructions: document.getElementById('deliveryInstructions').value
+                        },
+                        payment: {
+                            method: document.querySelector('input[name="paymentMethod"]:checked').value
+                        },
+                        items: this.orderData.items,
+                        promotions: this.orderData.promotions,
+                        specialInstructions: document.getElementById('specialInstructions').value
+                    };
+                    
+                    // Submit order to backend
+                    const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(this.isLoggedIn && window.supabaseManager?.client ? 
+                                { 'Authorization': `Bearer ${(await window.supabaseManager.client.auth.getSession()).data.session?.access_token}` } 
+                                : {})
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Clear cart
+                        localStorage.removeItem('goldenfish_cart');
+                        localStorage.removeItem('goldenfish_applied_promotions');
+                        
+                        // Redirect to success page
+                        window.location.href = `/order-confirmation.html?order=${result.orderNumber}`;
+                    } else {
+                        throw new Error(result.message || 'Order failed');
+                    }
+                    
+                } catch (error) {
+                    console.error('Order placement error:', error);
+                    alert(`Order failed: ${error.message}`);
+                } finally {
+                    btn.disabled = false;
+                    btnText.textContent = 'Place Order';
+                }
+            }
+
+            displayOrderSummary() {
+                const summaryEl = document.getElementById('orderSummary');
+                if (!summaryEl || !this.orderData.items.length) return;
+                
+                let html = '';
+                
+                // Order items
+                this.orderData.items.forEach(item => {
+                    html += `
+                        <div class="summary-item">
+                            <div>
+                                <strong>${item.name}</strong>
+                                ${item.quantity > 1 ? ` x${item.quantity}` : ''}
+                                ${item.customizations?.length ? '<br><small>Customizations: ' + item.customizations.join(', ') + '</small>' : ''}
+                            </div>
+                            <div>£${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+                
+                // Promotions
+                this.orderData.promotions.forEach(promo => {
+                    if (promo.type === 'amount_off') {
+                        html += `
+                            <div class="summary-item">
+                                <div style="color: #16a34a;"><strong>${promo.name}</strong></div>
+                                <div style="color: #16a34a;">-£${promo.discount.toFixed(2)}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // Delivery fee (if applicable)
+                html += `
+                    <div class="summary-item">
+                        <div>Delivery Fee</div>
+                        <div>£${this.orderData.deliveryFee.toFixed(2)}</div>
+                    </div>
+                `;
+                
+                // Total
+                const total = this.orderData.subtotal + this.orderData.deliveryFee - 
+                             this.orderData.promotions.reduce((sum, p) => sum + (p.discount || 0), 0);
+                
+                html += `
+                    <div class="summary-item summary-total">
+                        <div>Total</div>
+                        <div>£${total.toFixed(2)}</div>
+                    </div>
+                `;
+                
+                summaryEl.innerHTML = html;
+            }
+
+            async checkExistingAuth() {
+                const client = window.supabaseManager?.client;
+                if (!client) return;
+                
+                const { data: { session } } = await client.auth.getSession();
+                if (session) {
+                    await this.handleSuccessfulAuth(session);
+                }
+            }
+
+            async signOut() {
+                const client = window.supabaseManager?.client;
+                if (client) {
+                    await client.auth.signOut();
+                }
+                
+                this.isLoggedIn = false;
+                this.userData = {};
+                
+                // Reset UI
+                document.getElementById('loggedInUserSection').classList.add('hidden');
+                this.selectAccountType('guest');
+                this.goToStep(1);
+            }
+
+            setupFormValidation() {
+                // Add real-time validation for email
+                const emailInputs = document.querySelectorAll('input[type="email"]');
+                emailInputs.forEach(input => {
+                    input.addEventListener('blur', (e) => {
+                        if (e.target.value && !this.validateEmail(e.target.value)) {
+                            e.target.style.borderColor = '#ef4444';
+                        } else {
+                            e.target.style.borderColor = '#e5e7eb';
+                        }
+                    });
+                });
+            }
+
+            validateEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            showStatus(elementId, message, type) {
+                const element = document.getElementById(elementId);
+                element.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+                
+                // Auto-hide error messages after 10 seconds
+                if (type === 'error') {
+                    setTimeout(() => {
+                        element.innerHTML = '';
+                    }, 10000);
+                }
+            }
+        }
+
+        // Initialize checkout manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.checkoutManager = new ModernCheckoutManager();
+        });
+
+        // Handle auth redirect
+        window.addEventListener('hashchange', () => {
+            if (window.location.hash.includes('access_token')) {
+                // User returned from magic link
+                console.log('🔗 Processing magic link authentication...');
+            }
+        });
+    </script>
+</body>
+</html>
