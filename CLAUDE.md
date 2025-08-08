@@ -35,11 +35,12 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 
 **Key Files:**
 - `index.html` - Homepage
-- `menu.html` - Menu browsing
-- `modern-checkout.html` - **New 2025 auth + checkout**
-- `supabase-auth.js` - Modern authentication system (UI only)
-- `supabase-config.js` - Auth configuration (frontend only)
-- `quick-setup.html` - Setup verification tool
+- `menu.html` - **Complete menu system with professional layout**
+- `checkout.html` - **Complete checkout system (Guest/Login/Register)**
+- `signin.html` - Traditional email/password login
+- `order-confirmation.html` - Order success page
+- `script.js` - Main menu logic and cart management
+- `style.css` - Complete styling system
 
 ### 🚀 **Backend API** (Railway)
 - **GitHub Repository**: https://github.com/marsnewbie/goldenfish-backend.git
@@ -52,11 +53,11 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 - **Deployment**: Railway auto-deploys from GitHub repository
 
 **Key Files:**
-- `src/config/supabase.ts` - Supabase client for backend
-- `src/routes/supabase-auth.ts` - **New modern auth endpoints**
-- `src/routes/auth.ts` - Legacy auth (backup)
-- `src/routes/orders.ts` - Order processing
-- `src/migrations/005_supabase_schema.sql` - Database schema
+- `src/routes/auth.ts` - **Traditional authentication API (signin/signup)**
+- `src/routes/orders.ts` - Order processing and management
+- `src/controllers/orderController.ts` - Order validation and handling
+- `src/services/orderService.ts` - Business logic and database operations
+- `src/models/Order.ts` - Data structures and interfaces
 
 ### 🗄️ **Database** (Supabase PostgreSQL)
 - **Project URL**: https://cyitrtjkoqxkolvtsydx.supabase.co
@@ -175,23 +176,20 @@ This project is a comprehensive Chinese takeaway ordering system that reverse en
 ### **Frontend** (`/Users/hong/Desktop/Online Ordering Website Project/goldenfish-site/`)
 ```
 goldenfish-site/
-├── index.html                  # Modern homepage with auth integration
-├── menu.html                   # Professional menu with cart system
-├── checkout.html               # Legacy checkout (backup)
-├── modern-checkout.html        # ⭐ NEW: 2025 auth + checkout system
-├── signin.html                 # Legacy signin (redirects to modern)
+├── index.html                  # Modern homepage with navigation
+├── menu.html                   # ⭐ Complete menu system with professional layout
+├── checkout.html               # ⭐ Complete checkout system (Guest/Login/Register)
+├── signin.html                 # Traditional email/password login
+├── order-confirmation.html     # Order success and tracking page
 ├── script.js                   # Complete ordering system logic (1600+ lines)
 ├── style.css                   # Comprehensive styling (1800+ lines)
-├── supabase-auth.js           # ⭐ NEW: Modern auth system (UI only)
-├── supabase-config.js         # ⭐ NEW: Auth configuration (frontend)
-├── quick-setup.html           # ⭐ NEW: Setup verification tool
-├── global-auth.js             # Legacy auth (kept for compatibility)
+├── global-auth.js              # Authentication state management
+├── supabase-auth.js           # Supabase authentication utilities
+├── supabase-config.js         # Supabase configuration
+├── quick-setup.html           # Setup verification tool
 ├── assets/
 │   └── fish_and_chips.jpg     # Main brand image
-├── CLAUDE.md                  # This documentation file
-├── ARCHITECTURE_GUIDE.md      # Complete architecture documentation
-├── NEXT_STEPS_CHINESE.md      # Chinese setup guide
-└── UPGRADE_SUMMARY.md         # Feature upgrade summary
+└── CLAUDE.md                  # This documentation file
 ```
 
 ### **Backend** (`/Users/hong/Desktop/Online Ordering Website Project/goldenfish-backend/`)
