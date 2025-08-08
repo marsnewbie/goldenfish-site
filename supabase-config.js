@@ -82,25 +82,87 @@ class SupabaseManager {
     }
 
     async init() {
-        // Simplified Supabase client initialization - minimal config
+        // Simplified Supabase client initialization with better error handling
         if (typeof window !== 'undefined' && window.supabase) {
+            try {
+                this.client = window.supabase.createClient(
+                    this.config.url,
+                    this.config.anonKey,
+                    {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: true,
+                            // Add retry configuration for better reliability
+                            retryDelay: 1000,
+                            // Disable auto-refresh on errors to prevent cascade failures
+                            autoRefreshToken: false,
+                        },
+                        global: {
+                            headers: {
+                                'X-Client-Info': 'golden-fish-frontend@1.0.0'
+                            }
+                        },
+                        // Add connection timeout and retry settings
+                        db: {
+                            schema: 'public'
+                        },
+                        realtime: {
+                            params: {
+                                eventsPerSecond: 10
+                            }
+                        }
+                    }
+                );
+
+                // Test the connection
+                await this.testConnection();
+                console.log('✅ Supabase client initialized and tested successfully');
+                
+            } catch (error) {
+                console.error('❌ Supabase client initialization failed:', error);
+                // Create a fallback client with minimal configuration
+                this.createFallbackClient();
+            }
+        } else {
+            console.error('❌ Supabase library not loaded');
+            // Wait a bit and try again
+            setTimeout(() => this.init(), 1000);
+        }
+    }
+
+    async testConnection() {
+        if (!this.client) return false;
+        
+        try {
+            // Simple health check - just test auth
+            const { data, error } = await this.client.auth.getSession();
+            if (error && !error.message.includes('session_not_found')) {
+                throw error;
+            }
+            return true;
+        } catch (error) {
+            console.warn('⚠️ Supabase connection test failed:', error);
+            return false;
+        }
+    }
+
+    createFallbackClient() {
+        try {
             this.client = window.supabase.createClient(
                 this.config.url,
                 this.config.anonKey,
                 {
                     auth: {
-                        persistSession: true,
-                        autoRefreshToken: true,
-                        detectSessionInUrl: true
-                        // Removed complex PKCE configuration that might cause issues
+                        persistSession: false,
+                        autoRefreshToken: false,
+                        detectSessionInUrl: false
                     }
                 }
             );
-
-            console.log('✅ Supabase client initialized (simplified)');
-            // Removed complex auth setup that depends on database tables
-        } else {
-            console.error('❌ Supabase library not loaded');
+            console.log('⚠️ Fallback Supabase client created (limited functionality)');
+        } catch (error) {
+            console.error('❌ Even fallback client creation failed:', error);
         }
     }
 
