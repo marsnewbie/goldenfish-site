@@ -962,26 +962,67 @@
                 const totalEl = document.getElementById('total');
 
                 // Calculate subtotal
-                this.subtotal = this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                console.log('🔍 Cart items for display:', this.cartItems);
+                this.subtotal = this.cartItems.reduce((sum, item) => {
+                    const quantity = item.qty || item.quantity || 1;
+                    let itemPrice = item.price || 0;
+                    if (item.selectedOptions) {
+                        Object.entries(item.selectedOptions).forEach(([groupName, choice]) => {
+                            if (Array.isArray(choice)) {
+                                choice.forEach(c => itemPrice += c.price || 0);
+                            } else {
+                                itemPrice += choice.price || 0;
+                            }
+                        });
+                    }
+                    return sum + (itemPrice * quantity);
+                }, 0);
 
                 // Render cart items
-                cartItemsEl.innerHTML = this.cartItems.map(item => `
-                    <div class="cart-item">
-                        <div class="item-details">
-                            <h4>${item.name}</h4>
-                            <div class="options">Qty: ${item.quantity}</div>
-                            ${item.customizations ? `<div class="options">${item.customizations.join(', ')}</div>` : ''}
+                cartItemsEl.innerHTML = this.cartItems.map(item => {
+                    const quantity = item.qty || item.quantity || 1;
+                    let itemPrice = item.price || 0;
+                    let optionsText = '';
+                    
+                    if (item.selectedOptions) {
+                        const optionsList = [];
+                        Object.entries(item.selectedOptions).forEach(([groupName, choice]) => {
+                            if (Array.isArray(choice)) {
+                                choice.forEach(c => {
+                                    optionsList.push(c.name);
+                                    itemPrice += c.price || 0;
+                                });
+                            } else {
+                                optionsList.push(choice.name);
+                                itemPrice += choice.price || 0;
+                            }
+                        });
+                        optionsText = optionsList.join(', ');
+                    }
+                    
+                    if (item.selectedVariant) {
+                        optionsText = optionsText ? `${item.selectedVariant.name}, ${optionsText}` : item.selectedVariant.name;
+                    }
+                    
+                    return `
+                        <div class="cart-item">
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <div class="options">Qty: ${quantity}</div>
+                                ${optionsText ? `<div class="options">${optionsText}</div>` : ''}
+                            </div>
+                            <div class="item-price">$${(itemPrice * quantity).toFixed(2)}</div>
                         </div>
-                        <div class="item-price">£${(item.price * item.quantity).toFixed(2)}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 // Update totals
                 this.total = this.subtotal + this.deliveryFee;
                 
-                subtotalEl.textContent = `£${this.subtotal.toFixed(2)}`;
-                deliveryFeeEl.textContent = `£${this.deliveryFee.toFixed(2)}`;
-                totalEl.textContent = `£${this.total.toFixed(2)}`;
+                subtotalEl.textContent = `$${this.subtotal.toFixed(2)}`;
+                deliveryFeeEl.textContent = `$${this.deliveryFee.toFixed(2)}`;
+                totalEl.textContent = `$${this.total.toFixed(2)}`;
+                console.log('📊 Order summary updated:', { subtotal: this.subtotal, deliveryFee: this.deliveryFee, total: this.total });
             }
 
             async handleSignIn() {
@@ -1250,8 +1291,9 @@
                     items: this.cartItems.map(item => ({
                         name: item.name,
                         price: item.price,
-                        quantity: item.quantity,
-                        customizations: item.customizations || []
+                        quantity: item.qty || item.quantity || 1,
+                        selectedOptions: item.selectedOptions || null,
+                        selectedVariant: item.selectedVariant || null
                     })),
                     specialInstructions: document.querySelector('textarea[name="specialInstructions"]').value.trim()
                 };
