@@ -1650,56 +1650,46 @@ function updateCart() {
 
 // Handle checkout button click
 function handleCheckout() {
+  console.log('🔄 Checkout button clicked');
+  console.log('Cart length:', cart.length);
+  console.log('Cart contents:', cart);
+  
   if (cart.length === 0) {
     alert('Your cart is empty!');
     return;
   }
   
-  // Check if delivery or collection is selected
+  // Basic validation - check if delivery or collection is selected
   const deliveryBtn = document.getElementById('deliveryBtn');
   const collectionBtn = document.getElementById('collectionBtn');
   
-  if (!deliveryBtn || !collectionBtn) {
-    alert('Unable to determine delivery/collection option. Please refresh the page.');
-    return;
+  let deliverySelected = false;
+  let collectionSelected = false;
+  
+  if (deliveryBtn && deliveryBtn.classList.contains('active')) {
+    deliverySelected = true;
+  } else if (collectionBtn && collectionBtn.classList.contains('active')) {
+    collectionSelected = true;
+  } else {
+    // Default to delivery if no selection
+    deliverySelected = true;
+    console.log('⚠️ No delivery option selected, defaulting to delivery');
   }
   
-  const deliverySelected = deliveryBtn.classList.contains('active');
-  const collectionSelected = collectionBtn.classList.contains('active');
-  
-  if (!deliverySelected && !collectionSelected) {
-    alert('Please select either Delivery or Collection before proceeding to checkout.');
-    return;
-  }
-  
-  // For delivery orders, check if we have valid delivery details
-  if (deliverySelected) {
-    const deliveryFee = window.currentDeliveryFee;
-    const postcodeInput = document.getElementById('postcodeInput');
-    
-    if (!postcodeInput || !postcodeInput.value.trim()) {
-      alert('Please enter your postcode for delivery orders.');
-      postcodeInput?.focus();
-      return;
-    }
-    
-    if (deliveryFee && !deliveryFee.valid) {
-      alert('Sorry, we do not deliver to this postcode. Please choose Collection or try a different postcode.');
-      return;
-    }
-  }
+  console.log('Delivery selected:', deliverySelected);
+  console.log('Collection selected:', collectionSelected);
   
   // Store order data in localStorage for checkout page
   localStorage.setItem('goldenfish_order_type', deliverySelected ? 'delivery' : 'collection');
   
+  // For delivery orders, try to get postcode but don't block if missing
   if (deliverySelected) {
     const postcodeInput = document.getElementById('postcodeInput');
     if (postcodeInput && postcodeInput.value.trim()) {
       localStorage.setItem('goldenfish_postcode', postcodeInput.value.trim().toUpperCase());
-    }
-    
-    if (window.currentDeliveryFee) {
-      localStorage.setItem('goldenfish_delivery_fee', JSON.stringify(window.currentDeliveryFee));
+      console.log('Postcode saved:', postcodeInput.value.trim().toUpperCase());
+    } else {
+      console.log('⚠️ No postcode entered - will be required in checkout');
     }
   } else {
     // Clear delivery-related data for collection orders
@@ -1707,19 +1697,8 @@ function handleCheckout() {
     localStorage.removeItem('goldenfish_delivery_fee');
   }
   
-  // Check if this is an advance order
-  const checkoutBtn = document.getElementById('checkoutBtn');
-  const isAdvanceOrder = checkoutBtn && checkoutBtn.getAttribute('data-advance-order') === 'true';
-  
-  if (isAdvanceOrder && config.advanceOrdering.showWarningMessage) {
-    showAdvanceOrderWarning().then(confirmed => {
-      if (confirmed) {
-        window.location.href = 'checkout.html';
-      }
-    });
-  } else {
-    window.location.href = 'checkout.html';
-  }
+  console.log('✅ Redirecting to checkout.html');
+  window.location.href = 'checkout.html';
 }
 
 // Show advance order warning on menu page

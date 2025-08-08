@@ -1299,16 +1299,11 @@
 
         // Initialize checkout manager when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
-            
             if (localStorage.getItem('cart')) {
                 new CompleteCheckoutManager();
-            } else if (mode === 'register') {
-                // Allow access for standalone registration
-                new CompleteCheckoutManager();
             } else {
-                // No cart items and not registration mode, redirect to menu
+                // No cart items, redirect to menu
+                alert('Your cart is empty. Please add items before checkout.');
                 window.location.href = 'menu.html';
             }
         });
