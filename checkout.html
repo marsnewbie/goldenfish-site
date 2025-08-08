@@ -1825,23 +1825,33 @@
         }
 
         const orderData = {
-          customerInfo: {
+          // New format for backend compatibility
+          accountType: 'guest',
+          isLoggedIn: false,
+          customer: {
             firstName: this.orderData.contact.firstName,
             lastName: this.orderData.contact.lastName,
             email: this.orderData.contact.email,
-            phone: this.orderData.contact.phone,
-            accountType: this.orderData.contact.accountType || 'guest'
+            phone: this.orderData.contact.phone
+          },
+          delivery: {
+            method: this.orderData.deliveryType === 'collection' ? 'pickup' : 'delivery',
+            address: deliveryAddress?.street || '',
+            city: deliveryAddress?.city || '',
+            postcode: deliveryAddress?.postcode || '',
+            instructions: deliveryAddress?.instructions || ''
+          },
+          payment: {
+            method: this.orderData.paymentMethod === 'card' ? 'card' : 'cash'
           },
           items: this.orderData.items.map(item => ({
             name: item.name,
             price: item.price,
-            qty: item.quantity || item.qty,
-            selectedOptions: item.selectedOptions
+            quantity: item.quantity || item.qty || 1,
+            customizations: item.selectedOptions ? Object.values(item.selectedOptions) : []
           })),
-          deliveryType: this.orderData.deliveryType,
-          deliveryAddress: deliveryAddress,
-          paymentMethod: this.orderData.paymentMethod || 'card',
-          totals: this.orderData.totals
+          promotions: this.orderData.promotions || [],
+          specialInstructions: this.orderData.specialInstructions || ''
         };
 
         console.log('📤 Order data:', orderData);
