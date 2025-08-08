@@ -1,5 +1,12 @@
 # Golden Fish - Multi-Restaurant Ordering System
 
+## ⚠️ **CRITICAL REMINDER FOR CLAUDE** ⚠️
+**🚨 ALWAYS CHECK BOTH FRONTEND AND BACKEND WHEN MAKING CHANGES! 🚨**
+- Frontend: `/Users/hong/Desktop/Online Ordering Website Project/goldenfish-site/`
+- Backend: `/Users/hong/Desktop/Online Ordering Website Project/goldenfish-backend/`
+- **NEVER FORGET**: After frontend changes, check if backend needs updates too!
+- **ALWAYS PUSH BOTH**: Frontend AND backend changes to their respective GitHub repos!
+
 ## Project Overview
 This project is a comprehensive Chinese takeaway ordering system that reverse engineers mayfairchinesefood.co.uk functionality while building a scalable multi-restaurant platform.
 

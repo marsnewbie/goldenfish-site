@@ -1034,6 +1034,71 @@
                 }
             }
 
+            async handleUserRegistration() {
+                const form = document.getElementById('checkoutForm');
+                const email = form.email.value.trim();
+                const password = form.password.value.trim();
+                const confirmPassword = form.confirmPassword.value.trim();
+                const firstName = form.firstName.value.trim();
+                const lastName = form.lastName.value.trim();
+                const phone = form.phone.value.trim();
+
+                // Validate passwords match
+                if (password !== confirmPassword) {
+                    return {
+                        success: false,
+                        message: 'Passwords do not match'
+                    };
+                }
+
+                // Validate password strength
+                if (password.length < 6) {
+                    return {
+                        success: false,
+                        message: 'Password must be at least 6 characters long'
+                    };
+                }
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/signup`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            firstName,
+                            lastName,
+                            email,
+                            phone,
+                            password
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Store user data and token
+                        this.currentUser = result.data.user;
+                        localStorage.setItem('auth_token', result.data.token);
+                        localStorage.setItem('user_data', JSON.stringify(this.currentUser));
+                        
+                        this.showUserInHeader();
+                        this.showStatus(`Account created successfully! Welcome, ${this.currentUser.firstName}!`, 'success');
+                        
+                        return { success: true };
+                    } else {
+                        return {
+                            success: false,
+                            message: result.message || 'Failed to create account'
+                        };
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    return {
+                        success: false,
+                        message: 'Unable to create account. Please try again later.'
+                    };
+                }
+            }
+
             async handlePlaceOrder() {
                 if (!this.validateForm()) return;
 
@@ -1044,6 +1109,18 @@
                 btnText.innerHTML = '<span class="spinner"></span> Placing Order...';
 
                 try {
+                    // Handle user registration if needed
+                    const authType = document.querySelector('input[name="authType"]:checked').value;
+                    if (authType === 'register') {
+                        const registerResult = await this.handleUserRegistration();
+                        if (!registerResult.success) {
+                            this.showStatus(registerResult.message, 'error');
+                            orderBtn.disabled = false;
+                            btnText.textContent = 'Place Order';
+                            return;
+                        }
+                    }
+
                     const orderData = this.collectOrderData();
                     
                     const response = await fetch(`${this.apiBase}/orders`, {
@@ -1092,6 +1169,25 @@
                         field.classList.remove('error');
                     }
                 });
+
+                // Check password validation for registration
+                const authType = document.querySelector('input[name="authType"]:checked').value;
+                if (authType === 'register') {
+                    const password = form.password.value.trim();
+                    const confirmPassword = form.confirmPassword.value.trim();
+                    
+                    if (password !== confirmPassword) {
+                        form.confirmPassword.classList.add('error');
+                        this.showStatus('Passwords do not match', 'error');
+                        isValid = false;
+                    }
+                    
+                    if (password.length < 6) {
+                        form.password.classList.add('error');
+                        this.showStatus('Password must be at least 6 characters long', 'error');
+                        isValid = false;
+                    }
+                }
 
                 // Check delivery address if delivery is selected
                 const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
