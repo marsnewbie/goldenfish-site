@@ -783,7 +783,7 @@
             }
 
             loadCartItems() {
-                const cart = localStorage.getItem('cart');
+                const cart = localStorage.getItem('goldenfish_cart');
                 return cart ? JSON.parse(cart) : [];
             }
 
@@ -1133,7 +1133,7 @@
 
                     if (result.success) {
                         // Clear cart
-                        localStorage.removeItem('cart');
+                        localStorage.removeItem('goldenfish_cart');
                         
                         // Show success and redirect
                         this.showStatus('Order placed successfully!', 'success');
@@ -1299,7 +1299,7 @@
 
         // Initialize checkout manager when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('cart')) {
+            if (localStorage.getItem('goldenfish_cart')) {
                 new CompleteCheckoutManager();
             } else {
                 // No cart items, redirect to menu
