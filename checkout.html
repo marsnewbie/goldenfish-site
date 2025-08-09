@@ -723,8 +723,33 @@
             init() {
                 this.setupEventListeners();
                 this.checkAuthentication();
+                this.setDeliveryTypeFromMenu(); // Set delivery type from menu selection
                 this.updateOrderSummary();
                 this.validatePostcode = this.debounce(this.validatePostcode.bind(this), 500);
+            }
+            
+            setDeliveryTypeFromMenu() {
+                // Set delivery type radio buttons based on menu selection
+                if (this.deliveryType) {
+                    const radioToSelect = this.deliveryType === 'delivery' ? 'delivery' : 'collection';
+                    const radioBtn = document.querySelector(`input[name="deliveryType"][value="${radioToSelect}"]`);
+                    if (radioBtn) {
+                        radioBtn.checked = true;
+                        console.log('📋 Set delivery type UI:', radioToSelect);
+                    }
+                }
+                
+                // Pre-fill postcode if available
+                if (this.deliveryPostcode && this.deliveryType === 'delivery') {
+                    const postcodeInput = document.getElementById('postcode');
+                    if (postcodeInput) {
+                        postcodeInput.value = this.deliveryPostcode;
+                        console.log('📮 Pre-filled postcode:', this.deliveryPostcode);
+                    }
+                }
+                
+                // Trigger delivery type change to show/hide relevant sections
+                this.handleDeliveryTypeChange();
             }
 
             setupEventListeners() {
@@ -783,8 +808,62 @@
             }
 
             loadCartItems() {
+                console.log('🔍 Loading cart data from localStorage...');
+                
+                // First try to load from checkoutData (preferred - most complete)
+                const checkoutData = localStorage.getItem('checkoutData');
+                if (checkoutData) {
+                    const data = JSON.parse(checkoutData);
+                    console.log('📋 Loading from checkoutData:', data);
+                    
+                    // Set delivery information
+                    if (data.delivery) {
+                        this.deliveryType = data.delivery.type || 'delivery';
+                        this.deliveryPostcode = data.delivery.postcode || '';
+                        this.deliveryFee = parseFloat(data.delivery.fee) || 0;
+                        this.selectedTime = data.delivery.selectedTime || '';
+                        console.log('🚚 Delivery info loaded:', this.deliveryType, this.deliveryPostcode, this.deliveryFee);
+                    }
+                    
+                    // Set totals if available
+                    if (data.totals) {
+                        this.subtotal = parseFloat(data.totals.subtotal) || 0;
+                        this.total = parseFloat(data.totals.total) || 0;
+                    }
+                    
+                    return data.items || [];
+                }
+                
+                // Second try: goldenfish_cart (menu-system format)
                 const cart = localStorage.getItem('goldenfish_cart');
-                return cart ? JSON.parse(cart) : [];
+                if (cart) {
+                    console.log('📋 Loading from goldenfish_cart');
+                    const items = JSON.parse(cart);
+                    
+                    // Load delivery info from separate keys
+                    this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
+                    this.deliveryPostcode = localStorage.getItem('postcode') || '';
+                    this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
+                    
+                    return items;
+                }
+                
+                // Third try: cartItems (legacy fallback)
+                const cartItems = localStorage.getItem('cartItems');
+                if (cartItems) {
+                    console.log('📋 Loading from cartItems (legacy)');
+                    const items = JSON.parse(cartItems);
+                    
+                    // Load delivery info from separate keys
+                    this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
+                    this.deliveryPostcode = localStorage.getItem('postcode') || '';
+                    this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
+                    
+                    return items;
+                }
+                
+                console.log('❌ No cart data found in localStorage');
+                return [];
             }
 
             checkAuthentication() {
@@ -874,9 +953,19 @@
                 try {
                     // Normalize postcode
                     const normalizedPostcode = this.normalizePostcode(postcode);
+                    console.log('📮 Validating postcode:', postcode, '→', normalizedPostcode);
                     
                     // Check with postcodes.io API
-                    const response = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(normalizedPostcode)}`);
+                    const apiUrl = `https://api.postcodes.io/postcodes/${encodeURIComponent(normalizedPostcode)}`;
+                    console.log('🌐 API call:', apiUrl);
+                    
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        console.error('❌ Postcode API error:', response.status, response.statusText);
+                        throw new Error(`Invalid postcode format or API error`);
+                    }
+                    
                     const data = await response.json();
 
                     if (data.status === 200) {
@@ -1211,6 +1300,32 @@
                     }
                 });
 
+                // Email validation
+                const emailField = form.email;
+                if (emailField && emailField.value.trim()) {
+                    if (!this.isValidEmail(emailField.value.trim())) {
+                        emailField.classList.add('error');
+                        this.showStatus('Please enter a valid email address', 'error');
+                        isValid = false;
+                    } else {
+                        emailField.classList.remove('error');
+                    }
+                }
+                
+                // UK phone number validation
+                const phoneField = form.phone;
+                if (phoneField && phoneField.value.trim()) {
+                    const normalizedPhone = this.normalizeUKPhone(phoneField.value.trim());
+                    if (!normalizedPhone) {
+                        phoneField.classList.add('error');
+                        this.showStatus('Please enter a valid UK mobile number (e.g. 07123 456789)', 'error');
+                        isValid = false;
+                    } else {
+                        phoneField.classList.remove('error');
+                        phoneField.value = normalizedPhone; // Update field with normalized format
+                    }
+                }
+
                 // Check password validation for registration
                 const authType = document.querySelector('input[name="authType"]:checked').value;
                 if (authType === 'register') {
@@ -1296,9 +1411,9 @@
                         selectedVariant: item.selectedVariant || null
                     })),
                     totals: {
-                        subtotal: this.summary.subtotal,
-                        delivery: this.summary.delivery || 0,
-                        total: this.summary.total
+                        subtotal: this.subtotal,
+                        delivery: this.deliveryFee,
+                        total: this.total
                     },
                     specialInstructions: document.querySelector('textarea[name="specialInstructions"]').value.trim()
                 };
@@ -1312,6 +1427,37 @@
                 }
 
                 return orderData;
+            }
+            
+            isValidEmail(email) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                return emailRegex.test(email);
+            }
+            
+            normalizeUKPhone(phone) {
+                // Remove all spaces, hyphens, and parentheses
+                let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+                
+                // Handle different UK mobile formats
+                if (cleaned.startsWith('+447')) {
+                    // +447xxxxxxxxx format
+                    cleaned = '0' + cleaned.substring(3);
+                } else if (cleaned.startsWith('447')) {
+                    // 447xxxxxxxxx format (missing +)
+                    cleaned = '0' + cleaned.substring(2);
+                } else if (cleaned.startsWith('7') && cleaned.length === 10) {
+                    // 7xxxxxxxxx format (missing 0)
+                    cleaned = '0' + cleaned;
+                }
+                
+                // Validate UK mobile format: 07xxxxxxxxx (11 digits total)
+                const ukMobileRegex = /^07[0-9]{9}$/;
+                if (ukMobileRegex.test(cleaned)) {
+                    // Format as: 07xxx xxxxxx
+                    return cleaned.substring(0, 5) + ' ' + cleaned.substring(5);
+                }
+                
+                return null; // Invalid format
             }
 
             showStatus(message, type) {

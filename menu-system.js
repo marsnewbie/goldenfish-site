@@ -769,11 +769,33 @@ class ProfessionalMenuSystem {
 
     saveCartState() {
         try {
-            // Save in both formats for compatibility
-            localStorage.setItem('cartItems', JSON.stringify(cartState.items));
+            // Prepare complete checkout data for consistency
+            const checkoutData = {
+                items: cartState.items,
+                delivery: {
+                    type: cartState.delivery.type,
+                    postcode: cartState.delivery.postcode,
+                    fee: cartState.delivery.fee,
+                    validated: cartState.delivery.validated,
+                    selectedTime: cartState.delivery.selectedTime,
+                    availableTimes: cartState.delivery.availableTimes
+                },
+                totals: {
+                    subtotal: cartState.totals.subtotal,
+                    delivery: cartState.totals.delivery,
+                    total: cartState.totals.total
+                }
+            };
+
+            // Save in ALL formats for full compatibility
+            localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+            localStorage.setItem('goldenfish_cart', JSON.stringify(cartState.items));
+            localStorage.setItem('cartItems', JSON.stringify(cartState.items)); // Legacy
             localStorage.setItem('deliveryType', cartState.delivery.type);
             localStorage.setItem('postcode', cartState.delivery.postcode);
             localStorage.setItem('deliveryFee', cartState.delivery.fee.toString());
+            
+            console.log('💾 Cart state saved:', checkoutData);
         } catch (error) {
             console.error('❌ Error saving cart state:', error);
         }
@@ -819,10 +841,14 @@ class ProfessionalMenuSystem {
             }
         });
 
-        // Delivery type buttons
+        // Delivery type buttons - Fix event handling for reliable clicking
         document.addEventListener('click', (e) => {
-            if (e.target.matches('.delivery-btn')) {
-                const type = e.target.dataset.type;
+            // Handle clicks on button or its children (span, i elements)
+            const deliveryBtn = e.target.closest('.delivery-btn');
+            if (deliveryBtn && deliveryBtn.dataset.type) {
+                e.preventDefault();
+                const type = deliveryBtn.dataset.type;
+                console.log('🔄 Delivery type clicked:', type);
                 this.setDeliveryType(type);
             }
         });
