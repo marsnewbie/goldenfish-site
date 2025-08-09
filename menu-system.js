@@ -534,24 +534,38 @@ class ProfessionalMenuSystem {
             const isValid = response.ok;
             
             if (isValid) {
-                cartState.delivery.postcode = normalizedPostcode;
-                cartState.delivery.fee = 2.50; // Default delivery fee
-                cartState.delivery.validated = true;
+                // Check if postcode is in delivery area
+                const isInDeliveryArea = this.isPostcodeInDeliveryArea(normalizedPostcode);
                 
-                postcodeInput.value = normalizedPostcode;
-                postcodeResult.innerHTML = `<span class="success">✓ Delivery available - £${cartState.delivery.fee.toFixed(2)}</span>`;
-                postcodeResult.className = 'postcode-result success';
-                
-                this.renderCart();
-                console.log('✅ Postcode validated:', normalizedPostcode);
+                if (isInDeliveryArea) {
+                    cartState.delivery.postcode = normalizedPostcode;
+                    cartState.delivery.fee = 2.50; // Default delivery fee
+                    cartState.delivery.validated = true;
+                    
+                    postcodeInput.value = normalizedPostcode;
+                    postcodeResult.innerHTML = `<span class="success">✓ Delivery available - £${cartState.delivery.fee.toFixed(2)}</span>`;
+                    postcodeResult.className = 'postcode-result success';
+                    
+                    console.log('✅ Postcode validated:', normalizedPostcode);
+                } else {
+                    throw new Error('Outside delivery area');
+                }
             } else {
-                throw new Error('Invalid postcode');
+                throw new Error('Invalid postcode format');
             }
             
         } catch (error) {
             console.error('❌ Postcode validation failed:', error);
             
-            postcodeResult.innerHTML = '<span class="error">✗ Invalid postcode or delivery not available</span>';
+            let errorMessage = '';
+            if (error.message === 'Outside delivery area') {
+                errorMessage = '✗ Sorry, we don\'t deliver to this postcode. Please try collection instead.';
+            } else if (error.message === 'Invalid postcode format') {
+                errorMessage = '✗ Please enter a valid UK postcode (e.g. YO10 3BP)';
+            } else {
+                errorMessage = '✗ Unable to validate postcode. Please try again.';
+            }
+            postcodeResult.innerHTML = `<span class="error">${errorMessage}</span>`;
             postcodeResult.className = 'postcode-result error';
             
             cartState.delivery.postcode = '';
@@ -589,9 +603,26 @@ class ProfessionalMenuSystem {
             return;
         }
 
-        if (cartState.delivery.type === 'delivery' && !cartState.delivery.validated) {
-            alert('Please enter and validate your postcode for delivery.');
-            return;
+        // Enhanced delivery validation
+        if (cartState.delivery.type === 'delivery') {
+            const postcodeInput = document.getElementById('postcodeInput');
+            const currentPostcode = postcodeInput ? postcodeInput.value.trim() : '';
+            
+            if (!currentPostcode) {
+                alert('Please enter your postcode for delivery.');
+                if (postcodeInput) postcodeInput.focus();
+                return;
+            }
+            
+            if (!cartState.delivery.validated) {
+                alert('Please click "Check" to validate your postcode for delivery.');
+                return;
+            }
+            
+            if (!cartState.delivery.postcode || cartState.delivery.fee <= 0) {
+                alert('Postcode validation incomplete. Please check your delivery area.');
+                return;
+            }
         }
 
         // Check if time is selected (required for both delivery and collection)
@@ -993,6 +1024,19 @@ class ProfessionalMenuSystem {
             const prepTime = RESTAURANT_CONFIG.preparationTime[cartState.delivery.type];
             timeInfo.innerHTML = `<small>${isDelivery ? 'Delivery' : 'Collection'} usually takes ${prepTime} minutes</small>`;
         }
+    }
+
+    isPostcodeInDeliveryArea(postcode) {
+        // Extract area code from postcode (e.g. 'YO10' from 'YO10 3BP')
+        const areaCode = postcode.replace(/\s+/g, '').substring(0, postcode.indexOf(' ') > 0 ? postcode.indexOf(' ') : 4);
+        
+        // Check if area code is in our delivery zones
+        const inDeliveryZone = RESTAURANT_CONFIG.delivery.zones.some(zone => 
+            areaCode.toUpperCase().startsWith(zone.toUpperCase())
+        );
+        
+        console.log(`🚚 Checking delivery area: ${postcode} (${areaCode}) - ${inDeliveryZone ? 'AVAILABLE' : 'NOT AVAILABLE'}`);
+        return inDeliveryZone;
     }
 
     // === UTILITY METHODS ===

@@ -1295,6 +1295,11 @@
                         selectedOptions: item.selectedOptions || null,
                         selectedVariant: item.selectedVariant || null
                     })),
+                    totals: {
+                        subtotal: this.summary.subtotal,
+                        delivery: this.summary.delivery || 0,
+                        total: this.summary.total
+                    },
                     specialInstructions: document.querySelector('textarea[name="specialInstructions"]').value.trim()
                 };
 
