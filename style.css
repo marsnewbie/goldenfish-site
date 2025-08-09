@@ -736,6 +736,39 @@ ul {
   color: #e65100;
 }
 
+/* Restaurant status styling */
+.restaurant-status {
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.status-open {
+  color: var(--success);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.status-closed {
+  color: var(--danger);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.status-indicator {
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+}
+
+.current-time {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
 /* Cart promotion styling */
 .cart-promotion {
   color: var(--success) !important;

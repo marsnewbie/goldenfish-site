@@ -84,6 +84,10 @@ class ProfessionalMenuSystem {
         this.renderCart();
         this.updateDeliveryUI();
         
+        // Initialize UK timezone opening hours system
+        this.updateRestaurantStatus();
+        this.setupStatusUpdater();
+        
         console.log('✅ Professional Menu System Ready');
     }
 
@@ -1011,8 +1015,24 @@ class ProfessionalMenuSystem {
 
     // === TIME MANAGEMENT METHODS ===
     
-    generateAvailableTimes(deliveryType) {
+    // 🇬🇧 Get current UK time (handles BST/GMT automatically)
+    getCurrentUKTime() {
         const now = new Date();
+        // Convert to UK timezone (Europe/London handles BST/GMT automatically)
+        const ukTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/London"}));
+        console.log('🕐 UK Time:', ukTime.toLocaleString('en-GB'), '| Local Time:', now.toLocaleString('en-GB'));
+        return ukTime;
+    }
+    
+    // 🇬🇧 Create UK date from hours and minutes
+    createUKDateTime(date, hours, minutes) {
+        const ukDate = new Date(date.toLocaleString("en-US", {timeZone: "Europe/London"}));
+        ukDate.setHours(hours, minutes, 0, 0);
+        return ukDate;
+    }
+    
+    generateAvailableTimes(deliveryType) {
+        const now = this.getCurrentUKTime(); // Use UK time instead of local time
         const times = ['asap'];
         
         // Get preparation time based on delivery type
@@ -1032,63 +1052,167 @@ class ProfessionalMenuSystem {
             }
         }
         
-        // Generate time slots every 15 minutes
-        const endOfDay = new Date(now);
-        endOfDay.setHours(23, 0, 0, 0); // Until 11 PM
+        // Generate time slots every 15 minutes using UK timezone
+        const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+        const todayHours = RESTAURANT_CONFIG.openingHours[dayName];
+        
+        let endTime;
+        if (todayHours) {
+            const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
+            endTime = this.createUKDateTime(now, closeHour, closeMin);
+            
+            // Handle next day close (after midnight)
+            if (closeHour < 12) { // Assume times like 00:00, 01:00 are next day
+                endTime.setDate(endTime.getDate() + 1);
+            }
+        } else {
+            // If restaurant is closed today, no time slots available
+            return ['Restaurant closed today'];
+        }
         
         let currentSlot = new Date(earliestTime);
         currentSlot.setMinutes(Math.ceil(currentSlot.getMinutes() / 15) * 15); // Round up to next 15-minute slot
         
-        while (currentSlot <= endOfDay) {
-            times.push(this.formatTime(currentSlot));
+        console.log(`⏰ Generating time slots from ${currentSlot.toLocaleString('en-GB')} to ${endTime.toLocaleString('en-GB')}`);
+        
+        while (currentSlot < endTime && times.length < 20) { // Limit to 20 slots to prevent infinite loops
+            // Verify this time is during opening hours
+            if (this.isRestaurantOpen(currentSlot)) {
+                times.push(this.formatTime(currentSlot));
+            }
             currentSlot = new Date(currentSlot.getTime() + 15 * 60000); // Add 15 minutes
+        }
+        
+        if (times.length === 1) { // Only 'asap' available
+            times.push('Restaurant closing soon');
         }
         
         return times;
     }
     
-    isRestaurantOpen(dateTime = new Date()) {
+    // 🏪 Update restaurant status display in UI
+    updateRestaurantStatus() {
+        const statusElement = document.getElementById('restaurantStatus');
+        if (!statusElement) return;
+        
+        const ukTime = this.getCurrentUKTime();
+        const isOpen = this.isRestaurantOpen(ukTime);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDay = dayNames[ukTime.getDay()];
+        const todayHours = RESTAURANT_CONFIG.openingHours[dayNames[ukTime.getDay()].toLowerCase()];
+        
+        let statusHTML = '';
+        
+        if (isOpen && todayHours) {
+            const closeTime = todayHours.close === '00:00' ? 'Midnight' : todayHours.close;
+            statusHTML = `
+                <div class="status-open">
+                    <span class="status-indicator">🟢</span>
+                    <strong>OPEN NOW</strong> - Closes at ${closeTime}
+                </div>
+                <div class="current-time">UK Time: ${ukTime.toLocaleTimeString('en-GB', { hour12: false })}</div>
+            `;
+        } else {
+            const nextOpen = this.getNextOpenTime(ukTime);
+            if (nextOpen) {
+                const nextDay = dayNames[nextOpen.getDay()];
+                const nextOpenTime = this.formatTime(nextOpen);
+                statusHTML = `
+                    <div class="status-closed">
+                        <span class="status-indicator">🔴</span>
+                        <strong>CLOSED</strong> - Opens ${nextDay} at ${nextOpenTime}
+                    </div>
+                    <div class="current-time">UK Time: ${ukTime.toLocaleTimeString('en-GB', { hour12: false })}</div>
+                `;
+            } else {
+                statusHTML = `
+                    <div class="status-closed">
+                        <span class="status-indicator">🔴</span>
+                        <strong>CLOSED</strong> - Check back soon
+                    </div>
+                `;
+            }
+        }
+        
+        statusElement.innerHTML = statusHTML;
+    }
+    
+    // ⏱️ Set up periodic status updates (every minute)
+    setupStatusUpdater() {
+        // Update status every minute to keep it current
+        setInterval(() => {
+            this.updateRestaurantStatus();
+            this.updateTimeSelection(); // Also refresh available time slots
+        }, 60000); // 60 seconds
+        
+        console.log('⏱️ Status updater initialized - will refresh every minute');
+    }
+    
+    isRestaurantOpen(dateTime = null) {
+        // Always use UK time for restaurant opening hours
+        const ukTime = dateTime ? dateTime : this.getCurrentUKTime();
+        
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        const dayName = dayNames[dateTime.getDay()];
+        const dayName = dayNames[ukTime.getDay()];
         const todayHours = RESTAURANT_CONFIG.openingHours[dayName];
         
-        if (!todayHours) return false; // Restaurant closed
+        console.log(`🏪 Checking if open on ${dayName} at ${ukTime.toLocaleTimeString('en-GB')}:`, todayHours);
         
-        const currentTime = dateTime.getHours() * 60 + dateTime.getMinutes();
+        if (!todayHours) {
+            console.log('❌ Restaurant closed on', dayName);
+            return false; // Restaurant closed
+        }
+        
+        const currentTime = ukTime.getHours() * 60 + ukTime.getMinutes();
         const [openHour, openMin] = todayHours.open.split(':').map(Number);
         const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
         
         const openTime = openHour * 60 + openMin;
         let closeTime = closeHour * 60 + closeMin;
         
-        // Handle next day close (midnight)
+        // Handle next day close (after midnight)
         if (closeTime <= openTime) closeTime += 24 * 60;
         
-        return currentTime >= openTime && currentTime < closeTime;
+        const isOpen = currentTime >= openTime && currentTime < closeTime;
+        console.log(`🕐 Current: ${Math.floor(currentTime/60).toString().padStart(2,'0')}:${(currentTime%60).toString().padStart(2,'0')} | Open: ${todayHours.open}-${todayHours.close} | Status: ${isOpen ? 'OPEN ✅' : 'CLOSED ❌'}`);
+        
+        return isOpen;
     }
     
-    getNextOpenTime(dateTime = new Date()) {
+    getNextOpenTime(dateTime = null) {
+        // Always use UK time for restaurant schedules
+        const ukTime = dateTime ? dateTime : this.getCurrentUKTime();
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        let checkDate = new Date(dateTime);
+        
+        // Convert to UK timezone for consistent checking
+        let checkDate = new Date(ukTime.toLocaleString("en-US", {timeZone: "Europe/London"}));
+        
+        console.log('🔍 Looking for next opening time from UK time:', ukTime.toLocaleString('en-GB'));
         
         // Check next 7 days
         for (let i = 0; i < 7; i++) {
             const dayName = dayNames[checkDate.getDay()];
             const dayHours = RESTAURANT_CONFIG.openingHours[dayName];
             
+            console.log(`  📅 Checking ${dayName}:`, dayHours);
+            
             if (dayHours) {
                 const [openHour, openMin] = dayHours.open.split(':').map(Number);
-                const openTime = new Date(checkDate);
-                openTime.setHours(openHour, openMin, 0, 0);
+                const openTime = this.createUKDateTime(checkDate, openHour, openMin);
                 
-                if (openTime > dateTime) {
+                console.log(`    🕐 Would open at: ${openTime.toLocaleString('en-GB')}`);
+                
+                if (openTime > ukTime) {
+                    console.log(`✅ Next opening time found: ${dayName} ${dayHours.open} (${openTime.toLocaleString('en-GB')})`);
                     return openTime;
                 }
             }
             
+            // Move to next day
             checkDate.setDate(checkDate.getDate() + 1);
         }
         
+        console.log('❌ No opening time found in next 7 days');
         return null; // No opening time found in next 7 days
     }
     
