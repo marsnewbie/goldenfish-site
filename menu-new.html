@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Fish - Online Menu</title>
+    <link rel="stylesheet" href="menu-styles.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="assets/fish_and_chips.jpg" alt="Golden Fish">
+                <span>Golden Fish</span>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html">Home</a>
+                <a href="menu-new.html" class="active">Menu</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+            </nav>
+            <div class="auth-section">
+                <a href="signin.html" class="login-btn">Login</a>
+                <a href="register.html" class="register-btn">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Menu Layout - Three Column Design -->
+    <div class="menu-layout">
+        <!-- Left Sidebar - Categories -->
+        <aside class="category-sidebar">
+            <div class="sidebar-header">
+                <h2>Menu Categories</h2>
+            </div>
+            <div class="category-list" id="categoryList">
+                <!-- Categories loaded dynamically -->
+                <div class="category-loading">Loading categories...</div>
+            </div>
+        </aside>
+
+        <!-- Center - Menu Items -->
+        <main class="menu-content">
+            <div class="menu-header">
+                <h1 id="currentCategoryName">All Menu Items</h1>
+                <p class="menu-subtitle">Choose from our delicious selection</p>
+            </div>
+            
+            <div class="products-container" id="productsContainer">
+                <!-- Products loaded dynamically -->
+                <div class="products-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading menu items...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Shopping Cart -->
+        <aside class="cart-sidebar">
+            <!-- Delivery Type Selection -->
+            <div class="delivery-selection">
+                <button class="delivery-btn active" data-type="delivery">
+                    <i class="icon-delivery"></i>
+                    <span>Delivery</span>
+                </button>
+                <button class="delivery-btn" data-type="collection">
+                    <i class="icon-pickup"></i>
+                    <span>Collection</span>
+                </button>
+            </div>
+
+            <!-- Postcode Section (for delivery) -->
+            <div class="postcode-section" id="postcodeSection">
+                <div class="input-group">
+                    <input type="text" id="postcodeInput" placeholder="Enter your postcode" maxlength="8">
+                    <button id="postcodeCheck" class="check-btn">Check</button>
+                </div>
+                <div id="postcodeResult" class="postcode-result"></div>
+            </div>
+
+            <!-- Cart Header -->
+            <div class="cart-header">
+                <h3>Your Order</h3>
+                <div class="cart-count" id="cartCount">0 items</div>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">
+                    <div class="empty-icon">🛒</div>
+                    <p>Your cart is empty</p>
+                    <span>Add items from the menu</span>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary" id="cartSummary" style="display: none;">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotalAmount">£0.00</span>
+                </div>
+                <div class="summary-row delivery-row" id="deliveryRow" style="display: none;">
+                    <span>Delivery:</span>
+                    <span id="deliveryAmount">£0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Total:</span>
+                    <span id="totalAmount">£0.00</span>
+                </div>
+            </div>
+
+            <!-- Checkout Button -->
+            <div class="checkout-section">
+                <button class="checkout-btn" id="checkoutBtn" disabled>
+                    <span>Add items to continue</span>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Product Options Modal -->
+    <div class="modal-overlay" id="optionsModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalProductName">Product Name</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="product-image">
+                    <img id="modalProductImage" src="" alt="" style="display: none;">
+                </div>
+                
+                <div class="base-price">
+                    <span>Base Price: </span>
+                    <strong id="modalBasePrice">£0.00</strong>
+                </div>
+
+                <div class="options-container" id="modalOptions">
+                    <!-- Options loaded dynamically -->
+                </div>
+
+                <div class="quantity-selector">
+                    <label>Quantity:</label>
+                    <div class="quantity-controls">
+                        <button class="qty-btn minus" id="qtyMinus">-</button>
+                        <span class="qty-value" id="qtyValue">1</span>
+                        <button class="qty-btn plus" id="qtyPlus">+</button>
+                    </div>
+                </div>
+
+                <div class="special-instructions">
+                    <label for="specialInstructions">Special Instructions (Optional):</label>
+                    <textarea id="specialInstructions" placeholder="Any special requests..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="modal-total">
+                    <span>Total: </span>
+                    <strong id="modalTotal">£0.00</strong>
+                </div>
+                <button class="add-to-cart-btn" id="addToCartBtn">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="menu-system.js"></script>
+</body>
+</html>
