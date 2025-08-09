@@ -7,6 +7,31 @@ const CONFIG = {
     restaurantId: 1
 };
 
+// Restaurant Business Configuration
+const RESTAURANT_CONFIG = {
+    name: 'Golden Fish',
+    openingHours: {
+        monday: null, // Closed
+        tuesday: { open: '17:00', close: '23:00' },
+        wednesday: { open: '17:00', close: '23:00' },
+        thursday: { open: '17:00', close: '23:00' },
+        friday: { open: '17:00', close: '00:00' },
+        saturday: { open: '17:00', close: '00:00' },
+        sunday: { open: '17:00', close: '22:30' }
+    },
+    preparationTime: {
+        delivery: 45, // minutes
+        collection: 15  // minutes
+    },
+    delivery: {
+        fee: 2.50,
+        minimumOrder: 15.00,
+        zones: [
+            'YO10', 'YO23', 'YO24', 'YO30', 'YO31', 'YO32', 'YO1', 'YO8'
+        ]
+    }
+};
+
 // Global State
 let menuData = {
     categories: [],
@@ -20,7 +45,9 @@ let cartState = {
         type: 'delivery', // 'delivery' or 'collection'
         postcode: '',
         fee: 0,
-        validated: false
+        validated: false,
+        selectedTime: '', // Selected delivery/collection time
+        availableTimes: [] // Available time slots
     },
     totals: {
         subtotal: 0,
@@ -230,6 +257,9 @@ class ProfessionalMenuSystem {
 
         // Save to localStorage
         this.saveCartState();
+        
+        // Update time selection UI
+        this.updateTimeSelection();
     }
 
     renderCartItem(item, index) {
@@ -465,6 +495,7 @@ class ProfessionalMenuSystem {
         document.querySelector(`[data-type="${type}"]`).classList.add('active');
         
         this.updateDeliveryUI();
+        this.updateTimeSelection();
         this.renderCart();
         this.saveCartState();
     }
@@ -563,6 +594,28 @@ class ProfessionalMenuSystem {
             return;
         }
 
+        // Check if time is selected (required for both delivery and collection)
+        if (!cartState.delivery.selectedTime) {
+            const timeType = cartState.delivery.type === 'delivery' ? 'delivery' : 'collection';
+            alert(`Please select a ${timeType} time before proceeding to checkout.`);
+            
+            // Highlight time selection
+            const timeSelect = document.getElementById('deliveryTimeSelect');
+            const timeInfo = document.getElementById('timeInfo');
+            if (timeSelect) timeSelect.focus();
+            if (timeInfo) {
+                timeInfo.className = 'time-info required';
+                timeInfo.innerHTML = `<small>⚠️ ${timeType} time selection is required</small>`;
+                setTimeout(() => {
+                    timeInfo.className = 'time-info';
+                    const prepTime = RESTAURANT_CONFIG.preparationTime[cartState.delivery.type];
+                    const typeText = cartState.delivery.type === 'delivery' ? 'Delivery' : 'Collection';
+                    timeInfo.innerHTML = `<small>${typeText} usually takes ${prepTime} minutes</small>`;
+                }, 3000);
+            }
+            return;
+        }
+
         // Prepare checkout data in EXACT format expected by checkout page
         const checkoutData = {
             items: cartState.items.map(item => ({
@@ -581,7 +634,9 @@ class ProfessionalMenuSystem {
                 type: cartState.delivery.type,
                 postcode: cartState.delivery.postcode,
                 fee: cartState.delivery.fee,
-                validated: cartState.delivery.validated
+                validated: cartState.delivery.validated,
+                selectedTime: cartState.delivery.selectedTime,
+                availableTimes: cartState.delivery.availableTimes
             },
             totals: {
                 subtotal: cartState.totals.subtotal,
@@ -798,6 +853,146 @@ class ProfessionalMenuSystem {
         document.getElementById('checkoutBtn').addEventListener('click', () => {
             this.proceedToCheckout();
         });
+
+        // Time selection
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'deliveryTimeSelect') {
+                cartState.delivery.selectedTime = e.target.value;
+                this.saveCartState();
+                this.updateCheckoutButton();
+                console.log('🕐 Time selected:', e.target.value);
+            }
+        });
+    }
+
+    // === TIME MANAGEMENT METHODS ===
+    
+    generateAvailableTimes(deliveryType) {
+        const now = new Date();
+        const times = ['asap'];
+        
+        // Get preparation time based on delivery type
+        const prepTime = RESTAURANT_CONFIG.preparationTime[deliveryType];
+        
+        // Calculate earliest available time (current time + prep time)
+        const earliestTime = new Date(now.getTime() + prepTime * 60000);
+        
+        // Check if restaurant is currently open
+        if (!this.isRestaurantOpen(now)) {
+            const nextOpenTime = this.getNextOpenTime(now);
+            if (nextOpenTime) {
+                earliestTime.setTime(Math.max(earliestTime.getTime(), nextOpenTime.getTime() + prepTime * 60000));
+            } else {
+                // Restaurant is closed for extended period
+                return ['Restaurant currently closed'];
+            }
+        }
+        
+        // Generate time slots every 15 minutes
+        const endOfDay = new Date(now);
+        endOfDay.setHours(23, 0, 0, 0); // Until 11 PM
+        
+        let currentSlot = new Date(earliestTime);
+        currentSlot.setMinutes(Math.ceil(currentSlot.getMinutes() / 15) * 15); // Round up to next 15-minute slot
+        
+        while (currentSlot <= endOfDay) {
+            times.push(this.formatTime(currentSlot));
+            currentSlot = new Date(currentSlot.getTime() + 15 * 60000); // Add 15 minutes
+        }
+        
+        return times;
+    }
+    
+    isRestaurantOpen(dateTime = new Date()) {
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayName = dayNames[dateTime.getDay()];
+        const todayHours = RESTAURANT_CONFIG.openingHours[dayName];
+        
+        if (!todayHours) return false; // Restaurant closed
+        
+        const currentTime = dateTime.getHours() * 60 + dateTime.getMinutes();
+        const [openHour, openMin] = todayHours.open.split(':').map(Number);
+        const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
+        
+        const openTime = openHour * 60 + openMin;
+        let closeTime = closeHour * 60 + closeMin;
+        
+        // Handle next day close (midnight)
+        if (closeTime <= openTime) closeTime += 24 * 60;
+        
+        return currentTime >= openTime && currentTime < closeTime;
+    }
+    
+    getNextOpenTime(dateTime = new Date()) {
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        let checkDate = new Date(dateTime);
+        
+        // Check next 7 days
+        for (let i = 0; i < 7; i++) {
+            const dayName = dayNames[checkDate.getDay()];
+            const dayHours = RESTAURANT_CONFIG.openingHours[dayName];
+            
+            if (dayHours) {
+                const [openHour, openMin] = dayHours.open.split(':').map(Number);
+                const openTime = new Date(checkDate);
+                openTime.setHours(openHour, openMin, 0, 0);
+                
+                if (openTime > dateTime) {
+                    return openTime;
+                }
+            }
+            
+            checkDate.setDate(checkDate.getDate() + 1);
+        }
+        
+        return null; // No opening time found in next 7 days
+    }
+    
+    formatTime(date) {
+        return date.toLocaleTimeString('en-GB', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+    }
+    
+    updateTimeSelection() {
+        const timeSection = document.getElementById('timeSelectionSection');
+        const timeSelect = document.getElementById('deliveryTimeSelect');
+        const timeLabel = document.getElementById('timeSelectionLabel');
+        const timeInfo = document.getElementById('timeInfo');
+        
+        if (!timeSection || !timeSelect) return;
+        
+        // Show/hide time selection based on delivery type and validation
+        const showTimeSelection = cartState.items.length > 0 && 
+                                 ((cartState.delivery.type === 'delivery' && cartState.delivery.validated) ||
+                                  cartState.delivery.type === 'collection');
+        
+        timeSection.style.display = showTimeSelection ? 'block' : 'none';
+        
+        if (showTimeSelection) {
+            // Update label based on delivery type
+            const isDelivery = cartState.delivery.type === 'delivery';
+            timeLabel.textContent = isDelivery ? 'Delivery Time:' : 'Collection Time:';
+            
+            // Generate available times
+            const times = this.generateAvailableTimes(cartState.delivery.type);
+            cartState.delivery.availableTimes = times;
+            
+            // Populate select options
+            timeSelect.innerHTML = '<option value="">Select a time...</option>';
+            times.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time === 'asap' ? 'ASAP' : time;
+                timeSelect.appendChild(option);
+            });
+            
+            // Update info text
+            const prepTime = RESTAURANT_CONFIG.preparationTime[cartState.delivery.type];
+            timeInfo.innerHTML = `<small>${isDelivery ? 'Delivery' : 'Collection'} usually takes ${prepTime} minutes</small>`;
+        }
     }
 
     // === UTILITY METHODS ===
