@@ -750,6 +750,13 @@
                 
                 // Trigger delivery type change to show/hide relevant sections
                 this.handleDeliveryTypeChange();
+                
+                // Trigger postcode validation if we have a postcode for delivery
+                if (this.deliveryPostcode && this.deliveryType === 'delivery') {
+                    setTimeout(() => {
+                        this.validatePostcode(this.deliveryPostcode);
+                    }, 100); // Small delay to ensure DOM is ready
+                }
             }
 
             setupEventListeners() {
@@ -809,60 +816,99 @@
 
             loadCartItems() {
                 console.log('🔍 Loading cart data from localStorage...');
+                console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
                 
                 // First try to load from checkoutData (preferred - most complete)
                 const checkoutData = localStorage.getItem('checkoutData');
                 if (checkoutData) {
-                    const data = JSON.parse(checkoutData);
-                    console.log('📋 Loading from checkoutData:', data);
-                    
-                    // Set delivery information
-                    if (data.delivery) {
-                        this.deliveryType = data.delivery.type || 'delivery';
-                        this.deliveryPostcode = data.delivery.postcode || '';
-                        this.deliveryFee = parseFloat(data.delivery.fee) || 0;
-                        this.selectedTime = data.delivery.selectedTime || '';
-                        console.log('🚚 Delivery info loaded:', this.deliveryType, this.deliveryPostcode, this.deliveryFee);
+                    try {
+                        const data = JSON.parse(checkoutData);
+                        console.log('📋 Loading from checkoutData:', data);
+                        
+                        // Validate data structure
+                        if (!data.items || !Array.isArray(data.items)) {
+                            console.warn('⚠️ checkoutData has invalid items structure:', data);
+                            throw new Error('Invalid checkoutData structure');
+                        }
+                        
+                        // Set delivery information
+                        if (data.delivery) {
+                            this.deliveryType = data.delivery.type || 'delivery';
+                            this.deliveryPostcode = data.delivery.postcode || '';
+                            this.deliveryFee = parseFloat(data.delivery.fee) || 0;
+                            this.selectedTime = data.delivery.selectedTime || '';
+                            console.log('🚚 Delivery info loaded:', this.deliveryType, this.deliveryPostcode, this.deliveryFee);
+                        }
+                        
+                        // Set totals if available
+                        if (data.totals) {
+                            this.subtotal = parseFloat(data.totals.subtotal) || 0;
+                            this.total = parseFloat(data.totals.total) || 0;
+                        }
+                        
+                        console.log('✅ Successfully loaded', data.items.length, 'items from checkoutData');
+                        return data.items;
+                    } catch (error) {
+                        console.error('❌ Error parsing checkoutData:', error);
+                        // Continue to fallback options
                     }
-                    
-                    // Set totals if available
-                    if (data.totals) {
-                        this.subtotal = parseFloat(data.totals.subtotal) || 0;
-                        this.total = parseFloat(data.totals.total) || 0;
-                    }
-                    
-                    return data.items || [];
                 }
                 
                 // Second try: goldenfish_cart (menu-system format)
                 const cart = localStorage.getItem('goldenfish_cart');
                 if (cart) {
-                    console.log('📋 Loading from goldenfish_cart');
-                    const items = JSON.parse(cart);
-                    
-                    // Load delivery info from separate keys
-                    this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
-                    this.deliveryPostcode = localStorage.getItem('postcode') || '';
-                    this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
-                    
-                    return items;
+                    try {
+                        console.log('📋 Loading from goldenfish_cart');
+                        const items = JSON.parse(cart);
+                        
+                        if (!Array.isArray(items)) {
+                            console.warn('⚠️ goldenfish_cart is not an array:', items);
+                            throw new Error('Invalid cart format');
+                        }
+                        
+                        // Load delivery info from separate keys
+                        this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
+                        this.deliveryPostcode = localStorage.getItem('postcode') || '';
+                        this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
+                        
+                        console.log('✅ Successfully loaded', items.length, 'items from goldenfish_cart');
+                        return items;
+                    } catch (error) {
+                        console.error('❌ Error parsing goldenfish_cart:', error);
+                    }
                 }
                 
                 // Third try: cartItems (legacy fallback)
                 const cartItems = localStorage.getItem('cartItems');
                 if (cartItems) {
-                    console.log('📋 Loading from cartItems (legacy)');
-                    const items = JSON.parse(cartItems);
-                    
-                    // Load delivery info from separate keys
-                    this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
-                    this.deliveryPostcode = localStorage.getItem('postcode') || '';
-                    this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
-                    
-                    return items;
+                    try {
+                        console.log('📋 Loading from cartItems (legacy)');
+                        const items = JSON.parse(cartItems);
+                        
+                        if (!Array.isArray(items)) {
+                            console.warn('⚠️ cartItems is not an array:', items);
+                            throw new Error('Invalid legacy cart format');
+                        }
+                        
+                        // Load delivery info from separate keys
+                        this.deliveryType = localStorage.getItem('deliveryType') || 'delivery';
+                        this.deliveryPostcode = localStorage.getItem('postcode') || '';
+                        this.deliveryFee = parseFloat(localStorage.getItem('deliveryFee')) || 0;
+                        
+                        console.log('✅ Successfully loaded', items.length, 'items from cartItems');
+                        return items;
+                    } catch (error) {
+                        console.error('❌ Error parsing cartItems:', error);
+                    }
                 }
                 
-                console.log('❌ No cart data found in localStorage');
+                console.error('❌ No valid cart data found in localStorage!');
+                console.error('📋 Debug info - localStorage contents:');
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes('cart') || key.includes('checkout')) {
+                        console.error(`  ${key}:`, localStorage.getItem(key));
+                    }
+                });
                 return [];
             }
 
@@ -925,7 +971,7 @@
                     deliveryType = e.target.value;
                 } else {
                     // Get current delivery type from checked radio button
-                    const checkedRadio = document.querySelector('input[name="deliveryMethod"]:checked');
+                    const checkedRadio = document.querySelector('input[name="deliveryType"]:checked');
                     deliveryType = checkedRadio ? checkedRadio.value : this.deliveryType;
                 }
                 
@@ -1063,9 +1109,34 @@
                 const deliveryFeeEl = document.getElementById('deliveryFee');
                 const totalEl = document.getElementById('total');
 
-                // Calculate subtotal
+                // 🔍 Debug: Check cart items status
                 console.log('🔍 Cart items for display:', this.cartItems);
-                this.subtotal = this.cartItems.reduce((sum, item) => {
+                console.log('🔍 Cart items count:', this.cartItems ? this.cartItems.length : 'null/undefined');
+                
+                // Handle empty cart case - try multiple reload attempts
+                if (!this.cartItems || this.cartItems.length === 0) {
+                    console.warn('⚠️ Cart is empty in checkout! Attempting to reload...');
+                    this.cartItems = this.loadCartItems();
+                    console.log('🔄 Reloaded cart items:', this.cartItems);
+                    
+                    // If still empty, schedule another attempt (handling timing issues)
+                    if ((!this.cartItems || this.cartItems.length === 0) && !this.reloadAttempted) {
+                        console.warn('⚠️ Cart still empty after first reload, scheduling retry...');
+                        this.reloadAttempted = true;
+                        setTimeout(() => {
+                            this.cartItems = this.loadCartItems();
+                            if (this.cartItems && this.cartItems.length > 0) {
+                                console.log('✅ Cart loaded successfully on retry!');
+                                this.updateOrderSummary(); // Recursive call to update UI
+                            } else {
+                                console.error('❌ Cart is still empty after retry attempts');
+                            }
+                        }, 500);
+                    }
+                }
+
+                // Calculate subtotal with error handling
+                this.subtotal = (this.cartItems || []).reduce((sum, item) => {
                     const quantity = item.qty || item.quantity || 1;
                     let itemPrice = item.price || 0;
                     if (item.selectedOptions) {
@@ -1080,7 +1151,22 @@
                     return sum + (itemPrice * quantity);
                 }, 0);
 
-                // Render cart items
+                // Render cart items with proper error handling
+                if (!cartItemsEl) {
+                    console.error('❌ cartItems element not found!');
+                    return;
+                }
+
+                if (!this.cartItems || this.cartItems.length === 0) {
+                    cartItemsEl.innerHTML = `
+                        <div class="empty-cart">
+                            <p>🛒 Your cart is empty</p>
+                            <p><a href="menu.html">Continue shopping</a></p>
+                        </div>
+                    `;
+                    return;
+                }
+
                 cartItemsEl.innerHTML = this.cartItems.map(item => {
                     const quantity = item.qty || item.quantity || 1;
                     let itemPrice = item.price || 0;
@@ -1113,7 +1199,7 @@
                                 <div class="options">Qty: ${quantity}</div>
                                 ${optionsText ? `<div class="options">${optionsText}</div>` : ''}
                             </div>
-                            <div class="item-price">$${(itemPrice * quantity).toFixed(2)}</div>
+                            <div class="item-price">£${(itemPrice * quantity).toFixed(2)}</div>
                         </div>
                     `;
                 }).join('');
@@ -1121,9 +1207,9 @@
                 // Update totals
                 this.total = this.subtotal + this.deliveryFee;
                 
-                subtotalEl.textContent = `$${this.subtotal.toFixed(2)}`;
-                deliveryFeeEl.textContent = `$${this.deliveryFee.toFixed(2)}`;
-                totalEl.textContent = `$${this.total.toFixed(2)}`;
+                if (subtotalEl) subtotalEl.textContent = `£${this.subtotal.toFixed(2)}`;
+                if (deliveryFeeEl) deliveryFeeEl.textContent = `£${this.deliveryFee.toFixed(2)}`;
+                if (totalEl) totalEl.textContent = `£${this.total.toFixed(2)}`;
                 console.log('📊 Order summary updated:', { subtotal: this.subtotal, deliveryFee: this.deliveryFee, total: this.total });
             }
 
