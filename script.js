@@ -478,9 +478,13 @@ class MenuManager {
     const product = menuData.products.find(p => p.id === productId);
     const productOptions = menuData.options.filter(opt => opt.product_id === productId);
     
-    if (!product || productOptions.length === 0) return;
+    if (!product || productOptions.length === 0) {
+      // No options, add directly to cart
+      this.addToCart(productId, []);
+      return;
+    }
 
-    // Create modal HTML (simplified - would be more complex in reality)
+    // Create advanced modal HTML with proper options support
     const modal = document.createElement('div');
     modal.className = 'customize-modal';
     modal.innerHTML = `
@@ -490,24 +494,98 @@ class MenuManager {
           <button class="modal-close">×</button>
         </div>
         <div class="modal-body">
-          <p>Customization options coming soon...</p>
-          <p class="base-price">Base price: £${parseFloat(product.price).toFixed(2)}</p>
+          <div class="product-base-info">
+            <p class="base-price">Base price: £${parseFloat(product.price).toFixed(2)}</p>
+            <p class="product-desc">${product.description || ''}</p>
+          </div>
+          
+          <div class="product-options">
+            ${productOptions.map(option => this.renderProductOption(option)).join('')}
+          </div>
+          
+          <div class="quantity-section">
+            <label>Quantity:</label>
+            <div class="quantity-controls">
+              <button class="qty-btn decrease" disabled>-</button>
+              <span class="qty-display">1</span>
+              <button class="qty-btn increase">+</button>
+            </div>
+          </div>
         </div>
+        
         <div class="modal-footer">
-          <button class="modal-add-to-cart" data-product-id="${productId}">Add to Cart</button>
+          <div class="modal-total">
+            Total: <span class="modal-total-price">£${parseFloat(product.price).toFixed(2)}</span>
+          </div>
+          <div class="modal-actions">
+            <button class="modal-cancel">Cancel</button>
+            <button class="modal-add-to-cart" data-product-id="${productId}">Add to Cart</button>
+          </div>
         </div>
       </div>
     `;
     
     document.body.appendChild(modal);
     
-    // Modal event listeners
+    // Setup modal state
+    let modalQuantity = 1;
+    let selectedOptions = [];
+    
+    // Update total price based on selections
+    const updateModalTotal = () => {
+      let totalPrice = parseFloat(product.price);
+      selectedOptions.forEach(opt => {
+        if (opt.additional_price) {
+          totalPrice += parseFloat(opt.additional_price);
+        }
+      });
+      const finalTotal = totalPrice * modalQuantity;
+      modal.querySelector('.modal-total-price').textContent = `£${finalTotal.toFixed(2)}`;
+    };
+    
+    // Quantity controls
+    const qtyDecrease = modal.querySelector('.qty-btn.decrease');
+    const qtyIncrease = modal.querySelector('.qty-btn.increase');
+    const qtyDisplay = modal.querySelector('.qty-display');
+    
+    qtyDecrease.addEventListener('click', () => {
+      if (modalQuantity > 1) {
+        modalQuantity--;
+        qtyDisplay.textContent = modalQuantity;
+        qtyDecrease.disabled = modalQuantity === 1;
+        updateModalTotal();
+      }
+    });
+    
+    qtyIncrease.addEventListener('click', () => {
+      modalQuantity++;
+      qtyDisplay.textContent = modalQuantity;
+      qtyDecrease.disabled = false;
+      updateModalTotal();
+    });
+    
+    // Option selection handlers
+    modal.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+      input.addEventListener('change', () => {
+        selectedOptions = this.collectSelectedOptions(modal);
+        updateModalTotal();
+      });
+    });
+    
+    // Modal close handlers
     modal.querySelector('.modal-close').addEventListener('click', () => {
       document.body.removeChild(modal);
     });
     
+    modal.querySelector('.modal-cancel').addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+    
     modal.querySelector('.modal-add-to-cart').addEventListener('click', () => {
-      this.addToCart(productId, []); // No options for now
+      // Add multiple items if quantity > 1
+      for (let i = 0; i < modalQuantity; i++) {
+        this.addToCart(productId, [...selectedOptions]);
+      }
       document.body.removeChild(modal);
     });
     
@@ -518,17 +596,135 @@ class MenuManager {
     });
   }
 
+  renderProductOption(option) {
+    if (!option.product_option_choices || option.product_option_choices.length === 0) {
+      return '';
+    }
+
+    const choices = option.product_option_choices
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    
+    const inputType = option.required ? 'radio' : 'checkbox';
+    const isMultiSelect = !option.required && choices.length > 2;
+    
+    return `
+      <div class="option-group" data-option-id="${option.id}">
+        <div class="option-header">
+          <h4>${option.name}</h4>
+          ${option.required ? '<span class="required">*Required</span>' : '<span class="optional">Optional</span>'}
+        </div>
+        <div class="option-choices">
+          ${choices.map((choice, index) => `
+            <div class="choice-item">
+              <label class="choice-label">
+                <input 
+                  type="${inputType}" 
+                  name="option_${option.id}" 
+                  value="${choice.id}"
+                  data-choice-name="${choice.name}"
+                  data-additional-price="${choice.additional_price || 0}"
+                  ${option.required && index === 0 ? 'checked' : ''}
+                >
+                <span class="choice-text">${choice.name}</span>
+                ${choice.additional_price && parseFloat(choice.additional_price) > 0 ? 
+                  `<span class="choice-price">+£${parseFloat(choice.additional_price).toFixed(2)}</span>` : 
+                  ''}
+              </label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  collectSelectedOptions(modal) {
+    const selectedOptions = [];
+    const checkedInputs = modal.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
+    
+    checkedInputs.forEach(input => {
+      selectedOptions.push({
+        option_id: parseInt(input.name.replace('option_', '')),
+        choice_id: parseInt(input.value),
+        name: input.dataset.choiceName,
+        additional_price: parseFloat(input.dataset.additionalPrice || 0)
+      });
+    });
+    
+    return selectedOptions;
+  }
+
   proceedToCheckout() {
     if (cartItems.length === 0) return;
     
-    // Save current state to localStorage
+    // Prepare comprehensive checkout data
+    const checkoutData = {
+      items: cartItems.map(item => ({
+        product_id: item.product_id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        options: item.options || [],
+        // Format options summary for display
+        optionsText: item.options && item.options.length > 0 
+          ? item.options.map(opt => opt.name).join(', ') 
+          : ''
+      })),
+      delivery: {
+        type: deliveryType,
+        postcode: postcode,
+        fee: deliveryFee
+      },
+      totals: {
+        subtotal: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        deliveryFee: deliveryFee,
+        total: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + deliveryFee
+      },
+      // Add any active promotions/discounts
+      promotions: this.getActivePromotions()
+    };
+    
+    // Save comprehensive data to localStorage
+    localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+    
+    // Save individual pieces for backward compatibility
     this.saveCart();
     localStorage.setItem('deliveryType', deliveryType);
     localStorage.setItem('postcode', postcode);
     localStorage.setItem('deliveryFee', deliveryFee.toString());
     
+    console.log('🛒 Proceeding to checkout with data:', checkoutData);
+    
     // Redirect to checkout page
     window.location.href = 'checkout.html';
+  }
+
+  getActivePromotions() {
+    // Simple promotion logic - extend as needed
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const promotions = [];
+    
+    // Example promotions (can be made configurable)
+    if (subtotal >= 25.00) {
+      promotions.push({
+        id: 'free_crackers_25',
+        type: 'free_item',
+        name: 'Free Prawn Crackers (£1.50 value)',
+        discount: 1.50,
+        description: 'Free with orders over £25'
+      });
+    }
+    
+    if (subtotal >= 20.00) {
+      promotions.push({
+        id: 'discount_5_off_20',
+        type: 'amount_off',
+        name: '£5 off your order',
+        discount: 5.00,
+        description: '£5 off orders over £20'
+      });
+    }
+    
+    return promotions;
   }
 
   loadCart() {
