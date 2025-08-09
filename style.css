@@ -708,6 +708,34 @@ ul {
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
+/* Postcode result styling */
+.postcode-result {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.postcode-result.success {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.postcode-result.error {
+  background-color: rgba(244, 67, 54, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.postcode-result.warning {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-color: var(--warning);
+  color: #e65100;
+}
+
 /* Cart promotion styling */
 .cart-promotion {
   color: var(--success) !important;

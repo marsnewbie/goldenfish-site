@@ -559,10 +559,27 @@ class ProfessionalMenuSystem {
                 postcodeInput.value = normalizedPostcode;
                 
                 // 显示专业送餐信息
-                const feeText = result.data.deliveryFee === 0 ? 'FREE' : `£${result.data.deliveryFee.toFixed(2)}`;
-                const timeInfo = result.data.estimatedTime ? ` • Est. ${result.data.estimatedTime} mins` : '';
+                let feeDisplayText = '';
+                if (result.data.deliveryFee === 0 && result.data.originalFee > 0) {
+                    // Show that delivery is free due to discount
+                    if (cartState.totals.subtotal >= 25) {
+                        feeDisplayText = `FREE (normally £${result.data.originalFee.toFixed(2)})`;
+                    } else {
+                        feeDisplayText = `£${result.data.originalFee.toFixed(2)} (FREE over £25)`;
+                    }
+                } else if (result.data.deliveryFee < result.data.originalFee) {
+                    // Show discounted fee
+                    feeDisplayText = `£${result.data.deliveryFee.toFixed(2)} (discounted from £${result.data.originalFee.toFixed(2)})`;
+                } else {
+                    // Show regular fee
+                    feeDisplayText = `£${result.data.deliveryFee.toFixed(2)}`;
+                }
                 
-                postcodeResult.innerHTML = `<span class="success">✓ Delivery available - ${feeText}${timeInfo}</span>`;
+                const timeInfo = result.data.estimatedTime ? ` • Est. ${result.data.estimatedTime} mins` : '';
+                const minimumOrderInfo = result.data.minimumOrder && !result.data.minimumOrder.met ? 
+                    ` • Min order £${result.data.minimumOrder.required}` : '';
+                
+                postcodeResult.innerHTML = `<span class="success">✓ Delivery available - ${feeDisplayText}${timeInfo}${minimumOrderInfo}</span>`;
                 postcodeResult.className = 'postcode-result success';
                 
                 // 检查最低订单要求
@@ -589,22 +606,50 @@ class ProfessionalMenuSystem {
         } catch (error) {
             console.error('❌ Postcode validation failed:', error);
             
-            let errorMessage = '';
-            if (error.message === 'Outside delivery area') {
-                errorMessage = '✗ Sorry, we don\'t deliver to this postcode. Please try collection instead.';
-            } else if (error.message === 'Invalid postcode format') {
-                errorMessage = '✗ Please enter a valid UK postcode (e.g. YO10 3BP)';
+            // Try basic UK postcode format validation as fallback
+            const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$/i;
+            if (ukPostcodeRegex.test(normalizedPostcode)) {
+                console.log('⚡ Using fallback validation for postcode:', normalizedPostcode);
+                // Valid UK postcode format, use fallback fee
+                cartState.delivery.postcode = normalizedPostcode;
+                cartState.delivery.fee = 3.50; // Default delivery fee
+                cartState.delivery.validated = true;
+                cartState.delivery.zone = 'Standard Zone';
+                
+                postcodeInput.value = normalizedPostcode;
+                postcodeResult.innerHTML = '<span class="warning">⚠️ Using standard delivery fee £3.50 (verification service temporarily unavailable)</span>';
+                postcodeResult.className = 'postcode-result warning';
+                
+                this.calculateTotals();
+                this.updateCartSummary();
+                this.renderCart();
+                
+                console.log('✅ Fallback validation successful:', {
+                    postcode: normalizedPostcode,
+                    fee: 3.50,
+                    method: 'fallback-standard'
+                });
+                
             } else {
-                errorMessage = '✗ Unable to validate postcode. Please try again.';
+                // Invalid postcode format or delivery unavailable
+                let errorMessage = '';
+                if (error.message === 'Outside delivery area') {
+                    errorMessage = '✗ Sorry, we don\'t deliver to this postcode. Please try collection instead.';
+                } else if (error.message === 'Invalid postcode format' || !ukPostcodeRegex.test(normalizedPostcode)) {
+                    errorMessage = '✗ Please enter a valid UK postcode (e.g. YO10 3BP)';
+                } else {
+                    errorMessage = '✗ Unable to validate postcode - please check format and try again';
+                }
+                
+                postcodeResult.innerHTML = `<span class="error">${errorMessage}</span>`;
+                postcodeResult.className = 'postcode-result error';
+                
+                cartState.delivery.postcode = '';
+                cartState.delivery.fee = 0;
+                cartState.delivery.validated = false;
+                
+                this.renderCart();
             }
-            postcodeResult.innerHTML = `<span class="error">${errorMessage}</span>`;
-            postcodeResult.className = 'postcode-result error';
-            
-            cartState.delivery.postcode = '';
-            cartState.delivery.fee = 0;
-            cartState.delivery.validated = false;
-            
-            this.renderCart();
         } finally {
             checkBtn.textContent = 'Check';
             checkBtn.disabled = false;
