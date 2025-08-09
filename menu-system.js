@@ -533,33 +533,57 @@ class ProfessionalMenuSystem {
             // Normalize postcode
             const normalizedPostcode = this.normalizePostcode(postcode);
             
-            // Validate with postcodes.io API
-            const response = await fetch(`https://api.postcodes.io/postcodes/${normalizedPostcode}`);
-            const isValid = response.ok;
+            // 🏢 调用企业级送餐费计算API
+            const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/delivery/calculate-fee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    restaurantId: 1, // Golden Fish Restaurant ID
+                    customerPostcode: normalizedPostcode,
+                    orderValue: cartState.totals.subtotal || 0
+                })
+            });
+
+            const result = await response.json();
             
-            if (isValid) {
-                // Check if postcode is in delivery area
-                const isInDeliveryArea = this.isPostcodeInDeliveryArea(normalizedPostcode);
+            if (result.success) {
+                // ✅ 送餐可用 - 使用企业级计算结果
+                cartState.delivery.postcode = normalizedPostcode;
+                cartState.delivery.fee = result.data.deliveryFee;
+                cartState.delivery.validated = true;
+                cartState.delivery.zone = result.data.zone;
+                cartState.delivery.estimatedTime = result.data.estimatedTime;
                 
-                if (isInDeliveryArea) {
-                    cartState.delivery.postcode = normalizedPostcode;
-                    cartState.delivery.fee = 2.50; // Default delivery fee
-                    cartState.delivery.validated = true;
-                    
-                    postcodeInput.value = normalizedPostcode;
-                    postcodeResult.innerHTML = `<span class="success">✓ Delivery available - £${cartState.delivery.fee.toFixed(2)}</span>`;
-                    postcodeResult.className = 'postcode-result success';
-                    
-                    // 重新计算总价包含送餐费
-                    this.calculateTotals();
-                    this.updateCartSummary();
-                    
-                    console.log('✅ Postcode validated:', normalizedPostcode);
-                } else {
-                    throw new Error('Outside delivery area');
+                postcodeInput.value = normalizedPostcode;
+                
+                // 显示专业送餐信息
+                const feeText = result.data.deliveryFee === 0 ? 'FREE' : `£${result.data.deliveryFee.toFixed(2)}`;
+                const timeInfo = result.data.estimatedTime ? ` • Est. ${result.data.estimatedTime} mins` : '';
+                
+                postcodeResult.innerHTML = `<span class="success">✓ Delivery available - ${feeText}${timeInfo}</span>`;
+                postcodeResult.className = 'postcode-result success';
+                
+                // 检查最低订单要求
+                if (result.data.minimumOrder && !result.data.minimumOrder.met) {
+                    const shortfall = result.data.minimumOrder.shortfall;
+                    postcodeResult.innerHTML += `<br><small class="warning">Minimum order £${result.data.minimumOrder.required.toFixed(2)} (need £${shortfall.toFixed(2)} more)</small>`;
                 }
+                
+                // 重新计算总价包含送餐费
+                this.calculateTotals();
+                this.updateCartSummary();
+                
+                console.log('✅ Enterprise delivery fee calculated:', {
+                    postcode: normalizedPostcode,
+                    fee: result.data.deliveryFee,
+                    method: result.data.calculationMethod,
+                    zone: result.data.zone
+                });
+                
             } else {
-                throw new Error('Invalid postcode format');
+                throw new Error(result.message || 'Outside delivery area');
             }
             
         } catch (error) {

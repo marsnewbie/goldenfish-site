@@ -1388,12 +1388,34 @@
                         isValid = false;
                     }
 
-                    // Check if delivery fee is valid (postcode in delivery area)
+                    // 企业级送餐费验证 - 使用专业API重新计算
                     if (this.deliveryFee === 0 && deliveryType === 'delivery') {
-                        // Show warning but don't block order - set default delivery fee
-                        this.deliveryFee = 3.00; // Default delivery fee for unverified postcodes
-                        this.updateOrderSummary();
-                        this.showStatus('Postcode not verified - using standard delivery fee £3.00', 'warning');
+                        try {
+                            // 调用企业级API重新验证送餐费
+                            const response = await fetch('https://goldenfish-backend-production.up.railway.app/api/delivery/calculate-fee', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    restaurantId: 1,
+                                    customerPostcode: postcode.value.trim(),
+                                    orderValue: this.subtotal || 0
+                                })
+                            });
+                            
+                            const result = await response.json();
+                            if (result.success) {
+                                this.deliveryFee = result.data.deliveryFee;
+                                this.updateOrderSummary();
+                                this.showStatus(`Delivery fee verified: £${result.data.deliveryFee.toFixed(2)}`, 'success');
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        } catch (error) {
+                            // Fallback to default fee if API fails
+                            this.deliveryFee = 3.50;
+                            this.updateOrderSummary();
+                            this.showStatus('Using standard delivery fee £3.50', 'warning');
+                        }
                     }
                 }
 
