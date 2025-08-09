@@ -919,7 +919,16 @@
             }
 
             handleDeliveryTypeChange(e) {
-                const deliveryType = e.target.value;
+                // Handle case where method is called without event (from setDeliveryTypeFromMenu)
+                let deliveryType;
+                if (e && e.target) {
+                    deliveryType = e.target.value;
+                } else {
+                    // Get current delivery type from checked radio button
+                    const checkedRadio = document.querySelector('input[name="deliveryMethod"]:checked');
+                    deliveryType = checkedRadio ? checkedRadio.value : this.deliveryType;
+                }
+                
                 const addressForm = document.getElementById('addressForm');
                 const deliveryFeeRow = document.getElementById('deliveryFeeRow');
                 
@@ -1210,8 +1219,22 @@
                         localStorage.setItem('auth_token', result.data.token);
                         localStorage.setItem('user_data', JSON.stringify(this.currentUser));
                         
+                        // 预加载用户信息到表单
+                        this.prefillUserData();
                         this.showUserInHeader();
                         this.showStatus(`Account created successfully! Welcome, ${this.currentUser.firstName}!`, 'success');
+                        
+                        // 隐藏注册表单，切换到guest模式继续结账
+                        const passwordFields = document.getElementById('passwordFields');
+                        if (passwordFields) passwordFields.style.display = 'none';
+                        
+                        // 切换到guest选项继续结账
+                        const guestRadio = document.querySelector('input[value="guest"]');
+                        if (guestRadio) guestRadio.checked = true;
+                        const guestOption = document.querySelector('[data-auth="guest"]');
+                        const registerOption = document.querySelector('[data-auth="register"]');
+                        if (guestOption) guestOption.classList.add('selected');
+                        if (registerOption) registerOption.classList.remove('selected');
                         
                         return { success: true };
                     } else {
@@ -1398,17 +1421,19 @@
                         phone: form.phone.value.trim()
                     },
                     delivery: {
-                        method: deliveryType === 'collection' ? 'pickup' : 'delivery'
+                        method: deliveryType // 直接使用原始值：'delivery' 或 'collection'
                     },
                     payment: {
                         method: paymentMethod
                     },
                     items: this.cartItems.map(item => ({
                         name: item.name,
-                        price: item.price,
-                        quantity: item.qty || item.quantity || 1,
-                        selectedOptions: item.selectedOptions || null,
-                        selectedVariant: item.selectedVariant || null
+                        price: parseFloat(item.price),
+                        quantity: parseInt(item.qty || item.quantity || 1),
+                        product_id: item.id || item.product_id,
+                        unit_price: parseFloat(item.price),
+                        total_price: parseFloat(item.price) * parseInt(item.qty || item.quantity || 1),
+                        options: item.selectedOptions || null
                     })),
                     totals: {
                         subtotal: this.subtotal,

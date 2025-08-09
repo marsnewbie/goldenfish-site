@@ -510,6 +510,10 @@ class ProfessionalMenuSystem {
         if (cartState.delivery.type === 'collection') {
             cartState.delivery.fee = 0;
             cartState.delivery.validated = true;
+            
+            // 重新计算总价（不包含送餐费）
+            this.calculateTotals();
+            this.updateCartSummary();
         }
     }
 
@@ -545,6 +549,10 @@ class ProfessionalMenuSystem {
                     postcodeInput.value = normalizedPostcode;
                     postcodeResult.innerHTML = `<span class="success">✓ Delivery available - £${cartState.delivery.fee.toFixed(2)}</span>`;
                     postcodeResult.className = 'postcode-result success';
+                    
+                    // 重新计算总价包含送餐费
+                    this.calculateTotals();
+                    this.updateCartSummary();
                     
                     console.log('✅ Postcode validated:', normalizedPostcode);
                 } else {
@@ -676,6 +684,16 @@ class ProfessionalMenuSystem {
             },
             promotions: this.getActivePromotions(),
             timestamp: new Date().toISOString()
+        };
+
+        // 确保总价计算最新
+        this.calculateTotals();
+        
+        // 更新保存的数据以包含最新的总价
+        checkoutData.totals = {
+            subtotal: cartState.totals.subtotal,
+            delivery: cartState.totals.delivery,
+            total: cartState.totals.total
         };
 
         console.log('🛒 Proceeding to checkout with data:', checkoutData);
