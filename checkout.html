@@ -972,7 +972,11 @@
                     
                     if (!response.ok) {
                         console.error('❌ Postcode API error:', response.status, response.statusText);
-                        throw new Error(`Invalid postcode format or API error`);
+                        if (response.status === 404) {
+                            throw new Error(`Postcode not found - please check and try again`);
+                        } else {
+                            throw new Error(`Postcode API error: ${response.status}`);
+                        }
                     }
                     
                     const data = await response.json();
@@ -1386,8 +1390,10 @@
 
                     // Check if delivery fee is valid (postcode in delivery area)
                     if (this.deliveryFee === 0 && deliveryType === 'delivery') {
-                        this.showStatus('Please enter a valid postcode within our delivery area', 'error');
-                        return false;
+                        // Show warning but don't block order - set default delivery fee
+                        this.deliveryFee = 3.00; // Default delivery fee for unverified postcodes
+                        this.updateOrderSummary();
+                        this.showStatus('Postcode not verified - using standard delivery fee £3.00', 'warning');
                     }
                 }
 
@@ -1445,10 +1451,15 @@
 
                 // Add delivery address if delivery
                 if (deliveryType === 'delivery') {
-                    orderData.delivery.address = form.streetAddress.value.trim();
-                    orderData.delivery.city = form.city.value.trim();
-                    orderData.delivery.postcode = form.postcode.value.trim();
-                    orderData.delivery.instructions = document.querySelector('textarea[name="deliveryInstructions"]').value.trim();
+                    const streetAddressField = form.streetAddress || document.querySelector('input[name="streetAddress"]');
+                    const cityField = form.city || document.querySelector('input[name="city"]');
+                    const postcodeField = form.postcode || document.querySelector('input[name="postcode"]');
+                    const instructionsField = document.querySelector('textarea[name="deliveryInstructions"]');
+                    
+                    orderData.delivery.address = streetAddressField ? streetAddressField.value.trim() : '';
+                    orderData.delivery.city = cityField ? cityField.value.trim() : 'York';
+                    orderData.delivery.postcode = postcodeField ? postcodeField.value.trim() : '';
+                    orderData.delivery.instructions = instructionsField ? instructionsField.value.trim() : '';
                 }
 
                 return orderData;
@@ -1476,12 +1487,23 @@
                 }
                 
                 // Validate UK mobile format: 07xxxxxxxxx (11 digits total)
+                // Also allow UK landline numbers: 01xxx or 02xxx
                 const ukMobileRegex = /^07[0-9]{9}$/;
+                const ukLandlineRegex = /^0[12][0-9]{8,9}$/;
+                
                 if (ukMobileRegex.test(cleaned)) {
-                    // Format as: 07xxx xxxxxx
+                    // Format mobile as: 07xxx xxxxxx  
                     return cleaned.substring(0, 5) + ' ' + cleaned.substring(5);
+                } else if (ukLandlineRegex.test(cleaned)) {
+                    // Format landline as: 01xxx xxxxxx or 02x xxxx xxxx
+                    if (cleaned.startsWith('02')) {
+                        return cleaned.substring(0, 3) + ' ' + cleaned.substring(3, 7) + ' ' + cleaned.substring(7);
+                    } else {
+                        return cleaned.substring(0, 5) + ' ' + cleaned.substring(5);
+                    }
                 }
                 
+                console.log('Phone validation failed for:', cleaned, 'Length:', cleaned.length);
                 return null; // Invalid format
             }
 
