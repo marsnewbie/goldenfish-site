@@ -1007,7 +1007,7 @@ class ProfessionalMenuSystem {
             if (e.target.id === 'deliveryTimeSelect') {
                 cartState.delivery.selectedTime = e.target.value;
                 this.saveCartState();
-                this.updateCheckoutButton();
+                this.updateCartSummary(); // Update cart display instead
                 console.log('🕐 Time selected:', e.target.value);
             }
         });

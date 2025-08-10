@@ -711,11 +711,16 @@
         class CompleteCheckoutManager {
             constructor() {
                 this.currentUser = null;
-                this.cartItems = this.loadCartItems();
                 this.deliveryFee = 0;
                 this.subtotal = 0;
                 this.total = 0;
+                this.deliveryType = 'delivery';
+                this.deliveryPostcode = '';
+                this.selectedTime = '';
                 this.apiBase = 'https://goldenfish-backend-production.up.railway.app/api';
+                
+                // Load cart items after setting default properties
+                this.cartItems = this.loadCartItems();
                 
                 this.init();
             }
@@ -1104,14 +1109,21 @@
             }
 
             updateOrderSummary() {
+                console.log('🛒 UpdateOrderSummary called');
                 const cartItemsEl = document.getElementById('cartItems');
                 const subtotalEl = document.getElementById('subtotal');
                 const deliveryFeeEl = document.getElementById('deliveryFee');
                 const totalEl = document.getElementById('total');
 
-                // 🔍 Debug: Check cart items status
-                console.log('🔍 Cart items for display:', this.cartItems);
-                console.log('🔍 Cart items count:', this.cartItems ? this.cartItems.length : 'null/undefined');
+                // 🔍 Debug: Check all relevant data
+                console.log('🔍 Complete checkout state:', {
+                    cartItems: this.cartItems,
+                    itemCount: this.cartItems ? this.cartItems.length : 'null/undefined',
+                    deliveryType: this.deliveryType,
+                    deliveryFee: this.deliveryFee,
+                    subtotal: this.subtotal,
+                    total: this.total
+                });
                 
                 // Handle empty cart case - try multiple reload attempts
                 if (!this.cartItems || this.cartItems.length === 0) {
@@ -1343,7 +1355,7 @@
             }
 
             async handlePlaceOrder() {
-                if (!this.validateForm()) return;
+                if (!(await this.validateForm())) return;
 
                 const orderBtn = document.getElementById('placeOrderBtn');
                 const btnText = document.getElementById('orderBtnText');
@@ -1396,7 +1408,7 @@
                 }
             }
 
-            validateForm() {
+            async validateForm() {
                 const form = document.getElementById('checkoutForm');
                 const termsAccepted = document.getElementById('termsAccepted').checked;
                 
