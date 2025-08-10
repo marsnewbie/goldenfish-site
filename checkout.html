@@ -953,6 +953,39 @@
                 }
             }
 
+            updateLoginState() {
+                // Update the UI to reflect that user is logged in
+                const authOptions = document.querySelectorAll('[data-auth]');
+                const signinForm = document.getElementById('signinForm');
+                const guestRadio = document.querySelector('input[value="guest"]');
+                
+                // Hide signin form if visible
+                if (signinForm) {
+                    signinForm.style.display = 'none';
+                }
+                
+                // Select guest option to continue as logged-in user
+                if (guestRadio) {
+                    guestRadio.checked = true;
+                }
+                
+                // Update visual selection
+                authOptions.forEach(option => {
+                    if (option.getAttribute('data-auth') === 'guest') {
+                        option.classList.add('selected');
+                        // Update label to show logged-in state
+                        const label = option.querySelector('h3');
+                        if (label && this.currentUser) {
+                            label.textContent = `Continue as ${this.currentUser.firstName}`;
+                        }
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+                
+                console.log('✅ Login state updated - user can continue as logged-in');
+            }
+
             handleAuthTypeChange(e) {
                 const authType = e.target.value;
                 const signinForm = document.getElementById('signinForm');
@@ -1259,7 +1292,10 @@
                         // Hide sign in form
                         document.getElementById('signinForm').style.display = 'none';
                         
-                        // Select guest option to continue
+                        // Update UI to show logged in state
+                        this.updateLoginState();
+                        
+                        // Select guest option to continue (but user is now logged in)
                         document.querySelector('input[value="guest"]').checked = true;
                         document.querySelector('[data-auth="guest"]').classList.add('selected');
                         document.querySelector('[data-auth="existing"]').classList.remove('selected');
