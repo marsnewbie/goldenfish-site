@@ -1552,15 +1552,19 @@
                     payment: {
                         method: paymentMethod
                     },
-                    items: this.cartItems.map(item => ({
-                        name: item.name,
-                        price: parseFloat(item.price),
-                        quantity: parseInt(item.qty || item.quantity || 1),
-                        product_id: item.id || item.product_id,
-                        unit_price: parseFloat(item.price),
-                        total_price: parseFloat(item.price) * parseInt(item.qty || item.quantity || 1),
-                        options: item.selectedOptions || null
-                    })),
+                    items: this.cartItems.map(item => {
+                        const quantity = parseInt(item.qty || item.quantity || 1);
+                        const unitPrice = parseFloat(item.price || 0);
+                        return {
+                            name: item.name,
+                            price: unitPrice, // Required by backend validation
+                            quantity: quantity,
+                            product_id: item.id || item.product_id || 1,
+                            unit_price: unitPrice,
+                            total_price: unitPrice * quantity,
+                            options: item.selectedOptions || null
+                        };
+                    }),
                     totals: {
                         subtotal: this.subtotal,
                         delivery: this.deliveryFee,
