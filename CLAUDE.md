@@ -745,6 +745,85 @@ railway variables set KEY=value # Environment configuration
 ✅ 订单状态管理 (数据库支持)
 ```
 
+## 🚨 **CRITICAL DEVELOPMENT LESSONS** 🚨
+
+### ⚠️ **Function Dependency Issues** (避免同样问题)
+**August 2025 - Critical bugs discovered and fixed:**
+
+**❌ Problem 1: Missing Function Calls After Refactoring**
+```javascript
+// BAD: Called function that doesn't exist after code changes
+this.updateCheckoutButton(); // Function was removed during refactoring
+```
+**✅ Solution**: Always check all function calls when refactoring
+```javascript 
+// GOOD: Use existing function or create missing function
+this.updateCartSummary(); // Use existing equivalent function
+```
+
+**❌ Problem 2: Async/Await in Non-Async Functions**
+```javascript
+// BAD: Using await in regular function
+validateForm() {
+    const response = await fetch(...); // Syntax Error!
+}
+```
+**✅ Solution**: Make function async when using await
+```javascript
+// GOOD: Properly declared async function
+async validateForm() {
+    const response = await fetch(...); // Works correctly
+    // And update all callers: await this.validateForm()
+}
+```
+
+**❌ Problem 3: Constructor Property Override Issues**
+```javascript
+// BAD: loadCartItems() sets properties that get overwritten
+constructor() {
+    this.cartItems = this.loadCartItems(); // Sets this.deliveryFee = 2.50
+    this.deliveryFee = 0; // ❌ Overwrites the loaded value!
+}
+```
+**✅ Solution**: Set defaults first, then load data
+```javascript
+// GOOD: Proper initialization order
+constructor() {
+    this.deliveryFee = 0; // Set defaults first
+    this.cartItems = this.loadCartItems(); // Then load, which can override
+}
+```
+
+### 🛠️ **Development Best Practices to Avoid These Issues:**
+
+1. **Function Call Verification**:
+   - Before deploying, search for all function calls: `grep -r "functionName(" .`
+   - Use IDE "Find All References" before removing functions
+   - Test all code paths after refactoring
+
+2. **Async/Await Consistency**:
+   - If a function uses `await`, it MUST be declared `async`
+   - All callers of async functions must use `await` (and be async themselves)
+   - Use ESLint rules to catch these automatically
+
+3. **Constructor/Initialization Order**:
+   - Set default values first
+   - Load data second (allowing overrides)
+   - Call init() last (after all properties are set)
+
+4. **Cross-File Dependency Management**:
+   - Document function dependencies between files
+   - Use TypeScript or JSDoc for better function signatures
+   - Test integration points between menu-system.js ↔ checkout.html
+
+### 📋 **Debugging Checklist for Similar Issues:**
+- [ ] Search codebase for undefined function calls
+- [ ] Check all async/await syntax consistency  
+- [ ] Verify constructor property initialization order
+- [ ] Test complete user flow: menu → cart → checkout
+- [ ] Check browser console for JavaScript errors
+- [ ] Verify localStorage data persistence between pages
+
 ## Success Metrics Achieved (2025)
 
 ### **🎯 Industry Standards Compliance**
