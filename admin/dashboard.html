@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Golden Fish</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="../assets/fish_and_chips.jpg" alt="Golden Fish" class="logo">
+                <div class="brand-info">
+                    <h1>Golden Fish</h1>
+                    <span>Admin Dashboard</span>
+                </div>
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="orders.html" class="nav-link">Orders</a>
+                <a href="menu.html" class="nav-link">Menu</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </nav>
+            
+            <div class="admin-actions">
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="dashboard-container">
+            <!-- Stats Overview -->
+            <section class="stats-section">
+                <h2>Today's Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <h3 id="todayOrders">0</h3>
+                            <p>Orders Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3 id="todayRevenue">£0.00</h3>
+                            <p>Revenue Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <h3 id="avgOrderTime">0 min</h3>
+                            <p>Avg Order Time</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3 id="avgRating">0.0</h3>
+                            <p>Average Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Orders -->
+            <section class="recent-orders">
+                <div class="section-header">
+                    <h2>Recent Orders</h2>
+                    <a href="orders.html" class="btn btn-primary">View All</a>
+                </div>
+                
+                <div class="orders-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersTable">
+                            <tr>
+                                <td colspan="7" class="loading">Loading recent orders...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <button class="action-card" onclick="window.location.href='orders.html'">
+                        <div class="action-icon">📋</div>
+                        <h3>Manage Orders</h3>
+                        <p>View and update order status</p>
+                    </button>
+                    
+                    <button class="action-card" onclick="window.location.href='menu.html'">
+                        <div class="action-icon">🍽️</div>
+                        <h3>Edit Menu</h3>
+                        <p>Update menu items and prices</p>
+                    </button>
+                    
+                    <button class="action-card" onclick="window.location.href='settings.html'">
+                        <div class="action-icon">⚙️</div>
+                        <h3>Restaurant Settings</h3>
+                        <p>Configure opening hours and delivery</p>
+                    </button>
+                    
+                    <button class="action-card" onclick="printOrders()">
+                        <div class="action-icon">🖨️</div>
+                        <h3>Print Orders</h3>
+                        <p>Print today's orders</p>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Restaurant Status -->
+            <section class="status-section">
+                <h2>Restaurant Status</h2>
+                <div class="status-controls">
+                    <div class="status-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="restaurantOpen" onchange="toggleRestaurantStatus()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="status-label">Restaurant Open</span>
+                    </div>
+                    
+                    <div class="status-info">
+                        <p>Current Status: <span id="currentStatus">Closed</span></p>
+                        <p>Next Opening: <span id="nextOpening">Tomorrow 11:00 AM</span></p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Notifications -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="../config/api.js"></script>
+    <script src="../config/supabase.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
